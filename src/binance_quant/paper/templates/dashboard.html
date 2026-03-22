@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ ui.page_title }}</title>
+  <style>
+    :root {
+      --bg: #f5f0e8;
+      --panel: rgba(255, 252, 246, 0.92);
+      --ink: #182128;
+      --muted: #5f6d75;
+      --accent: #0f766e;
+      --accent-2: #d97706;
+      --danger: #b42318;
+      --good: #166534;
+      --border: rgba(24, 33, 40, 0.12);
+      --shadow: 0 24px 60px rgba(24, 33, 40, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(15, 118, 110, 0.16), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(217, 119, 6, 0.18), transparent 32%),
+        linear-gradient(160deg, #f5f0e8, #ece7df 45%, #f2f6f4);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(1440px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      font-size: 12px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Space Grotesk", "Segoe UI", sans-serif;
+      font-size: clamp(32px, 4vw, 54px);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 920px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .metrics {
+      grid-column: span 12;
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .metric-value {
+      margin-top: 6px;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .metric-value.good {
+      color: var(--good);
+    }
+
+    .metric-value.bad {
+      color: var(--danger);
+    }
+
+    .span-7 {
+      grid-column: span 7;
+    }
+
+    .span-5 {
+      grid-column: span 5;
+    }
+
+    .span-12 {
+      grid-column: span 12;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-family: "Space Grotesk", "Segoe UI", sans-serif;
+      font-size: 22px;
+      letter-spacing: -0.02em;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.08);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      padding: 12px 10px;
+      text-align: left;
+      border-bottom: 1px solid rgba(24, 33, 40, 0.08);
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge.allow,
+    .badge.active {
+      background: rgba(22, 101, 52, 0.10);
+      color: var(--good);
+    }
+
+    .badge.reject,
+    .badge.closed,
+    .badge.error {
+      background: rgba(180, 35, 24, 0.10);
+      color: var(--danger);
+    }
+
+    .badge.defer,
+    .badge.retrying,
+    .badge.rotating {
+      background: rgba(217, 119, 6, 0.12);
+      color: var(--accent-2);
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      margin-top: 14px;
+    }
+
+    .status-row {
+      border: 1px solid rgba(24, 33, 40, 0.08);
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.48);
+    }
+
+    .status-name {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .status-value {
+      margin-top: 6px;
+      font-size: 16px;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .console {
+      margin-top: 14px;
+      padding: 16px;
+      min-height: 260px;
+      max-height: 420px;
+      overflow: auto;
+      border-radius: 18px;
+      background: #12181d;
+      color: #d7f8ee;
+      border: 1px solid rgba(15, 118, 110, 0.3);
+      font-family: "IBM Plex Mono", Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .action-button {
+      border: none;
+      border-radius: 999px;
+      padding: 11px 18px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, opacity 0.18s ease;
+    }
+
+    .action-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .action-button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .action-button.start {
+      background: rgba(22, 101, 52, 0.12);
+      color: var(--good);
+      border: 1px solid rgba(22, 101, 52, 0.2);
+    }
+
+    .action-button.stop {
+      background: rgba(180, 35, 24, 0.12);
+      color: var(--danger);
+      border: 1px solid rgba(180, 35, 24, 0.2);
+    }
+
+    @media (max-width: 1080px) {
+      .span-7,
+      .span-5 {
+        grid-column: span 12;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .wrap {
+        width: min(100% - 20px, 100%);
+      }
+
+      .card {
+        border-radius: 18px;
+        padding: 16px;
+      }
+
+      th,
+      td {
+        padding: 10px 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  {% set runtime_status_payload = runtime.get("runtime_status", {}) %}
+  {% set service_status_payload = runtime.get("service_status", {}) %}
+  {% set bundle_manifest_payload = runtime.get("bundle_manifest", {}) %}
+  {% set stream_status_payload = runtime.get("stream_status", {}) %}
+  {% set status_labels = ui.status_labels %}
+  {% set exit_reason_labels = ui.exit_reason_labels %}
+  {% set decision_reason_labels = ui.decision_reason_labels %}
+  {% set runtime_status = runtime_status_payload.get("status", "idle") %}
+  {% set service_running = service_status_payload.get("is_running", false) %}
+  {% set stream_status_value = stream_status_payload.get("status", "idle") %}
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">{{ ui.eyebrow }}</div>
+      <h1>{{ ui.hero_title }}</h1>
+      <p class="subtitle">{{ ui.hero_subtitle }}</p>
+    </section>
+
+    <section class="metrics">
+      <article class="card">
+        <div class="metric-label">{{ ui.metric_active_positions }}</div>
+        <div class="metric-value">{{ overview.active_positions }}</div>
+      </article>
+      <article class="card">
+        <div class="metric-label">{{ ui.metric_closed_positions }}</div>
+        <div class="metric-value">{{ overview.closed_positions }}</div>
+      </article>
+      <article class="card">
+        <div class="metric-label">{{ ui.metric_decision_count }}</div>
+        <div class="metric-value">{{ overview.decision_count }}</div>
+      </article>
+      <article class="card">
+        <div class="metric-label">{{ ui.metric_realized_expectancy }}</div>
+        <div class="metric-value {% if overview.realized_expectancy >= 0 %}good{% else %}bad{% endif %}">
+          {{ "%.4f"|format(overview.realized_expectancy) }}
+        </div>
+      </article>
+      <article class="card">
+        <div class="metric-label">{{ ui.metric_profit_factor }}</div>
+        <div class="metric-value {% if overview.profit_factor >= 1 %}good{% else %}bad{% endif %}">
+          {{ "%.2f"|format(overview.profit_factor) }}
+        </div>
+      </article>
+      <article class="card">
+        <div class="metric-label">{{ ui.metric_llm_available }}</div>
+        <div class="metric-value">{{ ui.yes if runtime.get("llm_available") else ui.no }}</div>
+      </article>
+    </section>
+
+    <section class="grid">
+      <article class="card span-7">
+        <h2>{{ ui.runtime_heading }}</h2>
+        <div class="meta">
+          <span class="pill" id="service-running-pill">{{ ui.running_pill if service_running else ui.stopped_pill }}</span>
+          <span>{{ ui.last_updated }}: <span id="runtime-last-update">{{ runtime_status_payload.get("timestamp", ui.none_text) }}</span></span>
+          <span>{{ ui.last_symbol }}: {{ runtime_status_payload.get("last_symbol", ui.none_text) }}</span>
+        </div>
+        <div class="action-row">
+          <button class="action-button start" id="runtime-start-button" type="button" {% if service_running %}disabled{% endif %}>{{ ui.start_button }}</button>
+          <button class="action-button stop" id="runtime-stop-button" type="button" {% if not service_running %}disabled{% endif %}>{{ ui.stop_button }}</button>
+        </div>
+        <div class="status-grid">
+          <div class="status-row">
+            <div class="status-name">{{ ui.status_pid }}</div>
+            <div class="status-value" id="service-pid">{{ service_status_payload.get("pid", "-") }}</div>
+          </div>
+          <div class="status-row">
+            <div class="status-name">{{ ui.status_runtime_task }}</div>
+            <div class="status-value" id="runtime-task-running">{{ ui.task_running if service_status_payload.get("runtime_task_running") else ui.task_stopped }}</div>
+          </div>
+          <div class="status-row">
+            <div class="status-name">{{ ui.status_retune_task }}</div>
+            <div class="status-value" id="retune-task-running">{{ ui.task_running if service_status_payload.get("retune_task_running") else ui.task_stopped }}</div>
+          </div>
+          <div class="status-row">
+            <div class="status-name">{{ ui.status_runtime_stage }}</div>
+            <div class="status-value" id="runtime-stage">{{ status_labels.get(runtime_status, runtime_status) }}</div>
+          </div>
+        </div>
+
+        {% if bundle_manifest_payload %}
+          <table>
+            <tbody>
+              <tr><th>{{ ui.bundle_source }}</th><td>{{ bundle_manifest_payload.get("source_artifact", "-") }}</td></tr>
+              <tr><th>{{ ui.bundle_model }}</th><td>{{ bundle_manifest_payload.get("model_name", "-") }} + {{ bundle_manifest_payload.get("calibration_method", "-") }}</td></tr>
+              <tr><th>{{ ui.bundle_threshold }}</th><td>{{ "%.3f"|format(bundle_manifest_payload.get("threshold", 0.0)) }}</td></tr>
+              <tr><th>{{ ui.bundle_event_count }}</th><td>{{ bundle_manifest_payload.get("event_count", 0) }}</td></tr>
+              <tr><th>{{ ui.bundle_symbols }}</th><td>{{ bundle_manifest_payload.get("selected_symbols", []) | join(", ") }}</td></tr>
+              <tr><th>{{ ui.bundle_strategies }}</th><td>{{ bundle_manifest_payload.get("selected_strategy_ids", []) | join(", ") }}</td></tr>
+            </tbody>
+          </table>
+        {% else %}
+          <p class="footer-note">{{ ui.bundle_missing }}</p>
+        {% endif %}
+      </article>
+
+      <article class="card span-5">
+        <h2>{{ ui.retunes_heading }}</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>{{ ui.table_started_at }}</th>
+              <th>{{ ui.table_status }}</th>
+              <th>{{ ui.table_artifact }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in recent_retunes %}
+              <tr>
+                <td>{{ item.started_at }}</td>
+                <td><span class="badge {{ item.status }}">{{ status_labels.get(item.status, item.status) }}</span></td>
+                <td>{{ item.source_artifact or "-" }}</td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="3">{{ ui.no_retunes }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </article>
+
+      <article class="card span-12">
+        <h2>{{ ui.stream_heading }}</h2>
+        <div class="status-grid">
+          <div class="status-row">
+            <div class="status-name">{{ ui.stream_status }}</div>
+            <div class="status-value" id="stream-status">{{ status_labels.get(stream_status_value, stream_status_value) }}</div>
+          </div>
+          <div class="status-row">
+            <div class="status-name">{{ ui.stream_reconnect_count }}</div>
+            <div class="status-value" id="stream-reconnect-count">{{ stream_status_payload.get("reconnect_count", 0) }}</div>
+          </div>
+          <div class="status-row">
+            <div class="status-name">{{ ui.stream_last_message }}</div>
+            <div class="status-value" id="stream-last-message">{{ stream_status_payload.get("last_message_at", ui.none_text) }}</div>
+          </div>
+          <div class="status-row">
+            <div class="status-name">{{ ui.stream_last_error }}</div>
+            <div class="status-value" id="stream-last-error">{{ stream_status_payload.get("last_error", "-") }}</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card span-12">
+        <h2>{{ ui.logs_heading }}</h2>
+        <div class="meta">
+          <span class="pill">{{ ui.logs_auto_refresh }}</span>
+          <span>{{ ui.logs_file }}: <span id="log-path">{{ runtime_status_payload.get("log_path", "artifacts/latest/paper_runtime.log") }}</span></span>
+        </div>
+        <pre class="console" id="log-console">{% if runtime_logs %}{{ runtime_logs | join('\n') }}{% else %}{{ ui.no_logs }}{% endif %}</pre>
+      </article>
+
+      <article class="card span-12">
+        <h2>{{ ui.active_positions_heading }}</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>{{ ui.table_symbol }}</th>
+              <th>{{ ui.table_strategy }}</th>
+              <th>{{ ui.table_side }}</th>
+              <th>{{ ui.table_opened_at }}</th>
+              <th>{{ ui.table_entry_price }}</th>
+              <th>{{ ui.table_current_price }}</th>
+              <th>{{ ui.table_target_stop }}</th>
+              <th>{{ ui.table_net_return }}</th>
+              <th>{{ ui.table_status }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in active_positions %}
+              <tr>
+                <td>{{ item.symbol }}</td>
+                <td>{{ item.strategy_id }}</td>
+                <td>{{ ui.side_long if item.side == "long" else ui.side_short }}</td>
+                <td>{{ item.opened_at }}</td>
+                <td>{{ "%.6f"|format(item.entry_observed_price) }}</td>
+                <td>{{ "%.6f"|format(item.latest_observed_price) }}</td>
+                <td>{{ "%.6f"|format(item.target_price) }} / {{ "%.6f"|format(item.stop_price) }}</td>
+                <td class="{% if item.net_return >= 0 %}metric-value good{% else %}metric-value bad{% endif %}">
+                  {{ "%.4f"|format(item.net_return) }}
+                </td>
+                <td><span class="badge active">{{ status_labels.get(item.status, item.status) }}</span></td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="9">{{ ui.no_active_positions }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </article>
+
+      <article class="card span-12">
+        <h2>{{ ui.closed_positions_heading }}</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>{{ ui.table_symbol }}</th>
+              <th>{{ ui.table_strategy }}</th>
+              <th>{{ ui.table_side }}</th>
+              <th>{{ ui.table_closed_at }}</th>
+              <th>{{ ui.table_exit_reason }}</th>
+              <th>{{ ui.table_entry_exit_price }}</th>
+              <th>{{ ui.table_net_return }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in closed_positions %}
+              <tr>
+                <td>{{ item.symbol }}</td>
+                <td>{{ item.strategy_id }}</td>
+                <td>{{ ui.side_long if item.side == "long" else ui.side_short }}</td>
+                <td>{{ item.closed_at }}</td>
+                <td><span class="badge closed">{{ exit_reason_labels.get(item.exit_reason, item.exit_reason) if item.exit_reason else "-" }}</span></td>
+                <td>{{ "%.6f"|format(item.entry_observed_price) }} / {{ "%.6f"|format(item.exit_observed_price or 0.0) }}</td>
+                <td class="{% if item.net_return >= 0 %}metric-value good{% else %}metric-value bad{% endif %}">
+                  {{ "%.4f"|format(item.net_return) }}
+                </td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="7">{{ ui.no_closed_positions }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </article>
+
+      <article class="card span-12">
+        <h2>{{ ui.decisions_heading }}</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>{{ ui.table_time }}</th>
+              <th>{{ ui.table_symbol }}</th>
+              <th>{{ ui.table_strategy }}</th>
+              <th>{{ ui.table_ml_probability }}</th>
+              <th>{{ ui.table_threshold }}</th>
+              <th>{{ ui.table_llm }}</th>
+              <th>{{ ui.table_final_action }}</th>
+              <th>{{ ui.table_reason }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in recent_decisions %}
+              <tr>
+                <td>{{ item.decided_at }}</td>
+                <td>{{ item.symbol }}</td>
+                <td>{{ item.strategy_id }}</td>
+                <td>{{ "%.4f"|format(item.ml_probability) }}</td>
+                <td>{{ "%.4f"|format(item.ml_threshold) }}</td>
+                <td>{{ status_labels.get(item.llm_action, item.llm_action) if item.llm_action else "-" }}</td>
+                <td><span class="badge {{ item.final_action }}">{{ status_labels.get(item.final_action, item.final_action) }}</span></td>
+                <td>{{ decision_reason_labels.get(item.portfolio_reason, item.portfolio_reason) }}</td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="8">{{ ui.no_decisions }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <p class="footer-note">{{ ui.footer_note }}</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const ui = {{ ui | tojson }};
+    const statusLabels = ui.status_labels || {};
+
+    function labelFor(value) {
+      return statusLabels[value] || value || "-";
+    }
+
+    async function refreshRuntimeStatus() {
+      try {
+        const response = await fetch("/api/status", { cache: "no-store" });
+        if (!response.ok) {
+          return;
+        }
+        const payload = await response.json();
+        const service = payload.service_status || {};
+        const runtime = payload.runtime_status || {};
+        const stream = payload.stream_status || {};
+        const pill = document.getElementById("service-running-pill");
+        const pid = document.getElementById("service-pid");
+        const runtimeTask = document.getElementById("runtime-task-running");
+        const retuneTask = document.getElementById("retune-task-running");
+        const stage = document.getElementById("runtime-stage");
+        const updated = document.getElementById("runtime-last-update");
+        const streamStatus = document.getElementById("stream-status");
+        const streamReconnectCount = document.getElementById("stream-reconnect-count");
+        const streamLastMessage = document.getElementById("stream-last-message");
+        const streamLastError = document.getElementById("stream-last-error");
+        const startButton = document.getElementById("runtime-start-button");
+        const stopButton = document.getElementById("runtime-stop-button");
+
+        if (pill) {
+          pill.textContent = service.is_running ? ui.running_pill : ui.stopped_pill;
+        }
+        if (pid) {
+          pid.textContent = service.pid ?? "-";
+        }
+        if (runtimeTask) {
+          runtimeTask.textContent = service.runtime_task_running ? ui.task_running : ui.task_stopped;
+        }
+        if (retuneTask) {
+          retuneTask.textContent = service.retune_task_running ? ui.task_running : ui.task_stopped;
+        }
+        if (stage) {
+          stage.textContent = labelFor(runtime.status);
+        }
+        if (updated) {
+          updated.textContent = runtime.timestamp || ui.none_text;
+        }
+        if (streamStatus) {
+          streamStatus.textContent = labelFor(stream.status || "idle");
+        }
+        if (streamReconnectCount) {
+          streamReconnectCount.textContent = stream.reconnect_count ?? 0;
+        }
+        if (streamLastMessage) {
+          streamLastMessage.textContent = stream.last_message_at || ui.none_text;
+        }
+        if (streamLastError) {
+          streamLastError.textContent = stream.last_error || "-";
+        }
+        if (startButton) {
+          startButton.disabled = Boolean(service.is_running);
+        }
+        if (stopButton) {
+          stopButton.disabled = !service.is_running;
+        }
+      } catch (error) {
+        console.error("runtime status refresh failed", error);
+      }
+    }
+
+    async function refreshLogs() {
+      try {
+        const response = await fetch("/api/logs", { cache: "no-store" });
+        if (!response.ok) {
+          return;
+        }
+        const payload = await response.json();
+        const consoleElement = document.getElementById("log-console");
+        const pathElement = document.getElementById("log-path");
+        if (pathElement) {
+          pathElement.textContent = payload.log_path || "-";
+        }
+        if (consoleElement) {
+          consoleElement.textContent = (payload.lines && payload.lines.length)
+            ? payload.lines.join("\n")
+            : ui.no_logs;
+          consoleElement.scrollTop = consoleElement.scrollHeight;
+        }
+      } catch (error) {
+        console.error("log refresh failed", error);
+      }
+    }
+
+    async function callRuntimeAction(action) {
+      try {
+        const response = await fetch(`/api/runtime/${action}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" }
+        });
+        if (!response.ok) {
+          throw new Error(`runtime ${action} failed`);
+        }
+        await refreshRuntimeStatus();
+        await refreshLogs();
+      } catch (error) {
+        console.error(`runtime ${action} failed`, error);
+        const actionText = action === "start" ? ui.start_button : ui.stop_button;
+        alert(ui.runtime_action_error.replace("{action}", actionText));
+      }
+    }
+
+    const startButton = document.getElementById("runtime-start-button");
+    const stopButton = document.getElementById("runtime-stop-button");
+    if (startButton) {
+      startButton.addEventListener("click", () => callRuntimeAction("start"));
+    }
+    if (stopButton) {
+      stopButton.addEventListener("click", () => callRuntimeAction("stop"));
+    }
+
+    refreshRuntimeStatus();
+    refreshLogs();
+    setInterval(refreshRuntimeStatus, 5000);
+    setInterval(refreshLogs, 5000);
+  </script>
+</body>
+</html>

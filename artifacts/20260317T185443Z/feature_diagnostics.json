@@ -1,0 +1,120 @@
+{
+  "high_correlation_pairs": [
+    [
+      "rsi_14",
+      "bb_zscore",
+      0.9570285456404856
+    ],
+    [
+      "ema_fast_distance",
+      "ema_slow_distance",
+      0.9939181454385871
+    ],
+    [
+      "ema_fast_distance",
+      "ema_fast_slope",
+      0.9587633994903222
+    ],
+    [
+      "ema_slow_distance",
+      "ema_fast_slope",
+      0.9592842082001647
+    ],
+    [
+      "ema_fast_slope",
+      "ema_slow_slope",
+      0.9598543651503345
+    ],
+    [
+      "side_long",
+      "side_short",
+      1.0
+    ]
+  ],
+  "nan_rate": {
+    "atr_14": 0.0,
+    "bb_bandwidth": 0.0,
+    "bb_zscore": 0.0,
+    "body_ratio": 0.0,
+    "day_of_week": 0.0,
+    "drawdown_20": 0.0,
+    "ema_fast_distance": 0.0,
+    "ema_fast_slope": 0.0,
+    "ema_slow_distance": 7.431076763022962e-05,
+    "ema_slow_slope": 7.431076763022962e-05,
+    "family_trend_ema": 0.0,
+    "hour_cos": 0.0,
+    "hour_sin": 0.0,
+    "log_return_1": 0.0,
+    "log_return_16": 0.0,
+    "log_return_4": 0.0,
+    "lower_wick_ratio": 0.0,
+    "macd_hist": 0.0,
+    "mae_limit_breached": 0.0,
+    "range_ratio": 0.0,
+    "recent_same_side_failures": 0.0,
+    "recent_same_side_mean_return": 0.0,
+    "relative_volume": 0.0,
+    "rsi_14": 0.0,
+    "session_bucket": 0.0,
+    "side_long": 0.0,
+    "side_short": 0.0,
+    "signal_strength": 0.0,
+    "symbol_BTCUSDT": 0.0,
+    "symbol_DOGEUSDT": 0.0,
+    "symbol_ETHUSDT": 0.0,
+    "symbol_SOLUSDT": 0.0,
+    "symbol_XRPUSDT": 0.0,
+    "symbol_ZECUSDT": 0.0,
+    "trend_regime": 7.431076763022962e-05,
+    "upper_wick_ratio": 0.0,
+    "vol_norm_return_4": 0.0,
+    "volatility_regime": 0.0005201753734116073,
+    "volume_zscore": 0.0
+  },
+  "point_in_time_ok": true,
+  "rolling_drift_score": {
+    "atr_14": 0.04351720630364844,
+    "bb_bandwidth": 0.020548783132209297,
+    "bb_zscore": 0.054137941566255225,
+    "body_ratio": 0.05836621014231404,
+    "day_of_week": 0.040015680399151037,
+    "drawdown_20": 0.06511839302178588,
+    "ema_fast_distance": 0.06668666284943423,
+    "ema_fast_slope": 0.05969263409801132,
+    "ema_slow_distance": 0.06143570158959499,
+    "ema_slow_slope": 0.04948935573255597,
+    "family_trend_ema": 0.0,
+    "hour_cos": 0.05075710210905511,
+    "hour_sin": 0.08412777179405091,
+    "log_return_1": 0.048251215753262106,
+    "log_return_16": 0.050194046712423085,
+    "log_return_4": 0.057531608099049183,
+    "lower_wick_ratio": 0.07453256218816796,
+    "macd_hist": 0.05686379002537684,
+    "mae_limit_breached": 0.15445808906794628,
+    "range_ratio": 0.02565440612363845,
+    "recent_same_side_failures": 0.04737192739539536,
+    "recent_same_side_mean_return": 0.008123300929383922,
+    "relative_volume": 0.07711369262196631,
+    "rsi_14": 0.07603384760527744,
+    "session_bucket": 0.08812554605936275,
+    "side_long": 0.008619340238033622,
+    "side_short": 0.008619340238033622,
+    "signal_strength": 0.15507947465572763,
+    "symbol_BTCUSDT": 0.01891785032279349,
+    "symbol_DOGEUSDT": 0.014225822284366063,
+    "symbol_ETHUSDT": 0.033926823210360266,
+    "symbol_SOLUSDT": 0.06381987887296196,
+    "symbol_XRPUSDT": 0.03715362893366073,
+    "symbol_ZECUSDT": 0.0279157073570171,
+    "trend_regime": 0.06897525591156935,
+    "upper_wick_ratio": 0.0008752951725828347,
+    "vol_norm_return_4": 0.0708130406801678,
+    "volatility_regime": 0.10469544579694684,
+    "volume_zscore": 0.055153847976172954
+  },
+  "zero_variance": [
+    "family_trend_ema"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "by_bucket": {
+    "market_data": 40,
+    "metadata": 40
+  },
+  "cooldown_until": 0.0,
+  "requests": 9
+}

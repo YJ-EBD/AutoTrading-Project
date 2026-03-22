@@ -1,0 +1,95 @@
+{
+  "high_correlation_pairs": [
+    [
+      "rsi_14",
+      "bb_zscore",
+      0.9625859303137194
+    ],
+    [
+      "ema_fast_distance",
+      "ema_slow_distance",
+      0.9937869503863731
+    ],
+    [
+      "ema_fast_distance",
+      "ema_fast_slope",
+      0.9608480782381665
+    ],
+    [
+      "ema_slow_distance",
+      "ema_fast_slope",
+      0.9625700564222986
+    ],
+    [
+      "ema_fast_slope",
+      "ema_slow_slope",
+      0.9664410399086244
+    ]
+  ],
+  "nan_rate": {
+    "atr_14": 0.0,
+    "bb_bandwidth": 0.0,
+    "bb_zscore": 0.0,
+    "body_ratio": 0.0,
+    "day_of_week": 0.0,
+    "drawdown_20": 0.0,
+    "ema_fast_distance": 0.0,
+    "ema_fast_slope": 0.0,
+    "ema_slow_distance": 0.0,
+    "ema_slow_slope": 0.0,
+    "hour_cos": 0.0,
+    "hour_sin": 0.0,
+    "log_return_1": 0.0,
+    "log_return_16": 0.0,
+    "log_return_4": 0.0,
+    "lower_wick_ratio": 0.0,
+    "macd_hist": 0.0,
+    "mae_limit_breached": 0.0,
+    "range_ratio": 0.0,
+    "recent_same_side_failures": 0.0,
+    "recent_same_side_mean_return": 0.0,
+    "relative_volume": 0.0,
+    "rsi_14": 0.0,
+    "session_bucket": 0.0,
+    "signal_strength": 0.0,
+    "trend_regime": 0.0,
+    "upper_wick_ratio": 0.0,
+    "vol_norm_return_4": 0.0,
+    "volatility_regime": 0.0,
+    "volume_zscore": 0.0
+  },
+  "point_in_time_ok": true,
+  "rolling_drift_score": {
+    "atr_14": 0.057126401495432834,
+    "bb_bandwidth": 0.12001391705619363,
+    "bb_zscore": 0.028934119190807503,
+    "body_ratio": 0.014210488539332192,
+    "day_of_week": 0.04815741080391137,
+    "drawdown_20": 0.07724846688931546,
+    "ema_fast_distance": 0.005832653145616013,
+    "ema_fast_slope": 0.02393322925724604,
+    "ema_slow_distance": 0.025182505517436785,
+    "ema_slow_slope": 0.04662749873680855,
+    "hour_cos": 0.09303181204105064,
+    "hour_sin": 0.014445698313339497,
+    "log_return_1": 0.06932925531306042,
+    "log_return_16": 0.011864730437824138,
+    "log_return_4": 0.019895957957794634,
+    "lower_wick_ratio": 0.03058660911251992,
+    "macd_hist": 0.04307127043347909,
+    "mae_limit_breached": 0.004199563958618232,
+    "range_ratio": 0.06680556140563301,
+    "recent_same_side_failures": 0.000984379070972458,
+    "recent_same_side_mean_return": 0.08034717684557661,
+    "relative_volume": 0.06541054004974448,
+    "rsi_14": 0.05100870591267388,
+    "session_bucket": 0.022882833324181784,
+    "signal_strength": 0.06907080551814458,
+    "trend_regime": 0.08276112888200889,
+    "upper_wick_ratio": 0.04756389855033167,
+    "vol_norm_return_4": 0.04998684554682698,
+    "volatility_regime": 0.014578131889964539,
+    "volume_zscore": 0.06861569997226952
+  },
+  "zero_variance": []
+}

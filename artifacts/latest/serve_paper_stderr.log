@@ -1,0 +1,17 @@
+INFO:     Started server process [23280]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2026-03-22 23:25:28,239 | INFO | binance_quant.orchestration.research_loop | Research progress stage=starting details={'hypothesis': 'Daily paper retune with live portfolio feedback. recent_active=0 recent_closed=0 realized_expectancy=0.000000 profit_factor=0.000'}
+2026-03-22 23:25:28,271 | INFO | binance_quant.orchestration.research_loop | Research progress stage=parity_passed details={'parity_checks': 1}
+2026-03-22 23:25:28,757 | INFO | binance_quant.exchange.universe | Universe discovery found 8 eligible symbols
+2026-03-22 23:25:28,782 | INFO | binance_quant.orchestration.research_loop | Research progress stage=universe_ready details={'symbol_count': 8, 'symbols': ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'SIRENUSDT', 'XRPUSDT', 'DOGEUSDT', 'TAOUSDT', 'RIVERUSDT']}
+2026-03-22 23:25:28,841 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 1, 'total_symbols': 8, 'current_symbol': 'BTCUSDT'}
+2026-03-22 23:25:28,899 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 2, 'total_symbols': 8, 'current_symbol': 'ETHUSDT'}
+2026-03-22 23:25:28,954 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 3, 'total_symbols': 8, 'current_symbol': 'SOLUSDT'}
+2026-03-22 23:25:29,068 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 4, 'total_symbols': 8, 'current_symbol': 'SIRENUSDT'}
+2026-03-22 23:25:29,127 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 5, 'total_symbols': 8, 'current_symbol': 'XRPUSDT'}
+2026-03-22 23:25:29,237 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 6, 'total_symbols': 8, 'current_symbol': 'DOGEUSDT'}
+2026-03-22 23:25:29,295 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 7, 'total_symbols': 8, 'current_symbol': 'TAOUSDT'}
+2026-03-22 23:25:29,355 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 8, 'total_symbols': 8, 'current_symbol': 'RIVERUSDT'}
+2026-03-22 23:25:29,356 | INFO | binance_quant.orchestration.research_loop | Research progress stage=pre_screen_started details={'template_count': 5}

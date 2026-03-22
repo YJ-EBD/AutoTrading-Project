@@ -1,0 +1,49 @@
+2026-03-22 23:45:33,503 | INFO | binance_quant.paper.runtime | Paper runtime started pid=21804
+2026-03-22 23:45:33,533 | INFO | binance_quant.paper.runtime | Starting paper retune hypothesis=Daily paper retune with live portfolio feedback. recent_active=0 recent_closed=0 realized_expectancy=0.000000 profit_factor=0.000
+2026-03-22 23:45:33,559 | INFO | binance_quant.orchestration.research_loop | Research progress stage=starting details={'hypothesis': 'Daily paper retune with live portfolio feedback. recent_active=0 recent_closed=0 realized_expectancy=0.000000 profit_factor=0.000'}
+2026-03-22 23:45:33,588 | INFO | binance_quant.orchestration.research_loop | Research progress stage=parity_passed details={'parity_checks': 1}
+2026-03-22 23:45:33,965 | INFO | binance_quant.exchange.universe | Universe discovery found 8 eligible symbols
+2026-03-22 23:45:33,996 | INFO | binance_quant.orchestration.research_loop | Research progress stage=universe_ready details={'symbol_count': 8, 'symbols': ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'SIRENUSDT', 'XRPUSDT', 'DOGEUSDT', 'TAOUSDT', 'RIVERUSDT']}
+2026-03-22 23:45:34,057 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 1, 'total_symbols': 8, 'current_symbol': 'BTCUSDT'}
+2026-03-22 23:45:34,118 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 2, 'total_symbols': 8, 'current_symbol': 'ETHUSDT'}
+2026-03-22 23:45:34,181 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 3, 'total_symbols': 8, 'current_symbol': 'SOLUSDT'}
+2026-03-22 23:45:34,290 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 4, 'total_symbols': 8, 'current_symbol': 'SIRENUSDT'}
+2026-03-22 23:45:34,351 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 5, 'total_symbols': 8, 'current_symbol': 'XRPUSDT'}
+2026-03-22 23:45:34,454 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 6, 'total_symbols': 8, 'current_symbol': 'DOGEUSDT'}
+2026-03-22 23:45:34,512 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 7, 'total_symbols': 8, 'current_symbol': 'TAOUSDT'}
+2026-03-22 23:45:34,570 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 8, 'total_symbols': 8, 'current_symbol': 'RIVERUSDT'}
+2026-03-22 23:45:34,571 | INFO | binance_quant.orchestration.research_loop | Research progress stage=pre_screen_started details={'template_count': 5}
+2026-03-22 23:46:58,977 | WARNING | binance_quant.data.live | Websocket stream interrupted: sent 1011 (internal error) keepalive ping timeout; no close frame received
+2026-03-22 23:47:54,228 | WARNING | binance_quant.data.live | Websocket stream interrupted: sent 1011 (internal error) keepalive ping timeout; no close frame received
+2026-03-22 23:48:49,138 | WARNING | binance_quant.data.live | Websocket stream interrupted: sent 1011 (internal error) keepalive ping timeout; no close frame received
+2026-03-22 23:49:41,462 | WARNING | binance_quant.data.live | Websocket stream interrupted: sent 1011 (internal error) keepalive ping timeout; no close frame received
+2026-03-22 23:51:04,683 | WARNING | binance_quant.data.live | Websocket stream interrupted: sent 1011 (internal error) keepalive ping timeout; no close frame received
+2026-03-22 23:52:01,456 | WARNING | binance_quant.data.live | Websocket stream interrupted: sent 1011 (internal error) keepalive ping timeout; no close frame received
+2026-03-22 23:53:18,667 | WARNING | binance_quant.data.live | Websocket stream interrupted: sent 1011 (internal error) keepalive ping timeout; no close frame received
+2026-03-22 23:54:37,859 | WARNING | binance_quant.data.live | Websocket stream interrupted: sent 1011 (internal error) keepalive ping timeout; no close frame received
+2026-03-22 23:55:33,473 | WARNING | binance_quant.data.live | Websocket stream interrupted: sent 1011 (internal error) keepalive ping timeout; no close frame received
+2026-03-22 23:56:46,013 | WARNING | binance_quant.data.live | Websocket stream interrupted: sent 1011 (internal error) keepalive ping timeout; no close frame received
+2026-03-22 23:57:43,238 | WARNING | binance_quant.data.live | Websocket stream interrupted: sent 1011 (internal error) keepalive ping timeout; no close frame received
+2026-03-22 23:58:45,739 | WARNING | binance_quant.data.live | Websocket stream interrupted: sent 1011 (internal error) keepalive ping timeout; no close frame received
+2026-03-22 23:59:57,741 | WARNING | binance_quant.data.live | Websocket stream interrupted: sent 1011 (internal error) keepalive ping timeout; no close frame received
+2026-03-23 00:01:13,473 | WARNING | binance_quant.data.live | Websocket stream interrupted: sent 1011 (internal error) keepalive ping timeout; no close frame received
+2026-03-23 00:01:56,476 | INFO | binance_quant.paper.runtime | Paper runtime started pid=15928
+2026-03-23 00:01:56,494 | INFO | binance_quant.paper.runtime | Waiting 90 seconds before initial paper retune.
+2026-03-23 00:02:49,459 | INFO | binance_quant.paper.runtime | Paper runtime started pid=13764
+2026-03-23 00:02:49,476 | INFO | binance_quant.paper.runtime | Waiting 90 seconds before initial paper retune.
+2026-03-23 00:04:19,508 | INFO | binance_quant.paper.runtime | Starting paper retune hypothesis=Daily paper retune with live portfolio feedback. recent_active=0 recent_closed=0 realized_expectancy=0.000000 profit_factor=0.000
+2026-03-23 00:04:19,534 | INFO | binance_quant.orchestration.research_loop | Research progress stage=starting details={'hypothesis': 'Daily paper retune with live portfolio feedback. recent_active=0 recent_closed=0 realized_expectancy=0.000000 profit_factor=0.000'}
+2026-03-23 00:04:19,540 | INFO | binance_quant.orchestration.research_loop | Research progress stage=parity_passed details={'parity_checks': 1}
+2026-03-23 00:04:19,893 | INFO | binance_quant.exchange.universe | Universe discovery found 8 eligible symbols
+2026-03-23 00:04:19,921 | INFO | binance_quant.orchestration.research_loop | Research progress stage=universe_ready details={'symbol_count': 8, 'symbols': ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'SIRENUSDT', 'XRPUSDT', 'DOGEUSDT', 'TAOUSDT', 'RIVERUSDT']}
+2026-03-23 00:04:19,981 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 1, 'total_symbols': 8, 'current_symbol': 'BTCUSDT'}
+2026-03-23 00:04:20,038 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 2, 'total_symbols': 8, 'current_symbol': 'ETHUSDT'}
+2026-03-23 00:04:20,094 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 3, 'total_symbols': 8, 'current_symbol': 'SOLUSDT'}
+2026-03-23 00:04:20,201 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 4, 'total_symbols': 8, 'current_symbol': 'SIRENUSDT'}
+2026-03-23 00:04:20,257 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 5, 'total_symbols': 8, 'current_symbol': 'XRPUSDT'}
+2026-03-23 00:04:20,355 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 6, 'total_symbols': 8, 'current_symbol': 'DOGEUSDT'}
+2026-03-23 00:04:20,413 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 7, 'total_symbols': 8, 'current_symbol': 'TAOUSDT'}
+2026-03-23 00:04:20,470 | INFO | binance_quant.orchestration.research_loop | Research progress stage=ingesting_market_data details={'completed_symbols': 8, 'total_symbols': 8, 'current_symbol': 'RIVERUSDT'}
+2026-03-23 00:04:20,471 | INFO | binance_quant.orchestration.research_loop | Research progress stage=pre_screen_started details={'template_count': 5}
+2026-03-23 00:06:35,005 | WARNING | binance_quant.data.live | Websocket stream interrupted: sent 1011 (internal error) keepalive ping timeout; no close frame received
+2026-03-23 00:08:28,358 | WARNING | binance_quant.data.live | Websocket stream interrupted: sent 1011 (internal error) keepalive ping timeout; no close frame received

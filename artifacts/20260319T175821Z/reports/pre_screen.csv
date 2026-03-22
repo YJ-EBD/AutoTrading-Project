@@ -1,0 +1,2005 @@
+strategy_id,family,trade_count,expectancy,profit_factor,max_drawdown,positive_symbol_count,non_negative_symbol_count,pine_script,strict_survived,ml_candidate_survived,survived,family_seed_survived,survival_tier,selected_for_ml
+trend_ema__directionlong_only_fast21_rsi_threshold58.0_slow89,trend_ema,469.0,-0.0004285329726198608,0.8480405872942818,0.24867329786516912,3,3,"//@version=5
+strategy(""trend_ema__directionlong_only_fast21_rsi_threshold58.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+breakout__atr_filter1.2_directionlong_only_window30,breakout,1202.0,-0.0004997698323690868,0.8270883855392052,0.4436216860195048,2,2,"//@version=5
+strategy(""breakout__atr_filter1.2_directionlong_only_window30"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 30)[1]
+breakoutLow = ta.lowest(low, 30)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 1.2 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 1.2 and trendFast < trendSlow and volume > volMean
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+breakout__atr_filter1.0_directionlong_only_window30,breakout,1266.0,-0.0005084727474836512,0.8442972353602759,0.44741092388068693,2,2,"//@version=5
+strategy(""breakout__atr_filter1.0_directionlong_only_window30"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 30)[1]
+breakoutLow = ta.lowest(low, 30)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 1.0 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 1.0 and trendFast < trendSlow and volume > volMean
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast9_rsi_threshold58.0_slow55,trend_ema,734.0,-0.0006383955060591658,0.8205273541820357,0.2768064219186489,3,3,"//@version=5
+strategy(""trend_ema__directionlong_only_fast9_rsi_threshold58.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+breakout__atr_filter1.0_directionlong_only_window20,breakout,1404.0,-0.0006402355483069023,0.8084100742678612,0.5391666175284483,1,1,"//@version=5
+strategy(""breakout__atr_filter1.0_directionlong_only_window20"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 20)[1]
+breakoutLow = ta.lowest(low, 20)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 1.0 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 1.0 and trendFast < trendSlow and volume > volMean
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+breakout__atr_filter0.8_directionlong_only_window30,breakout,1317.0,-0.0006433656042261987,0.8243205384994361,0.46725773289859274,2,2,"//@version=5
+strategy(""breakout__atr_filter0.8_directionlong_only_window30"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 30)[1]
+breakoutLow = ta.lowest(low, 30)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 0.8 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 0.8 and trendFast < trendSlow and volume > volMean
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+breakout__atr_filter1.2_directionlong_only_window20,breakout,1312.0,-0.0006473802357133268,0.8023136183247759,0.5435630495239521,1,1,"//@version=5
+strategy(""breakout__atr_filter1.2_directionlong_only_window20"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 20)[1]
+breakoutLow = ta.lowest(low, 20)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 1.2 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 1.2 and trendFast < trendSlow and volume > volMean
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast21_rsi_threshold52.0_slow89,trend_ema,622.0,-0.0007119241815940905,0.8230900219990047,0.3466768531336605,3,3,"//@version=5
+strategy(""trend_ema__directionlong_only_fast21_rsi_threshold52.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast12_rsi_threshold58.0_slow34,trend_ema,744.0,-0.0007225216916499253,0.8048707687124665,0.30565306104119794,3,3,"//@version=5
+strategy(""trend_ema__directionlong_only_fast12_rsi_threshold58.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+breakout__atr_filter0.8_directionlong_only_window20,breakout,1466.0,-0.0007236650459685051,0.7977990012591027,0.5493302325455782,1,1,"//@version=5
+strategy(""breakout__atr_filter0.8_directionlong_only_window20"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 20)[1]
+breakoutLow = ta.lowest(low, 20)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 0.8 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 0.8 and trendFast < trendSlow and volume > volMean
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionboth_fast21_rsi_threshold58.0_slow89,trend_ema,925.0,-0.0007314938713783227,0.8482617898075004,0.6049039530482374,2,2,"//@version=5
+strategy(""trend_ema__directionboth_fast21_rsi_threshold58.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+breakout__atr_filter1.0_directionlong_only_window55,breakout,1060.0,-0.0007831607033868267,0.8433123444877266,0.3992976885274301,0,0,"//@version=5
+strategy(""breakout__atr_filter1.0_directionlong_only_window55"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 55)[1]
+breakoutLow = ta.lowest(low, 55)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 1.0 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 1.0 and trendFast < trendSlow and volume > volMean
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast21_rsi_threshold55.0_slow89,trend_ema,561.0,-0.0007892470436486022,0.8228452596813495,0.3484487178214195,2,2,"//@version=5
+strategy(""trend_ema__directionlong_only_fast21_rsi_threshold55.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast21_rsi_threshold55.0_slow34,trend_ema,918.0,-0.0008091280741651873,0.8054426918181201,0.35073814869281983,3,3,"//@version=5
+strategy(""trend_ema__directionlong_only_fast21_rsi_threshold55.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast9_rsi_threshold52.0_slow34,trend_ema,1591.0,-0.0008134095607193783,0.8403984256048704,0.6580486004490917,3,3,"//@version=5
+strategy(""trend_ema__directionshort_only_fast9_rsi_threshold52.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast9_rsi_threshold52.0_slow34,trend_ema,2508.0,-0.0008257030607693523,0.7958175341480422,0.494056188577943,1,1,"//@version=5
+strategy(""trend_ema__directionboth_fast9_rsi_threshold52.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast21_rsi_threshold58.0_slow34,trend_ema,671.0,-0.0008521775545343632,0.8125366629980221,0.2584229416536584,3,3,"//@version=5
+strategy(""trend_ema__directionlong_only_fast21_rsi_threshold58.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast21_rsi_threshold55.0_slow89,trend_ema,1107.0,-0.0008582047836277015,0.8453816188775773,0.6482658659779494,2,2,"//@version=5
+strategy(""trend_ema__directionboth_fast21_rsi_threshold55.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast9_rsi_threshold58.0_slow89,trend_ema,604.0,-0.0008795057504725032,0.8107944758060961,0.2580596836068805,2,2,"//@version=5
+strategy(""trend_ema__directionlong_only_fast9_rsi_threshold58.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast9_rsi_threshold58.0_slow34,trend_ema,781.0,-0.0008830103073900983,0.8362868018757791,0.47479250135450135,3,3,"//@version=5
+strategy(""trend_ema__directionshort_only_fast9_rsi_threshold58.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast9_rsi_threshold58.0_slow34,trend_ema,1443.0,-0.0008853903190930508,0.7945073629602155,0.41604033630464055,1,1,"//@version=5
+strategy(""trend_ema__directionboth_fast9_rsi_threshold58.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast21_rsi_threshold52.0_slow34,trend_ema,1928.0,-0.0009189031762658992,0.8085774595114963,0.49562241677781516,1,1,"//@version=5
+strategy(""trend_ema__directionboth_fast21_rsi_threshold52.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+breakout__atr_filter0.8_directionlong_only_window55,breakout,1096.0,-0.0009322153589100162,0.8281076433431431,0.4408016651388805,1,1,"//@version=5
+strategy(""breakout__atr_filter0.8_directionlong_only_window55"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 55)[1]
+breakoutLow = ta.lowest(low, 55)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 0.8 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 0.8 and trendFast < trendSlow and volume > volMean
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionboth_fast21_rsi_threshold52.0_slow89,trend_ema,1177.0,-0.0009340108380328766,0.8301523372242527,0.6390888580913723,2,2,"//@version=5
+strategy(""trend_ema__directionboth_fast21_rsi_threshold52.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+breakout__atr_filter1.2_directionlong_only_window55,breakout,1012.0,-0.0009529671679152443,0.8085628894757024,0.39936431766245684,1,1,"//@version=5
+strategy(""breakout__atr_filter1.2_directionlong_only_window55"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 55)[1]
+breakoutLow = ta.lowest(low, 55)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 1.2 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 1.2 and trendFast < trendSlow and volume > volMean
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast21_rsi_threshold52.0_slow34,trend_ema,1070.0,-0.0009565013042944057,0.8490574757320093,0.5975040656943557,1,1,"//@version=5
+strategy(""trend_ema__directionshort_only_fast21_rsi_threshold52.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast12_rsi_threshold58.0_slow89,trend_ema,574.0,-0.0009632737160026412,0.8348147193921658,0.3385787710532142,2,2,"//@version=5
+strategy(""trend_ema__directionlong_only_fast12_rsi_threshold58.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_pullback__fast34_pullback_rsi45.0_slow55,trend_pullback,1008.0,-0.0009767412500852057,0.6948647127387197,0.3069730916102831,1,1,"//@version=5
+strategy(""trend_pullback__fast34_pullback_rsi45.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 34)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+uptrend = fast > slow
+downtrend = fast < slow
+longResume = close > fast and close[1] <= fast[1]
+shortResume = close < fast and close[1] >= fast[1]
+longCondition = uptrend and r[1] < 45.0 and longResume
+shortCondition = downtrend and r[1] > 55.0 and shortResume
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionboth_fast12_rsi_threshold52.0_slow34,trend_ema,2340.0,-0.0009907006944493838,0.7968942786227922,0.6334007429029764,1,1,"//@version=5
+strategy(""trend_ema__directionboth_fast12_rsi_threshold52.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast21_rsi_threshold55.0_slow34,trend_ema,1744.0,-0.0009982705648287642,0.8083245195627073,0.5244408891842083,1,1,"//@version=5
+strategy(""trend_ema__directionboth_fast21_rsi_threshold55.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_pullback__fast34_pullback_rsi45.0_slow89,trend_pullback,1030.0,-0.0010117472946068768,0.6871737107224798,0.3073429046337258,1,1,"//@version=5
+strategy(""trend_pullback__fast34_pullback_rsi45.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 34)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+uptrend = fast > slow
+downtrend = fast < slow
+longResume = close > fast and close[1] <= fast[1]
+shortResume = close < fast and close[1] >= fast[1]
+longCondition = uptrend and r[1] < 45.0 and longResume
+shortCondition = downtrend and r[1] > 55.0 and shortResume
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast12_rsi_threshold55.0_slow55,trend_ema,923.0,-0.001015384551108041,0.7959638685184744,0.3373832888189626,1,1,"//@version=5
+strategy(""trend_ema__directionlong_only_fast12_rsi_threshold55.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast12_rsi_threshold58.0_slow34,trend_ema,1450.0,-0.0010196515300636448,0.7849793296093599,0.5013878876109915,1,1,"//@version=5
+strategy(""trend_ema__directionboth_fast12_rsi_threshold58.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast9_rsi_threshold55.0_slow34,trend_ema,1224.0,-0.0010229839639874323,0.8145261060009636,0.6462539037792887,3,3,"//@version=5
+strategy(""trend_ema__directionshort_only_fast9_rsi_threshold55.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast12_rsi_threshold52.0_slow34,trend_ema,1416.0,-0.001025267507847573,0.8475947151530188,0.7381299225510927,2,2,"//@version=5
+strategy(""trend_ema__directionshort_only_fast12_rsi_threshold52.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast9_rsi_threshold55.0_slow34,trend_ema,2137.0,-0.0010310028150537537,0.7708732700629713,0.5296378689831804,1,1,"//@version=5
+strategy(""trend_ema__directionboth_fast9_rsi_threshold55.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast12_rsi_threshold55.0_slow89,trend_ema,715.0,-0.0010388828734615484,0.8001521563893164,0.37996635894969055,2,2,"//@version=5
+strategy(""trend_ema__directionlong_only_fast12_rsi_threshold55.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast12_rsi_threshold52.0_slow55,trend_ema,1910.0,-0.0010417836326923292,0.8027802177886569,0.7613775392786903,1,1,"//@version=5
+strategy(""trend_ema__directionboth_fast12_rsi_threshold52.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast21_rsi_threshold55.0_slow89,trend_ema,571.0,-0.0010475368429628301,0.9049210120641084,0.5273662611389114,3,3,"//@version=5
+strategy(""trend_ema__directionshort_only_fast21_rsi_threshold55.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast9_rsi_threshold52.0_slow55,trend_ema,1238.0,-0.00106869116994863,0.8070284279084583,0.7253834775137603,1,1,"//@version=5
+strategy(""trend_ema__directionshort_only_fast9_rsi_threshold52.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast21_rsi_threshold58.0_slow55,trend_ema,573.0,-0.0010798400694736975,0.7990295144520005,0.2968981432299821,2,2,"//@version=5
+strategy(""trend_ema__directionlong_only_fast21_rsi_threshold58.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast9_rsi_threshold58.0_slow55,trend_ema,1393.0,-0.0010864766386229222,0.7810889118257562,0.5863258936488283,0,0,"//@version=5
+strategy(""trend_ema__directionboth_fast9_rsi_threshold58.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast12_rsi_threshold52.0_slow55,trend_ema,1096.0,-0.0010884658207659216,0.8178477817117251,0.7276715682536972,1,1,"//@version=5
+strategy(""trend_ema__directionshort_only_fast12_rsi_threshold52.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast9_rsi_threshold55.0_slow55,trend_ema,1037.0,-0.0010906326267043943,0.7598326389287722,0.3189483922745281,1,1,"//@version=5
+strategy(""trend_ema__directionlong_only_fast9_rsi_threshold55.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast12_rsi_threshold55.0_slow34,trend_ema,1133.0,-0.0010944089468395589,0.8414600938943024,0.7436398910441986,2,2,"//@version=5
+strategy(""trend_ema__directionshort_only_fast12_rsi_threshold55.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast12_rsi_threshold55.0_slow34,trend_ema,2032.0,-0.0010946404701270875,0.7837231524633035,0.675157333982431,0,0,"//@version=5
+strategy(""trend_ema__directionboth_fast12_rsi_threshold55.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast21_rsi_threshold52.0_slow34,trend_ema,1078.0,-0.0010998194926199628,0.7586138275764446,0.38493207820017217,2,2,"//@version=5
+strategy(""trend_ema__directionlong_only_fast21_rsi_threshold52.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast9_rsi_threshold55.0_slow89,trend_ema,805.0,-0.00110571849467716,0.8590759404990886,0.5254153237964487,2,2,"//@version=5
+strategy(""trend_ema__directionshort_only_fast9_rsi_threshold55.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast21_rsi_threshold52.0_slow89,trend_ema,632.0,-0.001120259546587438,0.8761332741748958,0.5287547521897786,3,3,"//@version=5
+strategy(""trend_ema__directionshort_only_fast21_rsi_threshold52.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast9_rsi_threshold52.0_slow55,trend_ema,2060.0,-0.0011237462335907473,0.7771155076684547,0.6872502927696458,0,0,"//@version=5
+strategy(""trend_ema__directionboth_fast9_rsi_threshold52.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+mean_reversion__bb_window20_rsi_threshold35.0_z_score2.0,mean_reversion,3173.0,-0.0011265285993182442,0.7539809989842348,0.5208238573557687,1,1,"//@version=5
+strategy(""mean_reversion__bb_window20_rsi_threshold35.0_z_score2.0"", overlay=true, process_orders_on_close=true)
+basis = ta.sma(close, 20)
+dev = ta.stdev(close, 20) * 2.0
+upper = basis + dev
+lower = basis - dev
+r = ta.rsi(close, 14)
+trendSpread = math.abs(ta.ema(close, 20) - ta.ema(close, 50)) / close
+longCondition = close < lower and r < 35.0 and trendSpread < 0.02
+shortCondition = close > upper and r > 65.0 and trendSpread < 0.02
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast9_rsi_threshold52.0_slow89,trend_ema,932.0,-0.0011273030204883023,0.8603938260632535,0.5655280026187115,1,1,"//@version=5
+strategy(""trend_ema__directionshort_only_fast9_rsi_threshold52.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast21_rsi_threshold58.0_slow34,trend_ema,1341.0,-0.0011277061389217415,0.777541681232932,0.4887465823730739,1,1,"//@version=5
+strategy(""trend_ema__directionboth_fast21_rsi_threshold58.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast12_rsi_threshold55.0_slow89,trend_ema,1354.0,-0.0011282763087812593,0.8234209134080676,0.6398183025738207,1,1,"//@version=5
+strategy(""trend_ema__directionboth_fast12_rsi_threshold55.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast12_rsi_threshold52.0_slow55,trend_ema,1104.0,-0.0011299210951886676,0.7715896946317118,0.3918414475265356,1,1,"//@version=5
+strategy(""trend_ema__directionlong_only_fast12_rsi_threshold52.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast9_rsi_threshold58.0_slow34,trend_ema,731.0,-0.0011394455813418698,0.7815346632312725,0.34124398327027816,2,2,"//@version=5
+strategy(""trend_ema__directionlong_only_fast9_rsi_threshold58.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast12_rsi_threshold58.0_slow55,trend_ema,671.0,-0.0011459062790754294,0.8282122268271556,0.33453299617738996,2,2,"//@version=5
+strategy(""trend_ema__directionlong_only_fast12_rsi_threshold58.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast21_rsi_threshold58.0_slow89,trend_ema,461.0,-0.0011494440451426517,0.8780707865665014,0.49431612122874635,2,2,"//@version=5
+strategy(""trend_ema__directionshort_only_fast21_rsi_threshold58.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast21_rsi_threshold55.0_slow34,trend_ema,918.0,-0.0011898446010572608,0.8392889031165759,0.6051134798213582,1,1,"//@version=5
+strategy(""trend_ema__directionshort_only_fast21_rsi_threshold55.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast12_rsi_threshold55.0_slow55,trend_ema,1716.0,-0.0011912916505898022,0.7906728870337338,0.7542516959112302,1,1,"//@version=5
+strategy(""trend_ema__directionboth_fast12_rsi_threshold55.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast9_rsi_threshold58.0_slow89,trend_ema,1186.0,-0.0011965130237513795,0.820480968100587,0.6494384260246181,2,2,"//@version=5
+strategy(""trend_ema__directionboth_fast9_rsi_threshold58.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+mean_reversion__bb_window30_rsi_threshold35.0_z_score2.0,mean_reversion,3449.0,-0.0012010525861594038,0.7546043602776543,0.5239869520110633,0,0,"//@version=5
+strategy(""mean_reversion__bb_window30_rsi_threshold35.0_z_score2.0"", overlay=true, process_orders_on_close=true)
+basis = ta.sma(close, 30)
+dev = ta.stdev(close, 30) * 2.0
+upper = basis + dev
+lower = basis - dev
+r = ta.rsi(close, 14)
+trendSpread = math.abs(ta.ema(close, 20) - ta.ema(close, 50)) / close
+longCondition = close < lower and r < 35.0 and trendSpread < 0.02
+shortCondition = close > upper and r > 65.0 and trendSpread < 0.02
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast9_rsi_threshold55.0_slow55,trend_ema,1023.0,-0.0012102558641837863,0.8027852486078796,0.6872667468250175,1,1,"//@version=5
+strategy(""trend_ema__directionshort_only_fast9_rsi_threshold55.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast12_rsi_threshold55.0_slow34,trend_ema,1127.0,-0.0012216183400804745,0.7292172119326347,0.38171169247817816,2,2,"//@version=5
+strategy(""trend_ema__directionlong_only_fast12_rsi_threshold55.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast9_rsi_threshold55.0_slow55,trend_ema,1851.0,-0.001223832994248795,0.7752255698872981,0.7284050180025587,0,0,"//@version=5
+strategy(""trend_ema__directionboth_fast9_rsi_threshold55.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+breakout__atr_filter1.0_directionboth_window30,breakout,2566.0,-0.001239273784698227,0.7935263920845413,0.6752610413600655,0,0,"//@version=5
+strategy(""breakout__atr_filter1.0_directionboth_window30"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 30)[1]
+breakoutLow = ta.lowest(low, 30)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 1.0 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 1.0 and trendFast < trendSlow and volume > volMean
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionboth_fast12_rsi_threshold58.0_slow89,trend_ema,1114.0,-0.0012455896303456347,0.8328606500495161,0.655284305354076,1,1,"//@version=5
+strategy(""trend_ema__directionboth_fast12_rsi_threshold58.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+breakout__atr_filter1.2_directionboth_window30,breakout,2413.0,-0.0012457426315627537,0.7745464667479508,0.6391152315690789,0,0,"//@version=5
+strategy(""breakout__atr_filter1.2_directionboth_window30"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 30)[1]
+breakoutLow = ta.lowest(low, 30)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 1.2 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 1.2 and trendFast < trendSlow and volume > volMean
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+breakout__atr_filter0.8_directionboth_window20,breakout,2981.0,-0.001252906863874033,0.7626287654171094,0.7075168171056754,0,0,"//@version=5
+strategy(""breakout__atr_filter0.8_directionboth_window20"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 20)[1]
+breakoutLow = ta.lowest(low, 20)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 0.8 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 0.8 and trendFast < trendSlow and volume > volMean
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+breakout__atr_filter1.0_directionboth_window20,breakout,2872.0,-0.001255982072708445,0.7657413861109712,0.6919201340228065,0,0,"//@version=5
+strategy(""breakout__atr_filter1.0_directionboth_window20"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 20)[1]
+breakoutLow = ta.lowest(low, 20)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 1.0 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 1.0 and trendFast < trendSlow and volume > volMean
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+breakout__atr_filter1.2_directionboth_window20,breakout,2672.0,-0.0012590976016660684,0.7551511165536022,0.668290918575932,0,0,"//@version=5
+strategy(""breakout__atr_filter1.2_directionboth_window20"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 20)[1]
+breakoutLow = ta.lowest(low, 20)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 1.2 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 1.2 and trendFast < trendSlow and volume > volMean
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_pullback__fast34_pullback_rsi48.0_slow55,trend_pullback,3069.0,-0.0012667916632152461,0.6227943761314613,0.5951717003933192,0,0,"//@version=5
+strategy(""trend_pullback__fast34_pullback_rsi48.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 34)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+uptrend = fast > slow
+downtrend = fast < slow
+longResume = close > fast and close[1] <= fast[1]
+shortResume = close < fast and close[1] >= fast[1]
+longCondition = uptrend and r[1] < 48.0 and longResume
+shortCondition = downtrend and r[1] > 52.0 and shortResume
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast12_rsi_threshold55.0_slow89,trend_ema,715.0,-0.0012785548916273463,0.8849701940241297,0.5979296109183908,4,4,"//@version=5
+strategy(""trend_ema__directionshort_only_fast12_rsi_threshold55.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+breakout__atr_filter0.8_directionboth_window30,breakout,2658.0,-0.0012794750272063522,0.7816626372926353,0.6895718753127146,0,0,"//@version=5
+strategy(""breakout__atr_filter0.8_directionboth_window30"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 30)[1]
+breakoutLow = ta.lowest(low, 30)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 0.8 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 0.8 and trendFast < trendSlow and volume > volMean
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast9_rsi_threshold52.0_slow55,trend_ema,1240.0,-0.0012837095852631314,0.7275203878409838,0.38436717839043755,0,0,"//@version=5
+strategy(""trend_ema__directionlong_only_fast9_rsi_threshold52.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast12_rsi_threshold52.0_slow89,trend_ema,819.0,-0.0012906655923925485,0.8749251861808478,0.6157206787363496,3,3,"//@version=5
+strategy(""trend_ema__directionshort_only_fast12_rsi_threshold52.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+mean_reversion__bb_window30_rsi_threshold30.0_z_score2.0,mean_reversion,2105.0,-0.0012933759888171465,0.767617205669492,0.49060235215487136,0,0,"//@version=5
+strategy(""mean_reversion__bb_window30_rsi_threshold30.0_z_score2.0"", overlay=true, process_orders_on_close=true)
+basis = ta.sma(close, 30)
+dev = ta.stdev(close, 30) * 2.0
+upper = basis + dev
+lower = basis - dev
+r = ta.rsi(close, 14)
+trendSpread = math.abs(ta.ema(close, 20) - ta.ema(close, 50)) / close
+longCondition = close < lower and r < 30.0 and trendSpread < 0.02
+shortCondition = close > upper and r > 70.0 and trendSpread < 0.02
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionboth_fast12_rsi_threshold52.0_slow89,trend_ema,1464.0,-0.0013013769876847716,0.8022879669794423,0.6751383990383233,1,1,"//@version=5
+strategy(""trend_ema__directionboth_fast12_rsi_threshold52.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast12_rsi_threshold55.0_slow55,trend_ema,917.0,-0.0013036750745377653,0.8008516201155286,0.7095687173039245,1,1,"//@version=5
+strategy(""trend_ema__directionshort_only_fast12_rsi_threshold55.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_pullback__fast34_pullback_rsi48.0_slow89,trend_pullback,3121.0,-0.0013058180392860187,0.6135892005498005,0.5847705820516589,0,0,"//@version=5
+strategy(""trend_pullback__fast34_pullback_rsi48.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 34)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+uptrend = fast > slow
+downtrend = fast < slow
+longResume = close > fast and close[1] <= fast[1]
+shortResume = close < fast and close[1] >= fast[1]
+longCondition = uptrend and r[1] < 48.0 and longResume
+shortCondition = downtrend and r[1] > 52.0 and shortResume
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast9_rsi_threshold52.0_slow34,trend_ema,1594.0,-0.0013062999229848061,0.7058330638115268,0.42694140126695723,1,1,"//@version=5
+strategy(""trend_ema__directionlong_only_fast9_rsi_threshold52.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast12_rsi_threshold52.0_slow89,trend_ema,822.0,-0.0013173596101240007,0.7584543111360944,0.442007744893403,2,2,"//@version=5
+strategy(""trend_ema__directionlong_only_fast12_rsi_threshold52.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast9_rsi_threshold55.0_slow89,trend_ema,788.0,-0.0013243830747874314,0.7356111344710873,0.3901751784148354,1,1,"//@version=5
+strategy(""trend_ema__directionlong_only_fast9_rsi_threshold55.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_pullback__fast21_pullback_rsi48.0_slow55,trend_pullback,1999.0,-0.001327970015170993,0.591487843581131,0.45073464023421406,0,0,"//@version=5
+strategy(""trend_pullback__fast21_pullback_rsi48.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+uptrend = fast > slow
+downtrend = fast < slow
+longResume = close > fast and close[1] <= fast[1]
+shortResume = close < fast and close[1] >= fast[1]
+longCondition = uptrend and r[1] < 48.0 and longResume
+shortCondition = downtrend and r[1] > 52.0 and shortResume
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast9_rsi_threshold55.0_slow34,trend_ema,1210.0,-0.0013404423141465578,0.7130894588019558,0.3906633933569348,2,2,"//@version=5
+strategy(""trend_ema__directionlong_only_fast9_rsi_threshold55.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+mean_reversion__bb_window20_rsi_threshold35.0_z_score1.5,mean_reversion,4193.0,-0.0013436051399184786,0.7273904571869416,0.7186660398536866,0,0,"//@version=5
+strategy(""mean_reversion__bb_window20_rsi_threshold35.0_z_score1.5"", overlay=true, process_orders_on_close=true)
+basis = ta.sma(close, 20)
+dev = ta.stdev(close, 20) * 1.5
+upper = basis + dev
+lower = basis - dev
+r = ta.rsi(close, 14)
+trendSpread = math.abs(ta.ema(close, 20) - ta.ema(close, 50)) / close
+longCondition = close < lower and r < 35.0 and trendSpread < 0.02
+shortCondition = close > upper and r > 65.0 and trendSpread < 0.02
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast12_rsi_threshold58.0_slow34,trend_ema,761.0,-0.001350759698898473,0.7839405521586749,0.582829510609719,1,1,"//@version=5
+strategy(""trend_ema__directionshort_only_fast12_rsi_threshold58.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast21_rsi_threshold58.0_slow55,trend_ema,1126.0,-0.0013538713337705264,0.8164364362897789,0.6712284375904656,2,2,"//@version=5
+strategy(""trend_ema__directionboth_fast21_rsi_threshold58.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_pullback__fast21_pullback_rsi48.0_slow89,trend_pullback,2297.0,-0.0013540551119106548,0.5800631862021752,0.4876366826052908,0,0,"//@version=5
+strategy(""trend_pullback__fast21_pullback_rsi48.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+uptrend = fast > slow
+downtrend = fast < slow
+longResume = close > fast and close[1] <= fast[1]
+shortResume = close < fast and close[1] >= fast[1]
+longCondition = uptrend and r[1] < 48.0 and longResume
+shortCondition = downtrend and r[1] > 52.0 and shortResume
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast9_rsi_threshold58.0_slow89,trend_ema,624.0,-0.0013580169249939667,0.8805978779613276,0.6132264941989409,1,1,"//@version=5
+strategy(""trend_ema__directionshort_only_fast9_rsi_threshold58.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast12_rsi_threshold52.0_slow34,trend_ema,1415.0,-0.0013583865731265747,0.7062677491858232,0.46433688156004294,1,1,"//@version=5
+strategy(""trend_ema__directionlong_only_fast12_rsi_threshold52.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast21_rsi_threshold52.0_slow55,trend_ema,837.0,-0.001367748827642238,0.7563686411473632,0.4879857402846193,2,2,"//@version=5
+strategy(""trend_ema__directionlong_only_fast21_rsi_threshold52.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+mean_reversion__bb_window30_rsi_threshold35.0_z_score1.5,mean_reversion,4180.0,-0.0013713257742776971,0.734959355656944,0.6849304003334686,0,0,"//@version=5
+strategy(""mean_reversion__bb_window30_rsi_threshold35.0_z_score1.5"", overlay=true, process_orders_on_close=true)
+basis = ta.sma(close, 30)
+dev = ta.stdev(close, 30) * 1.5
+upper = basis + dev
+lower = basis - dev
+r = ta.rsi(close, 14)
+trendSpread = math.abs(ta.ema(close, 20) - ta.ema(close, 50)) / close
+longCondition = close < lower and r < 35.0 and trendSpread < 0.02
+shortCondition = close > upper and r > 65.0 and trendSpread < 0.02
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_pullback__fast21_pullback_rsi45.0_slow89,trend_pullback,795.0,-0.0013736128033487623,0.6263864653661322,0.37995103826126864,1,1,"//@version=5
+strategy(""trend_pullback__fast21_pullback_rsi45.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+uptrend = fast > slow
+downtrend = fast < slow
+longResume = close > fast and close[1] <= fast[1]
+shortResume = close < fast and close[1] >= fast[1]
+longCondition = uptrend and r[1] < 45.0 and longResume
+shortCondition = downtrend and r[1] > 55.0 and shortResume
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+breakout__atr_filter1.0_directionboth_window55,breakout,2136.0,-0.0013874462866305176,0.8159289635377194,0.7935381454964863,0,0,"//@version=5
+strategy(""breakout__atr_filter1.0_directionboth_window55"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 55)[1]
+breakoutLow = ta.lowest(low, 55)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 1.0 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 1.0 and trendFast < trendSlow and volume > volMean
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionboth_fast9_rsi_threshold55.0_slow89,trend_ema,1460.0,-0.0013992502064750399,0.7615814175447851,0.6460167784060943,0,0,"//@version=5
+strategy(""trend_ema__directionboth_fast9_rsi_threshold55.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+breakout__atr_filter1.2_directionboth_window55,breakout,2018.0,-0.0014039477955192967,0.8051644340553055,0.7585824051723369,0,0,"//@version=5
+strategy(""breakout__atr_filter1.2_directionboth_window55"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 55)[1]
+breakoutLow = ta.lowest(low, 55)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 1.2 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 1.2 and trendFast < trendSlow and volume > volMean
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+mean_reversion__bb_window20_rsi_threshold30.0_z_score2.0,mean_reversion,1887.0,-0.0014091820866807435,0.7270013548010839,0.4613780945186722,1,1,"//@version=5
+strategy(""mean_reversion__bb_window20_rsi_threshold30.0_z_score2.0"", overlay=true, process_orders_on_close=true)
+basis = ta.sma(close, 20)
+dev = ta.stdev(close, 20) * 2.0
+upper = basis + dev
+lower = basis - dev
+r = ta.rsi(close, 14)
+trendSpread = math.abs(ta.ema(close, 20) - ta.ema(close, 50)) / close
+longCondition = close < lower and r < 30.0 and trendSpread < 0.02
+shortCondition = close > upper and r > 70.0 and trendSpread < 0.02
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+breakout__atr_filter0.8_directionboth_window55,breakout,2199.0,-0.0014108343818016534,0.8092826965526929,0.7928112748890217,0,0,"//@version=5
+strategy(""breakout__atr_filter0.8_directionboth_window55"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 55)[1]
+breakoutLow = ta.lowest(low, 55)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 0.8 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 0.8 and trendFast < trendSlow and volume > volMean
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast21_rsi_threshold55.0_slow55,trend_ema,742.0,-0.0014347475924424953,0.7591543816910548,0.4539932239488995,1,1,"//@version=5
+strategy(""trend_ema__directionlong_only_fast21_rsi_threshold55.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+mean_reversion__bb_window30_rsi_threshold30.0_z_score1.5,mean_reversion,2419.0,-0.0014436427397337384,0.7547417841174721,0.5785376437741212,0,0,"//@version=5
+strategy(""mean_reversion__bb_window30_rsi_threshold30.0_z_score1.5"", overlay=true, process_orders_on_close=true)
+basis = ta.sma(close, 30)
+dev = ta.stdev(close, 30) * 1.5
+upper = basis + dev
+lower = basis - dev
+r = ta.rsi(close, 14)
+trendSpread = math.abs(ta.ema(close, 20) - ta.ema(close, 50)) / close
+longCondition = close < lower and r < 30.0 and trendSpread < 0.02
+shortCondition = close > upper and r > 70.0 and trendSpread < 0.02
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionboth_fast21_rsi_threshold52.0_slow55,trend_ema,1556.0,-0.0014449785351896088,0.8044392129261373,0.7879435418648453,1,1,"//@version=5
+strategy(""trend_ema__directionboth_fast21_rsi_threshold52.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast9_rsi_threshold52.0_slow89,trend_ema,1596.0,-0.0014557333739303978,0.7683441844592648,0.7386194056285768,1,1,"//@version=5
+strategy(""trend_ema__directionboth_fast9_rsi_threshold52.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast21_rsi_threshold55.0_slow55,trend_ema,1439.0,-0.0014638324562067338,0.8099271393435631,0.7837994893197209,2,2,"//@version=5
+strategy(""trend_ema__directionboth_fast21_rsi_threshold55.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast21_rsi_threshold58.0_slow34,trend_ema,687.0,-0.0014655070809717857,0.7552649196463873,0.5400649383189788,0,0,"//@version=5
+strategy(""trend_ema__directionshort_only_fast21_rsi_threshold58.0_slow34"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 34)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionlong_only_fast9_rsi_threshold52.0_slow89,trend_ema,926.0,-0.0014877553464531159,0.7228950520230246,0.4751288747666754,1,1,"//@version=5
+strategy(""trend_ema__directionlong_only_fast9_rsi_threshold52.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""long_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""long_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionboth_fast12_rsi_threshold58.0_slow55,trend_ema,1319.0,-0.001495766424069077,0.7689131281490751,0.7528661692968783,1,1,"//@version=5
+strategy(""trend_ema__directionboth_fast12_rsi_threshold58.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""both"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""both"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast9_rsi_threshold58.0_slow55,trend_ema,723.0,-0.0015429877431119604,0.7864987213425634,0.6388010246355431,2,2,"//@version=5
+strategy(""trend_ema__directionshort_only_fast9_rsi_threshold58.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 9)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+vol_squeeze__squeeze_threshold0.35_volume_z_threshold1.0_window30,vol_squeeze,832.0,-0.0015749535590250485,0.7534517909935929,0.360710083014689,0,0,"//@version=5
+strategy(""vol_squeeze__squeeze_threshold0.35_volume_z_threshold1.0_window30"", overlay=true, process_orders_on_close=true)
+basis = ta.sma(close, 30)
+dev = ta.stdev(close, 30) * 2.0
+upper = basis + dev
+lower = basis - dev
+bandwidth = (upper - lower) / basis
+squeeze = ta.percentrank(bandwidth, 80) < 35.0
+volZ = (volume - ta.sma(volume, 30)) / ta.stdev(volume, 30)
+breakoutHigh = ta.highest(high, 30)[1]
+breakoutLow = ta.lowest(low, 30)[1]
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+longCondition = squeeze[1] and close > breakoutHigh and volZ > 1.0 and trendFast > trendSlow
+shortCondition = squeeze[1] and close < breakoutLow and volZ > 1.0 and trendFast < trendSlow
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+mean_reversion__bb_window20_rsi_threshold30.0_z_score1.5,mean_reversion,2371.0,-0.0015801439295567237,0.723366332272657,0.5732413263628808,0,0,"//@version=5
+strategy(""mean_reversion__bb_window20_rsi_threshold30.0_z_score1.5"", overlay=true, process_orders_on_close=true)
+basis = ta.sma(close, 20)
+dev = ta.stdev(close, 20) * 1.5
+upper = basis + dev
+lower = basis - dev
+r = ta.rsi(close, 14)
+trendSpread = math.abs(ta.ema(close, 20) - ta.ema(close, 50)) / close
+longCondition = close < lower and r < 30.0 and trendSpread < 0.02
+shortCondition = close > upper and r > 70.0 and trendSpread < 0.02
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast21_rsi_threshold52.0_slow55,trend_ema,849.0,-0.0015856374202655934,0.881219038450682,0.7669848585741172,4,4,"//@version=5
+strategy(""trend_ema__directionshort_only_fast21_rsi_threshold52.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 52.0
+shortCondition = ta.crossunder(fast, slow) and r < 48.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+vol_squeeze__squeeze_threshold0.25_volume_z_threshold1.0_window30,vol_squeeze,630.0,-0.001591909603634547,0.7559785269100825,0.37297735074538274,0,0,"//@version=5
+strategy(""vol_squeeze__squeeze_threshold0.25_volume_z_threshold1.0_window30"", overlay=true, process_orders_on_close=true)
+basis = ta.sma(close, 30)
+dev = ta.stdev(close, 30) * 2.0
+upper = basis + dev
+lower = basis - dev
+bandwidth = (upper - lower) / basis
+squeeze = ta.percentrank(bandwidth, 80) < 25.0
+volZ = (volume - ta.sma(volume, 30)) / ta.stdev(volume, 30)
+breakoutHigh = ta.highest(high, 30)[1]
+breakoutLow = ta.lowest(low, 30)[1]
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+longCondition = squeeze[1] and close > breakoutHigh and volZ > 1.0 and trendFast > trendSlow
+shortCondition = squeeze[1] and close < breakoutLow and volZ > 1.0 and trendFast < trendSlow
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast12_rsi_threshold58.0_slow89,trend_ema,559.0,-0.0016037246867996317,0.8744651280086327,0.5683624957146878,4,4,"//@version=5
+strategy(""trend_ema__directionshort_only_fast12_rsi_threshold58.0_slow89"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 89)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+vol_squeeze__squeeze_threshold0.25_volume_z_threshold0.5_window30,vol_squeeze,685.0,-0.0016276614837100877,0.7463142024066294,0.3872892417667949,0,0,"//@version=5
+strategy(""vol_squeeze__squeeze_threshold0.25_volume_z_threshold0.5_window30"", overlay=true, process_orders_on_close=true)
+basis = ta.sma(close, 30)
+dev = ta.stdev(close, 30) * 2.0
+upper = basis + dev
+lower = basis - dev
+bandwidth = (upper - lower) / basis
+squeeze = ta.percentrank(bandwidth, 80) < 25.0
+volZ = (volume - ta.sma(volume, 30)) / ta.stdev(volume, 30)
+breakoutHigh = ta.highest(high, 30)[1]
+breakoutLow = ta.lowest(low, 30)[1]
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+longCondition = squeeze[1] and close > breakoutHigh and volZ > 0.5 and trendFast > trendSlow
+shortCondition = squeeze[1] and close < breakoutLow and volZ > 0.5 and trendFast < trendSlow
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast21_rsi_threshold55.0_slow55,trend_ema,750.0,-0.001663292713779747,0.8734164067739868,0.7322437016957588,4,4,"//@version=5
+strategy(""trend_ema__directionshort_only_fast21_rsi_threshold55.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 55.0
+shortCondition = ta.crossunder(fast, slow) and r < 45.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast12_rsi_threshold58.0_slow55,trend_ema,689.0,-0.0016782004582619314,0.7679878071629173,0.6528419998824179,1,1,"//@version=5
+strategy(""trend_ema__directionshort_only_fast12_rsi_threshold58.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 12)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+vol_squeeze__squeeze_threshold0.35_volume_z_threshold0.5_window30,vol_squeeze,905.0,-0.0016853796023583484,0.7297767288412058,0.37484336975796007,0,0,"//@version=5
+strategy(""vol_squeeze__squeeze_threshold0.35_volume_z_threshold0.5_window30"", overlay=true, process_orders_on_close=true)
+basis = ta.sma(close, 30)
+dev = ta.stdev(close, 30) * 2.0
+upper = basis + dev
+lower = basis - dev
+bandwidth = (upper - lower) / basis
+squeeze = ta.percentrank(bandwidth, 80) < 35.0
+volZ = (volume - ta.sma(volume, 30)) / ta.stdev(volume, 30)
+breakoutHigh = ta.highest(high, 30)[1]
+breakoutLow = ta.lowest(low, 30)[1]
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+longCondition = squeeze[1] and close > breakoutHigh and volZ > 0.5 and trendFast > trendSlow
+shortCondition = squeeze[1] and close < breakoutLow and volZ > 0.5 and trendFast < trendSlow
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_pullback__fast21_pullback_rsi45.0_slow55,trend_pullback,641.0,-0.00171893562377719,0.5904022219377788,0.4266000628328245,1,1,"//@version=5
+strategy(""trend_pullback__fast21_pullback_rsi45.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+uptrend = fast > slow
+downtrend = fast < slow
+longResume = close > fast and close[1] <= fast[1]
+shortResume = close < fast and close[1] >= fast[1]
+longCondition = uptrend and r[1] < 45.0 and longResume
+shortCondition = downtrend and r[1] > 55.0 and shortResume
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+trend_ema__directionshort_only_fast21_rsi_threshold58.0_slow55,trend_ema,569.0,-0.001747437197920999,0.8752928439152388,0.659498528198081,4,4,"//@version=5
+strategy(""trend_ema__directionshort_only_fast21_rsi_threshold58.0_slow55"", overlay=true, process_orders_on_close=true)
+fast = ta.ema(close, 21)
+slow = ta.ema(close, 55)
+r = ta.rsi(close, 14)
+longCondition = ta.crossover(fast, slow) and r > 58.0
+shortCondition = ta.crossunder(fast, slow) and r < 42.0
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)
+if ta.crossunder(fast, slow)
+    strategy.close(""Long"")
+if ta.crossover(fast, slow)
+    strategy.close(""Short"")",False,False,False,False,rejected,False
+breakout__atr_filter0.8_directionshort_only_window20,breakout,1515.0,-0.0018931832962334105,0.7272775017989035,0.6815234090919029,0,0,"//@version=5
+strategy(""breakout__atr_filter0.8_directionshort_only_window20"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 20)[1]
+breakoutLow = ta.lowest(low, 20)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 0.8 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 0.8 and trendFast < trendSlow and volume > volMean
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+vol_squeeze__squeeze_threshold0.25_volume_z_threshold1.0_window20,vol_squeeze,706.0,-0.0019161626254974489,0.6581715443055624,0.3159761313324779,0,0,"//@version=5
+strategy(""vol_squeeze__squeeze_threshold0.25_volume_z_threshold1.0_window20"", overlay=true, process_orders_on_close=true)
+basis = ta.sma(close, 20)
+dev = ta.stdev(close, 20) * 2.0
+upper = basis + dev
+lower = basis - dev
+bandwidth = (upper - lower) / basis
+squeeze = ta.percentrank(bandwidth, 80) < 25.0
+volZ = (volume - ta.sma(volume, 30)) / ta.stdev(volume, 30)
+breakoutHigh = ta.highest(high, 20)[1]
+breakoutLow = ta.lowest(low, 20)[1]
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+longCondition = squeeze[1] and close > breakoutHigh and volZ > 1.0 and trendFast > trendSlow
+shortCondition = squeeze[1] and close < breakoutLow and volZ > 1.0 and trendFast < trendSlow
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+breakout__atr_filter1.0_directionshort_only_window20,breakout,1468.0,-0.001988302687042203,0.7229195808879516,0.7018775093312082,0,0,"//@version=5
+strategy(""breakout__atr_filter1.0_directionshort_only_window20"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 20)[1]
+breakoutLow = ta.lowest(low, 20)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 1.0 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 1.0 and trendFast < trendSlow and volume > volMean
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+breakout__atr_filter1.2_directionshort_only_window20,breakout,1360.0,-0.0020023161253299084,0.7095972024248705,0.6445337301563214,0,0,"//@version=5
+strategy(""breakout__atr_filter1.2_directionshort_only_window20"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 20)[1]
+breakoutLow = ta.lowest(low, 20)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 1.2 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 1.2 and trendFast < trendSlow and volume > volMean
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+breakout__atr_filter0.8_directionshort_only_window55,breakout,1103.0,-0.002024082367168455,0.7907205587538519,0.7119254117784897,0,0,"//@version=5
+strategy(""breakout__atr_filter0.8_directionshort_only_window55"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 55)[1]
+breakoutLow = ta.lowest(low, 55)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 0.8 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 0.8 and trendFast < trendSlow and volume > volMean
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+breakout__atr_filter1.2_directionshort_only_window55,breakout,1006.0,-0.002063576833887849,0.7956657026501537,0.7082848690020348,0,0,"//@version=5
+strategy(""breakout__atr_filter1.2_directionshort_only_window55"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 55)[1]
+breakoutLow = ta.lowest(low, 55)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 1.2 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 1.2 and trendFast < trendSlow and volume > volMean
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+breakout__atr_filter0.8_directionshort_only_window30,breakout,1341.0,-0.0020852064543368603,0.7373209703129321,0.7078114986967754,0,0,"//@version=5
+strategy(""breakout__atr_filter0.8_directionshort_only_window30"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 30)[1]
+breakoutLow = ta.lowest(low, 30)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 0.8 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 0.8 and trendFast < trendSlow and volume > volMean
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+vol_squeeze__squeeze_threshold0.25_volume_z_threshold0.5_window20,vol_squeeze,798.0,-0.0021395838273398212,0.63135756557671,0.4380160527974736,0,0,"//@version=5
+strategy(""vol_squeeze__squeeze_threshold0.25_volume_z_threshold0.5_window20"", overlay=true, process_orders_on_close=true)
+basis = ta.sma(close, 20)
+dev = ta.stdev(close, 20) * 2.0
+upper = basis + dev
+lower = basis - dev
+bandwidth = (upper - lower) / basis
+squeeze = ta.percentrank(bandwidth, 80) < 25.0
+volZ = (volume - ta.sma(volume, 30)) / ta.stdev(volume, 30)
+breakoutHigh = ta.highest(high, 20)[1]
+breakoutLow = ta.lowest(low, 20)[1]
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+longCondition = squeeze[1] and close > breakoutHigh and volZ > 0.5 and trendFast > trendSlow
+shortCondition = squeeze[1] and close < breakoutLow and volZ > 0.5 and trendFast < trendSlow
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+breakout__atr_filter1.0_directionshort_only_window55,breakout,1076.0,-0.0021431993867550687,0.7879274291253124,0.7301565027902799,1,1,"//@version=5
+strategy(""breakout__atr_filter1.0_directionshort_only_window55"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 55)[1]
+breakoutLow = ta.lowest(low, 55)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 1.0 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 1.0 and trendFast < trendSlow and volume > volMean
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+breakout__atr_filter1.0_directionshort_only_window30,breakout,1300.0,-0.0021447190239679234,0.7413055515609634,0.725285092891569,0,0,"//@version=5
+strategy(""breakout__atr_filter1.0_directionshort_only_window30"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 30)[1]
+breakoutLow = ta.lowest(low, 30)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 1.0 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 1.0 and trendFast < trendSlow and volume > volMean
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+breakout__atr_filter1.2_directionshort_only_window30,breakout,1211.0,-0.0021843359610550883,0.719882896157195,0.6743333678441382,0,0,"//@version=5
+strategy(""breakout__atr_filter1.2_directionshort_only_window30"", overlay=true, process_orders_on_close=true)
+breakoutHigh = ta.highest(high, 30)[1]
+breakoutLow = ta.lowest(low, 30)[1]
+atr14 = ta.atr(14)
+rangeRatio = (high - low) / atr14
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+volMean = ta.sma(volume, 30)
+longCondition = close > breakoutHigh and rangeRatio > 1.2 and trendFast > trendSlow and volume > volMean
+shortCondition = close < breakoutLow and rangeRatio > 1.2 and trendFast < trendSlow and volume > volMean
+if longCondition and ""short_only"" != ""short_only""
+    strategy.entry(""Long"", strategy.long)
+if shortCondition and ""short_only"" != ""long_only""
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+vol_squeeze__squeeze_threshold0.35_volume_z_threshold1.0_window20,vol_squeeze,900.0,-0.0021869121347059266,0.6551229919256101,0.45551523002227456,0,0,"//@version=5
+strategy(""vol_squeeze__squeeze_threshold0.35_volume_z_threshold1.0_window20"", overlay=true, process_orders_on_close=true)
+basis = ta.sma(close, 20)
+dev = ta.stdev(close, 20) * 2.0
+upper = basis + dev
+lower = basis - dev
+bandwidth = (upper - lower) / basis
+squeeze = ta.percentrank(bandwidth, 80) < 35.0
+volZ = (volume - ta.sma(volume, 30)) / ta.stdev(volume, 30)
+breakoutHigh = ta.highest(high, 20)[1]
+breakoutLow = ta.lowest(low, 20)[1]
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+longCondition = squeeze[1] and close > breakoutHigh and volZ > 1.0 and trendFast > trendSlow
+shortCondition = squeeze[1] and close < breakoutLow and volZ > 1.0 and trendFast < trendSlow
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False
+vol_squeeze__squeeze_threshold0.35_volume_z_threshold0.5_window20,vol_squeeze,1020.0,-0.002316600195902079,0.6292552828215419,0.5240712023543956,0,0,"//@version=5
+strategy(""vol_squeeze__squeeze_threshold0.35_volume_z_threshold0.5_window20"", overlay=true, process_orders_on_close=true)
+basis = ta.sma(close, 20)
+dev = ta.stdev(close, 20) * 2.0
+upper = basis + dev
+lower = basis - dev
+bandwidth = (upper - lower) / basis
+squeeze = ta.percentrank(bandwidth, 80) < 35.0
+volZ = (volume - ta.sma(volume, 30)) / ta.stdev(volume, 30)
+breakoutHigh = ta.highest(high, 20)[1]
+breakoutLow = ta.lowest(low, 20)[1]
+trendFast = ta.ema(close, 20)
+trendSlow = ta.ema(close, 55)
+longCondition = squeeze[1] and close > breakoutHigh and volZ > 0.5 and trendFast > trendSlow
+shortCondition = squeeze[1] and close < breakoutLow and volZ > 0.5 and trendFast < trendSlow
+if longCondition
+    strategy.entry(""Long"", strategy.long)
+if shortCondition
+    strategy.entry(""Short"", strategy.short)",False,False,False,False,rejected,False

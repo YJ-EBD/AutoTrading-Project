@@ -1,0 +1,66 @@
+{
+  "artifact_dir": "C:\\yjcooperation\\artifacts\\20260315T153856Z",
+  "hypothesis": "Baseline diversified Pine pool with meta-label filter.",
+  "ml": {
+    "best_model": {
+      "aggregate_metrics": {
+        "acceptance_rate_mean": 0.1708185053380783,
+        "expectancy_mean": 0.013520413939953062,
+        "folds": 2.0,
+        "precision_mean": 0.752156602521566,
+        "threshold_mean": 0.525,
+        "trade_count": 192.0
+      },
+      "calibration_method": "platt",
+      "model_name": "logistic_regression"
+    },
+    "event_count": 3753,
+    "model_evaluations": 6
+  },
+  "portfolio": {
+    "daily_loss_limit_triggered": 1.0,
+    "expectancy": -0.002529847103102403,
+    "precision": 0.3157894736842105,
+    "profit_factor": 0.8525436896691392,
+    "trade_count": 19.0
+  },
+  "pre_screen": {
+    "candidate_count": 44,
+    "survivor_count": 3
+  },
+  "robustness": {
+    "all_gates_passed": false,
+    "fold_expectancies": [
+      0.01046078745904192,
+      0.016580040420864205
+    ],
+    "gates": {
+      "cost_stress_positive": false,
+      "enough_fold_coverage": true,
+      "monte_carlo_ok": false,
+      "positive_fold_expectancy": true,
+      "positive_oos_expectancy": false,
+      "precision_ok": true,
+      "symbol_concentration_ok": false,
+      "threshold_stable": true
+    },
+    "monte_carlo_negative_rate": 0.564,
+    "stressed_expectancy": -0.006529847103102403,
+    "threshold_std": 0.07499999999999998,
+    "top_symbol_share": 1.0
+  },
+  "status": "needs_iteration",
+  "universe": {
+    "eligible_symbols": 8,
+    "selected_symbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT",
+      "RIVERUSDT",
+      "COSUSDT",
+      "XRPUSDT",
+      "XANUSDT",
+      "TRUMPUSDT"
+    ]
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "artifact_dir": "C:\\yjcooperation\\artifacts\\20260320T063831Z",
+  "hypothesis": "Continuous loop iteration 141: wider_universe",
+  "ml": {
+    "best_model": {
+      "aggregate_metrics": {
+        "acceptance_rate_mean": 0.1402439024390244,
+        "expectancy_mean": 0.022167169443353864,
+        "folds": 1.0,
+        "precision_mean": 0.782608695652174,
+        "threshold_mean": 0.55,
+        "trade_count": 23.0
+      },
+      "calibration_method": "isotonic",
+      "model_name": "xgboost"
+    },
+    "event_count": 1099,
+    "model_evaluations": 4
+  },
+  "portfolio": {
+    "daily_loss_limit_triggered": 0.0,
+    "expectancy": 0.022167169443353864,
+    "precision": 0.782608695652174,
+    "profit_factor": 12.522151066000905,
+    "trade_count": 23.0
+  },
+  "pre_screen": {
+    "candidate_count": 132,
+    "survivor_count": 1
+  },
+  "robustness": {
+    "all_gates_passed": false,
+    "distinct_families": 1,
+    "distinct_symbols": 8,
+    "fold_expectancies": [
+      0.022167169443353864
+    ],
+    "gates": {
+      "cost_stress_positive": true,
+      "enough_fold_coverage": false,
+      "family_breadth_ok": false,
+      "family_concentration_ok": false,
+      "monte_carlo_ok": true,
+      "positive_fold_expectancy": true,
+      "positive_oos_expectancy": true,
+      "precision_ok": true,
+      "symbol_breadth_ok": true,
+      "symbol_concentration_ok": true,
+      "threshold_stable": true,
+      "trade_count_ok": true
+    },
+    "monte_carlo_negative_rate": 0.0,
+    "portfolio_trade_count": 23,
+    "stressed_expectancy": 0.018167169443353864,
+    "threshold_std": 0.0,
+    "top_family_share": 1.0,
+    "top_symbol_share": 0.21739130434782608
+  },
+  "status": "needs_iteration",
+  "universe": {
+    "eligible_symbols": 12,
+    "selected_symbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT",
+      "XRPUSDT",
+      "PAXGUSDT",
+      "HYPEUSDT",
+      "LYNUSDT",
+      "TAOUSDT",
+      "DOGEUSDT",
+      "ZECUSDT",
+      "SIRENUSDT",
+      "BNBUSDT"
+    ]
+  }
+}

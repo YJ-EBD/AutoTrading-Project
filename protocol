@@ -1,0 +1,19 @@
+cd C:\yjcooperation
+python -m pip install -e .[dev]
+python -m binance_quant.cli build-deployment --config configs\base.yaml
+python -m binance_quant.cli serve-paper --config configs\base.yaml
+
+Ctrl + C
+python -m binance_quant.cli serve-paper --config configs\base.yaml
+
+
+http://127.0.0.1:8000
+
+
+& "$env:LOCALAPPDATA\Programs\Ollama\ollama.exe" server
+& "$env:LOCALAPPDATA\Programs\Ollama\ollama.exe" pull qwen3:14b
+
+& "$env:LOCALAPPDATA\Programs\Ollama\ollama.exe" list
+Invoke-WebRequest -UseBasicParsing http://127.0.0.1:11434/api/tags | Select-Object -ExpandProperty Content
+
+

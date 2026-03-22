@@ -1,0 +1,144 @@
+{
+  "high_correlation_pairs": [
+    [
+      "log_return_16",
+      "ema_fast_distance",
+      0.9648728444134772
+    ],
+    [
+      "log_return_16",
+      "ema_slow_distance",
+      0.9625625568476079
+    ],
+    [
+      "log_return_16",
+      "ema_fast_slope",
+      0.9606584264903951
+    ],
+    [
+      "rsi_14",
+      "bb_zscore",
+      0.9515282169475145
+    ],
+    [
+      "ema_fast_distance",
+      "ema_slow_distance",
+      0.9893192637531291
+    ],
+    [
+      "ema_fast_distance",
+      "ema_fast_slope",
+      0.9548483999607256
+    ],
+    [
+      "ema_slow_distance",
+      "ema_fast_slope",
+      0.9559140598365515
+    ],
+    [
+      "ema_fast_slope",
+      "ema_slow_slope",
+      0.9565428834324149
+    ],
+    [
+      "family_breakout",
+      "family_trend_ema",
+      0.9999999999999999
+    ],
+    [
+      "side_long",
+      "side_short",
+      0.9999999999999997
+    ]
+  ],
+  "nan_rate": {
+    "atr_14": 0.0,
+    "bb_bandwidth": 0.0,
+    "bb_zscore": 0.0,
+    "body_ratio": 0.0,
+    "day_of_week": 0.0,
+    "drawdown_20": 0.0,
+    "ema_fast_distance": 0.0,
+    "ema_fast_slope": 0.0,
+    "ema_slow_distance": 0.0,
+    "ema_slow_slope": 0.0,
+    "family_breakout": 0.0,
+    "family_trend_ema": 0.0,
+    "hour_cos": 0.0,
+    "hour_sin": 0.0,
+    "log_return_1": 0.0,
+    "log_return_16": 0.0,
+    "log_return_4": 0.0,
+    "lower_wick_ratio": 0.0,
+    "macd_hist": 0.0,
+    "mae_limit_breached": 0.0,
+    "range_ratio": 0.0,
+    "recent_same_side_failures": 0.0,
+    "recent_same_side_mean_return": 0.0,
+    "relative_volume": 0.0,
+    "rsi_14": 0.0,
+    "session_bucket": 0.0,
+    "side_long": 0.0,
+    "side_short": 0.0,
+    "signal_strength": 0.0,
+    "symbol_1000PEPEUSDT": 0.0,
+    "symbol_BTCUSDT": 0.0,
+    "symbol_DOGEUSDT": 0.0,
+    "symbol_ETHUSDT": 0.0,
+    "symbol_PIPPINUSDT": 0.0,
+    "symbol_SOLUSDT": 0.0,
+    "symbol_XRPUSDT": 0.0,
+    "symbol_ZECUSDT": 0.0,
+    "trend_regime": 0.0,
+    "upper_wick_ratio": 0.0,
+    "vol_norm_return_4": 0.0,
+    "volatility_regime": 0.0003713330857779428,
+    "volume_zscore": 0.0
+  },
+  "point_in_time_ok": true,
+  "rolling_drift_score": {
+    "atr_14": 0.007448887528886333,
+    "bb_bandwidth": 0.10928917318250705,
+    "bb_zscore": 0.007088092095817392,
+    "body_ratio": 0.016961943630524577,
+    "day_of_week": 0.14997508774918275,
+    "drawdown_20": 0.09994950082463457,
+    "ema_fast_distance": 0.053332867231299076,
+    "ema_fast_slope": 0.03381915112273887,
+    "ema_slow_distance": 0.052216816782739366,
+    "ema_slow_slope": 0.026823612301697122,
+    "family_breakout": 0.02553571341327511,
+    "family_trend_ema": 0.025535713413275315,
+    "hour_cos": 0.003918692133901671,
+    "hour_sin": 0.12199075164045253,
+    "log_return_1": 0.026557760738425508,
+    "log_return_16": 0.04611452395901365,
+    "log_return_4": 0.007973040994026523,
+    "lower_wick_ratio": 0.00932234458648445,
+    "macd_hist": 0.05616814549883378,
+    "mae_limit_breached": 0.12249037363969739,
+    "range_ratio": 0.1267681603242811,
+    "recent_same_side_failures": 0.04640236058133,
+    "recent_same_side_mean_return": 0.06541899292212992,
+    "relative_volume": 0.09046971539052426,
+    "rsi_14": 0.038711603110748206,
+    "session_bucket": 0.11857209860866676,
+    "side_long": 0.022097430976021494,
+    "side_short": 0.022097430976021494,
+    "signal_strength": 0.11013436796249668,
+    "symbol_1000PEPEUSDT": 0.03388598971580506,
+    "symbol_BTCUSDT": 0.005658461480812179,
+    "symbol_DOGEUSDT": 0.004455321003345419,
+    "symbol_ETHUSDT": 0.02786311022483045,
+    "symbol_PIPPINUSDT": 0.0833791303514336,
+    "symbol_SOLUSDT": 0.08014206369362549,
+    "symbol_XRPUSDT": 0.0022005675995853346,
+    "symbol_ZECUSDT": 0.0034928774622630765,
+    "trend_regime": 0.0679464891366793,
+    "upper_wick_ratio": 0.01179988489887857,
+    "vol_norm_return_4": 0.016696639685802057,
+    "volatility_regime": 0.12306991654535844,
+    "volume_zscore": 0.07254088620774675
+  },
+  "zero_variance": []
+}

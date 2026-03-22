@@ -1,0 +1,75 @@
+{
+  "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T153728Z",
+  "hypothesis": "Continuous loop iteration 124: diversified_candidates",
+  "ml": {
+    "best_model": {
+      "aggregate_metrics": {
+        "acceptance_rate_mean": 0.15953307392996108,
+        "expectancy_mean": 0.023444251693001763,
+        "folds": 1.0,
+        "precision_mean": 0.8536585365853658,
+        "threshold_mean": 0.5,
+        "trade_count": 41.0
+      },
+      "calibration_method": "platt",
+      "model_name": "logistic_regression"
+    },
+    "event_count": 1714,
+    "model_evaluations": 5
+  },
+  "portfolio": {
+    "daily_loss_limit_triggered": 0.0,
+    "expectancy": 0.02207152576405729,
+    "precision": 0.84,
+    "profit_factor": 11.105175209296556,
+    "trade_count": 25.0
+  },
+  "pre_screen": {
+    "candidate_count": 132,
+    "survivor_count": 8
+  },
+  "robustness": {
+    "all_gates_passed": false,
+    "distinct_families": 1,
+    "distinct_symbols": 7,
+    "fold_expectancies": [
+      0.023444251693001763
+    ],
+    "gates": {
+      "cost_stress_positive": true,
+      "enough_fold_coverage": false,
+      "family_breadth_ok": false,
+      "family_concentration_ok": false,
+      "monte_carlo_ok": true,
+      "positive_fold_expectancy": true,
+      "positive_oos_expectancy": true,
+      "precision_ok": true,
+      "symbol_breadth_ok": true,
+      "symbol_concentration_ok": true,
+      "threshold_stable": true,
+      "trade_count_ok": true
+    },
+    "monte_carlo_negative_rate": 0.0,
+    "portfolio_trade_count": 25,
+    "stressed_expectancy": 0.01807152576405729,
+    "threshold_std": 0.0,
+    "top_family_share": 1.0,
+    "top_symbol_share": 0.32
+  },
+  "status": "needs_iteration",
+  "universe": {
+    "eligible_symbols": 10,
+    "selected_symbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT",
+      "XRPUSDT",
+      "HYPEUSDT",
+      "PAXGUSDT",
+      "DOGEUSDT",
+      "ZECUSDT",
+      "SIRENUSDT",
+      "RIVERUSDT"
+    ]
+  }
+}

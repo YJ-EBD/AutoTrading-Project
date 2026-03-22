@@ -1,0 +1,217 @@
+paths:
+  data_root: data
+  cache_root: data/cache
+  market_data_root: data/market
+  artifact_root: artifacts
+  registry_db: artifacts/registry/experiments.sqlite3
+
+exchange:
+  base_rest_url: https://fapi.binance.com
+  base_ws_url: wss://fstream.binance.com
+  exchange_info_ttl_minutes: 360
+  universe_ttl_minutes: 30
+  ticker_ttl_minutes: 10
+  request_timeout_seconds: 20
+  max_retry_attempts: 5
+  base_retry_delay_seconds: 1.0
+  max_retry_delay_seconds: 30.0
+  request_weight_cap_per_minute: 2000
+  request_weight_budgets:
+    metadata: 200
+    market_data: 1600
+    account: 100
+    orders: 100
+  kline_request_limit: 1000
+  websocket_message_cap_per_second: 10
+  websocket_rotate_hours: 24
+  websocket_ping_interval_seconds: 30
+  websocket_ping_timeout_seconds: 60
+  websocket_open_timeout_seconds: 30
+  websocket_close_timeout_seconds: 10
+  websocket_reconnect_delay_seconds: 5.0
+
+universe:
+  allowed_quote_assets:
+    - USDT
+    - USDC
+  allowed_contract_types:
+    - PERPETUAL
+    - CURRENT_QUARTER
+    - NEXT_QUARTER
+  min_24h_quote_volume_usd: 10000000
+  min_history_days: 90
+  min_last_price: 0.0
+  max_symbols: 8
+  unique_base_assets_only: true
+  exclude_symbols: []
+  include_symbols: []
+
+data:
+  timeframe: 15m
+  backfill_days: 120
+  chunk_days: 14
+  parquet_compression: zstd
+  require_full_alignment: true
+
+backtest:
+  leverage: 10.0
+  capital_fraction_per_trade: 0.1
+  fee_bps_per_side: 4.0
+  slippage_bps_per_side: 1.5
+  stop_atr_multiple: 1.5
+  target_atr_multiple: 2.5
+  max_holding_bars: 48
+  max_concurrent_positions: 3
+  liquidation_buffer_fraction: 0.9
+  liquidation_loss_fraction: 0.98
+  min_trade_count: 40
+
+labeling:
+  horizon_bars: 48
+  target_atr_multiple: 2.5
+  stop_atr_multiple: 1.5
+  max_adverse_excursion_limit: 0.03
+
+research:
+  random_seed: 42
+  min_candidate_trades: 50
+  min_profit_factor: 1.015
+  min_expectancy: 0.0005
+  max_drawdown_fraction: 0.4
+  relaxed_min_profit_factor: 0.92
+  relaxed_min_expectancy: -0.0008
+  relaxed_max_drawdown_fraction: 0.45
+  relaxed_min_positive_symbols: 2
+  family_seed_profit_factor_margin: 0.03
+  family_seed_expectancy_margin: 0.0005
+  family_seed_max_drawdown_buffer: 0.05
+  max_survivors_per_family: 2
+  max_signal_overlap: 0.6
+  min_survivor_count: 3
+  monte_carlo_iterations: 250
+  feature_correlation_threshold: 0.95
+
+ml:
+  enabled: true
+  min_events: 200
+  folds: 3
+  train_fraction: 0.55
+  validation_fraction: 0.2
+  test_fraction: 0.15
+  calibration_fraction_of_validation: 0.5
+  embargo_bars: 4
+  min_acceptance_rate: 0.1
+  max_acceptance_rate: 0.7
+  threshold_grid:
+    - 0.45
+    - 0.50
+    - 0.55
+    - 0.60
+    - 0.65
+    - 0.70
+    - 0.75
+    - 0.80
+  cost_stress_bps_per_side: 2.0
+  calibration_methods:
+    - platt
+    - isotonic
+  models:
+    - logistic_regression
+    - random_forest
+    - xgboost
+
+portfolio:
+  max_trades_per_day: 20
+  max_concurrent_positions: 4
+  max_symbol_weight: 0.35
+  max_strategy_weight: 0.5
+  min_portfolio_trades: 10
+  min_distinct_symbols: 3
+  min_distinct_families: 2
+  daily_loss_limit_fraction: 0.08
+  volatility_kill_switch_quantile: 0.98
+
+reporting:
+  save_json: true
+  save_markdown: true
+  save_csv: true
+
+deployment:
+  bundle_path: artifacts/deployment/paper_bundle.pkl
+  manifest_path: artifacts/deployment/paper_manifest.json
+  source_artifact: latest_accepted
+  auto_rebuild_on_start: true
+  calibration_fraction: 0.2
+  minimum_calibration_events: 80
+
+paper:
+  state_db: artifacts/paper/paper_state.sqlite3
+  log_path: artifacts/latest/paper_runtime.log
+  initial_lookback_bars: 600
+  max_runtime_bars: 1200
+  position_check_interval_seconds: 2
+  enable_signal_exit: true
+  allow_one_position_per_symbol: true
+  auto_retune: true
+  retune_interval_hours: 24
+  retune_check_seconds: 300
+  initial_retune_delay_seconds: 90
+  summary_window_days: 7
+  auto_rebuild_deployment: true
+
+dashboard:
+  host: 127.0.0.1
+  port: 8000
+  reload: false
+  decision_log_limit: 100
+  closed_trade_limit: 100
+  log_tail_lines: 200
+
+local_llm:
+  enabled: true
+  provider: ollama
+  base_url: http://127.0.0.1:11434
+  model: qwen3:14b
+  timeout_seconds: 180
+  temperature: 0.1
+  max_output_tokens: 256
+  require_allow_action: true
+  allow_reject_below_probability_delta: 0.03
+
+autoloop:
+  max_iterations: 6
+  max_stale_iterations: 3
+  sleep_seconds_between_iterations: 60
+  mutation_sequence:
+    - base
+    - broader_trend_grid
+    - breakout_expansion
+    - reversion_expansion
+    - narrower_universe
+    - wider_universe
+    - diversified_candidates
+    - stricter_costs
+    - higher_candidate_bar
+
+strategy_search:
+  trend_ema:
+    fast_lengths: [9, 12, 21]
+    slow_lengths: [34, 55, 89]
+    rsi_thresholds: [52, 55, 58]
+    directions: [both, long_only, short_only]
+  trend_pullback:
+    fast_lengths: [21, 34]
+    slow_lengths: [55, 89]
+    pullback_rsi_levels: [45, 48]
+  breakout:
+    windows: [20, 30, 55]
+    atr_filters: [0.8, 1.0, 1.2]
+    directions: [both, long_only, short_only]
+  vol_squeeze:
+    windows: [20, 30]
+    squeeze_thresholds: [0.25, 0.35]
+    volume_z_thresholds: [0.5, 1.0]
+  mean_reversion:
+    bb_windows: [20, 30]
+    z_scores: [1.5, 2.0]
+    rsi_thresholds: [30, 35]

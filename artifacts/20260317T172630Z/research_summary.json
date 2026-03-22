@@ -1,0 +1,68 @@
+{
+  "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T172630Z",
+  "hypothesis": "Continuous loop iteration 74: broader_trend_grid",
+  "ml": {
+    "best_model": {
+      "aggregate_metrics": {
+        "acceptance_rate_mean": 0.33286821705426356,
+        "expectancy_mean": 0.015374778394630109,
+        "folds": 2.0,
+        "precision_mean": 0.922456327451568,
+        "threshold_mean": 0.7,
+        "trade_count": 2147.0
+      },
+      "calibration_method": "isotonic",
+      "model_name": "xgboost"
+    },
+    "event_count": 21501,
+    "model_evaluations": 6
+  },
+  "portfolio": {
+    "daily_loss_limit_triggered": 0.0,
+    "expectancy": 0.03591422377639718,
+    "precision": 0.8529411764705882,
+    "profit_factor": 13.413456707026194,
+    "trade_count": 34.0
+  },
+  "pre_screen": {
+    "candidate_count": 276,
+    "survivor_count": 40
+  },
+  "robustness": {
+    "all_gates_passed": false,
+    "fold_expectancies": [
+      0.01696932429176012,
+      0.013780232497500095
+    ],
+    "gates": {
+      "cost_stress_positive": true,
+      "enough_fold_coverage": true,
+      "family_concentration_ok": false,
+      "monte_carlo_ok": true,
+      "positive_fold_expectancy": true,
+      "positive_oos_expectancy": true,
+      "precision_ok": true,
+      "symbol_concentration_ok": false,
+      "threshold_stable": false
+    },
+    "monte_carlo_negative_rate": 0.0,
+    "stressed_expectancy": 0.031914223776397174,
+    "threshold_std": 0.10000000000000003,
+    "top_family_share": 0.9117647058823529,
+    "top_symbol_share": 0.9117647058823529
+  },
+  "status": "needs_iteration",
+  "universe": {
+    "eligible_symbols": 8,
+    "selected_symbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT",
+      "XRPUSDT",
+      "ZECUSDT",
+      "DOGEUSDT",
+      "PIPPINUSDT",
+      "1000PEPEUSDT"
+    ]
+  }
+}

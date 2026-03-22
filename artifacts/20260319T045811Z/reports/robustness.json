@@ -1,0 +1,29 @@
+{
+  "all_gates_passed": false,
+  "distinct_families": 1,
+  "distinct_symbols": 4,
+  "fold_expectancies": [
+    0.0131634418489675,
+    0.011988324257307052
+  ],
+  "gates": {
+    "cost_stress_positive": true,
+    "enough_fold_coverage": true,
+    "family_breadth_ok": false,
+    "family_concentration_ok": false,
+    "monte_carlo_ok": true,
+    "positive_fold_expectancy": true,
+    "positive_oos_expectancy": true,
+    "precision_ok": true,
+    "symbol_breadth_ok": true,
+    "symbol_concentration_ok": true,
+    "threshold_stable": true,
+    "trade_count_ok": false
+  },
+  "monte_carlo_negative_rate": 0.0,
+  "portfolio_trade_count": 4,
+  "stressed_expectancy": 0.01303260792277286,
+  "threshold_std": 0.0,
+  "top_family_share": 1.0,
+  "top_symbol_share": 0.25
+}

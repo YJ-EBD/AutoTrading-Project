@@ -1,0 +1,158 @@
+{
+  "high_correlation_pairs": [
+    [
+      "log_return_4",
+      "ema_fast_distance",
+      0.9704071622013445
+    ],
+    [
+      "log_return_4",
+      "ema_slow_distance",
+      0.966748251650814
+    ],
+    [
+      "log_return_16",
+      "ema_slow_distance",
+      0.951534638499151
+    ],
+    [
+      "log_return_16",
+      "ema_fast_slope",
+      0.9534180760592772
+    ],
+    [
+      "log_return_16",
+      "drawdown_20",
+      0.9603708269029178
+    ],
+    [
+      "rsi_14",
+      "signal_strength",
+      0.9941161821960494
+    ],
+    [
+      "ema_fast_distance",
+      "ema_slow_distance",
+      0.999391270942424
+    ],
+    [
+      "ema_fast_distance",
+      "ema_fast_slope",
+      0.9546753678334567
+    ],
+    [
+      "ema_slow_distance",
+      "ema_fast_slope",
+      0.956463979627515
+    ],
+    [
+      "ema_fast_slope",
+      "ema_slow_slope",
+      0.9565573081033609
+    ],
+    [
+      "ema_fast_slope",
+      "drawdown_20",
+      0.9698218157024941
+    ],
+    [
+      "ema_slow_slope",
+      "bb_bandwidth",
+      0.9568720172237241
+    ],
+    [
+      "bb_bandwidth",
+      "drawdown_20",
+      0.9662042725460631
+    ]
+  ],
+  "nan_rate": {
+    "atr_14": 0.0,
+    "bb_bandwidth": 0.0,
+    "bb_zscore": 0.0,
+    "body_ratio": 0.0,
+    "day_of_week": 0.0,
+    "drawdown_20": 0.0,
+    "ema_fast_distance": 0.0,
+    "ema_fast_slope": 0.0,
+    "ema_slow_distance": 0.0,
+    "ema_slow_slope": 0.0,
+    "family_trend_ema": 0.0,
+    "hour_cos": 0.0,
+    "hour_sin": 0.0,
+    "log_return_1": 0.0,
+    "log_return_16": 0.0,
+    "log_return_4": 0.0,
+    "lower_wick_ratio": 0.0,
+    "macd_hist": 0.0,
+    "mae_limit_breached": 0.0,
+    "range_ratio": 0.0,
+    "recent_same_side_failures": 0.0,
+    "recent_same_side_mean_return": 0.0,
+    "relative_volume": 0.0,
+    "rsi_14": 0.0,
+    "session_bucket": 0.0,
+    "side_short": 0.0,
+    "signal_strength": 0.0,
+    "symbol_BTCUSDT": 0.0,
+    "symbol_DOGEUSDT": 0.0,
+    "symbol_ETHUSDT": 0.0,
+    "symbol_HYPEUSDT": 0.0,
+    "symbol_LYNUSDT": 0.0,
+    "symbol_PAXGUSDT": 0.0,
+    "symbol_SOLUSDT": 0.0,
+    "symbol_XRPUSDT": 0.0,
+    "trend_regime": 0.0,
+    "upper_wick_ratio": 0.0,
+    "vol_norm_return_4": 0.0,
+    "volatility_regime": 0.0,
+    "volume_zscore": 0.0
+  },
+  "point_in_time_ok": true,
+  "rolling_drift_score": {
+    "atr_14": 0.012457808964433598,
+    "bb_bandwidth": 0.03618502551664534,
+    "bb_zscore": 0.2250208444992515,
+    "body_ratio": 0.050080384897629074,
+    "day_of_week": 0.20931657499572406,
+    "drawdown_20": 0.05940085335194307,
+    "ema_fast_distance": 0.05260942472111128,
+    "ema_fast_slope": 0.07065821717588068,
+    "ema_slow_distance": 0.04701304801743223,
+    "ema_slow_slope": 0.04735808333268333,
+    "family_trend_ema": 0.0,
+    "hour_cos": 0.010747695852822777,
+    "hour_sin": 0.15433523907504407,
+    "log_return_1": 0.06662874777878482,
+    "log_return_16": 0.06442699488912924,
+    "log_return_4": 0.06177957810941693,
+    "lower_wick_ratio": 0.053901664710315,
+    "macd_hist": 0.059420100235881707,
+    "mae_limit_breached": 0.020161945963637795,
+    "range_ratio": 0.007706512557664123,
+    "recent_same_side_failures": 0.022673923562237214,
+    "recent_same_side_mean_return": 0.08445370658737558,
+    "relative_volume": 0.08165811455924774,
+    "rsi_14": 0.2875541901282379,
+    "session_bucket": 0.23407338873509942,
+    "side_short": 0.0,
+    "signal_strength": 0.29022826270448593,
+    "symbol_BTCUSDT": 0.041202319251330215,
+    "symbol_DOGEUSDT": 0.01143940898218725,
+    "symbol_ETHUSDT": 0.018023382482922398,
+    "symbol_HYPEUSDT": 0.046040925551613085,
+    "symbol_LYNUSDT": 0.06608573577071546,
+    "symbol_PAXGUSDT": 0.16830435336527996,
+    "symbol_SOLUSDT": 0.07601721782562075,
+    "symbol_XRPUSDT": 0.00584747829427852,
+    "trend_regime": 0.06199419003899315,
+    "upper_wick_ratio": 0.12063950103678744,
+    "vol_norm_return_4": 0.20656567909265308,
+    "volatility_regime": 0.10382118493236629,
+    "volume_zscore": 0.053960215721025453
+  },
+  "zero_variance": [
+    "family_trend_ema",
+    "side_short"
+  ]
+}

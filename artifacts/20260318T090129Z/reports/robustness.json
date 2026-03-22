@@ -1,0 +1,23 @@
+{
+  "all_gates_passed": false,
+  "fold_expectancies": [
+    0.015117947090083237,
+    0.014095650540876954
+  ],
+  "gates": {
+    "cost_stress_positive": true,
+    "enough_fold_coverage": true,
+    "family_concentration_ok": false,
+    "monte_carlo_ok": true,
+    "positive_fold_expectancy": true,
+    "positive_oos_expectancy": true,
+    "precision_ok": true,
+    "symbol_concentration_ok": false,
+    "threshold_stable": true
+  },
+  "monte_carlo_negative_rate": 0.0,
+  "stressed_expectancy": 0.010924230733860583,
+  "threshold_std": 0.0,
+  "top_family_share": 0.8918918918918919,
+  "top_symbol_share": 0.9459459459459459
+}

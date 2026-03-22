@@ -1,0 +1,1120 @@
+{
+  "best_result": {
+    "artifact_dir": "C:\\yjcooperation\\artifacts\\20260320T131155Z",
+    "hypothesis": "Continuous loop iteration 148: reversion_expansion",
+    "ml": {
+      "best_model": {
+        "aggregate_metrics": {
+          "acceptance_rate_mean": 0.16853932584269662,
+          "expectancy_mean": 0.024816645700152396,
+          "folds": 2.0,
+          "precision_mean": 0.8672699849170438,
+          "threshold_mean": 0.625,
+          "trade_count": 90.0
+        },
+        "calibration_method": "isotonic",
+        "model_name": "xgboost"
+      },
+      "event_count": 1783,
+      "model_evaluations": 5
+    },
+    "portfolio": {
+      "daily_loss_limit_triggered": 0.0,
+      "expectancy": 0.019883175497741067,
+      "precision": 0.8,
+      "profit_factor": 15.689720537229066,
+      "trade_count": 10.0
+    },
+    "pre_screen": {
+      "candidate_count": 176,
+      "survivor_count": 22
+    },
+    "robustness": {
+      "all_gates_passed": true,
+      "distinct_families": 2,
+      "distinct_symbols": 6,
+      "fold_expectancies": [
+        0.02236177606642486,
+        0.027271515333879934
+      ],
+      "gates": {
+        "cost_stress_positive": true,
+        "enough_fold_coverage": true,
+        "family_breadth_ok": true,
+        "family_concentration_ok": true,
+        "monte_carlo_ok": true,
+        "positive_fold_expectancy": true,
+        "positive_oos_expectancy": true,
+        "precision_ok": true,
+        "symbol_breadth_ok": true,
+        "symbol_concentration_ok": true,
+        "threshold_stable": true,
+        "trade_count_ok": true
+      },
+      "monte_carlo_negative_rate": 0.0,
+      "portfolio_trade_count": 10,
+      "stressed_expectancy": 0.015883175497741066,
+      "threshold_std": 0.07499999999999996,
+      "top_family_share": 0.5,
+      "top_symbol_share": 0.3
+    },
+    "status": "accepted_for_paper",
+    "universe": {
+      "eligible_symbols": 8,
+      "selected_symbols": [
+        "BTCUSDT",
+        "ETHUSDT",
+        "SOLUSDT",
+        "TAOUSDT",
+        "XRPUSDT",
+        "LYNUSDT",
+        "RIVERUSDT",
+        "HYPEUSDT"
+      ]
+    }
+  },
+  "best_score": 1.1190184968395216,
+  "completed_with_promotion": true,
+  "current_run": null,
+  "runs": [
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T104045Z",
+      "iteration": 1,
+      "mutation": "base",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T110021Z",
+      "iteration": 2,
+      "mutation": "broader_trend_grid",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T113455Z",
+      "iteration": 3,
+      "mutation": "narrower_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T114955Z",
+      "iteration": 4,
+      "mutation": "wider_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T121853Z",
+      "iteration": 5,
+      "mutation": "stricter_costs",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T123833Z",
+      "iteration": 6,
+      "mutation": "higher_candidate_bar",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T125814Z",
+      "iteration": 7,
+      "mutation": "base",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T131756Z",
+      "iteration": 8,
+      "mutation": "broader_trend_grid",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T135241Z",
+      "iteration": 9,
+      "mutation": "narrower_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T140744Z",
+      "iteration": 10,
+      "mutation": "wider_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T143653Z",
+      "iteration": 11,
+      "mutation": "stricter_costs",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T145638Z",
+      "iteration": 12,
+      "mutation": "higher_candidate_bar",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T151623Z",
+      "iteration": 13,
+      "mutation": "base",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T153610Z",
+      "iteration": 14,
+      "mutation": "broader_trend_grid",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T161052Z",
+      "iteration": 15,
+      "mutation": "narrower_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T162557Z",
+      "iteration": 16,
+      "mutation": "wider_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T165510Z",
+      "iteration": 17,
+      "mutation": "stricter_costs",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T171456Z",
+      "iteration": 18,
+      "mutation": "higher_candidate_bar",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T173444Z",
+      "iteration": 19,
+      "mutation": "base",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T175431Z",
+      "iteration": 20,
+      "mutation": "broader_trend_grid",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T182915Z",
+      "iteration": 21,
+      "mutation": "narrower_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T184421Z",
+      "iteration": 22,
+      "mutation": "wider_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T191329Z",
+      "iteration": 23,
+      "mutation": "stricter_costs",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T193317Z",
+      "iteration": 24,
+      "mutation": "higher_candidate_bar",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T195303Z",
+      "iteration": 25,
+      "mutation": "base",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T201250Z",
+      "iteration": 26,
+      "mutation": "broader_trend_grid",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T204739Z",
+      "iteration": 27,
+      "mutation": "narrower_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T210244Z",
+      "iteration": 28,
+      "mutation": "wider_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T213155Z",
+      "iteration": 29,
+      "mutation": "stricter_costs",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T215145Z",
+      "iteration": 30,
+      "mutation": "higher_candidate_bar",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T221133Z",
+      "iteration": 31,
+      "mutation": "base",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T223122Z",
+      "iteration": 32,
+      "mutation": "broader_trend_grid",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T230611Z",
+      "iteration": 33,
+      "mutation": "narrower_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T232120Z",
+      "iteration": 34,
+      "mutation": "wider_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260316T235033Z",
+      "iteration": 35,
+      "mutation": "stricter_costs",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T001025Z",
+      "iteration": 36,
+      "mutation": "higher_candidate_bar",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T003013Z",
+      "iteration": 37,
+      "mutation": "base",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T005003Z",
+      "iteration": 38,
+      "mutation": "broader_trend_grid",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T012459Z",
+      "iteration": 39,
+      "mutation": "narrower_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T014008Z",
+      "iteration": 40,
+      "mutation": "wider_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T020924Z",
+      "iteration": 41,
+      "mutation": "stricter_costs",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T022919Z",
+      "iteration": 42,
+      "mutation": "higher_candidate_bar",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T024913Z",
+      "iteration": 43,
+      "mutation": "base",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T030908Z",
+      "iteration": 44,
+      "mutation": "broader_trend_grid",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T034416Z",
+      "iteration": 45,
+      "mutation": "narrower_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T035929Z",
+      "iteration": 46,
+      "mutation": "wider_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T042848Z",
+      "iteration": 47,
+      "mutation": "stricter_costs",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T044841Z",
+      "iteration": 48,
+      "mutation": "higher_candidate_bar",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T050835Z",
+      "iteration": 49,
+      "mutation": "base",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T052828Z",
+      "iteration": 50,
+      "mutation": "broader_trend_grid",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T060319Z",
+      "iteration": 51,
+      "mutation": "narrower_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T061828Z",
+      "iteration": 52,
+      "mutation": "wider_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T064740Z",
+      "iteration": 53,
+      "mutation": "stricter_costs",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T070733Z",
+      "iteration": 54,
+      "mutation": "higher_candidate_bar",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T072728Z",
+      "iteration": 55,
+      "mutation": "base",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T074719Z",
+      "iteration": 56,
+      "mutation": "broader_trend_grid",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T082210Z",
+      "iteration": 57,
+      "mutation": "narrower_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T083719Z",
+      "iteration": 58,
+      "mutation": "wider_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T090634Z",
+      "iteration": 59,
+      "mutation": "stricter_costs",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T092627Z",
+      "iteration": 60,
+      "mutation": "higher_candidate_bar",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T094618Z",
+      "iteration": 61,
+      "mutation": "base",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T100613Z",
+      "iteration": 62,
+      "mutation": "broader_trend_grid",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T104104Z",
+      "iteration": 63,
+      "mutation": "narrower_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T105612Z",
+      "iteration": 64,
+      "mutation": "wider_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T112527Z",
+      "iteration": 65,
+      "mutation": "stricter_costs",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T114519Z",
+      "iteration": 66,
+      "mutation": "higher_candidate_bar",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T120513Z",
+      "iteration": 67,
+      "mutation": "base",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T122506Z",
+      "iteration": 68,
+      "mutation": "broader_trend_grid",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T134221Z",
+      "iteration": 69,
+      "mutation": "narrower_universe",
+      "score": -0.31496023479747326,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T141447Z",
+      "iteration": 70,
+      "mutation": "wider_universe",
+      "score": -0.22770567726393384,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T151800Z",
+      "iteration": 71,
+      "mutation": "stricter_costs",
+      "score": -0.16312930735888037,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T160102Z",
+      "iteration": 72,
+      "mutation": "higher_candidate_bar",
+      "score": -0.2089619808132263,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T164352Z",
+      "iteration": 73,
+      "mutation": "base",
+      "score": -0.04215720322432995,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T172630Z",
+      "iteration": 74,
+      "mutation": "broader_trend_grid",
+      "score": -0.48768216604583686,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T185443Z",
+      "iteration": 75,
+      "mutation": "narrower_universe",
+      "score": -0.18563133710111074,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T192712Z",
+      "iteration": 76,
+      "mutation": "wider_universe",
+      "score": -0.22842430675554445,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T203027Z",
+      "iteration": 77,
+      "mutation": "stricter_costs",
+      "score": -0.19805183943995427,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T211310Z",
+      "iteration": 78,
+      "mutation": "higher_candidate_bar",
+      "score": -0.04759415244838415,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T215543Z",
+      "iteration": 79,
+      "mutation": "base",
+      "score": -0.04759415244838415,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260317T223818Z",
+      "iteration": 80,
+      "mutation": "broader_trend_grid",
+      "score": -0.43714681503803676,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T000644Z",
+      "iteration": 81,
+      "mutation": "narrower_universe",
+      "score": -0.19653663494088827,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T003909Z",
+      "iteration": 82,
+      "mutation": "wider_universe",
+      "score": -0.2745891160998796,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T014212Z",
+      "iteration": 83,
+      "mutation": "stricter_costs",
+      "score": -0.19557499868405945,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T022448Z",
+      "iteration": 84,
+      "mutation": "higher_candidate_bar",
+      "score": 0.04850154641704989,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T030719Z",
+      "iteration": 85,
+      "mutation": "base",
+      "score": -0.03704664068108904,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T034959Z",
+      "iteration": 86,
+      "mutation": "broader_trend_grid",
+      "score": -0.3778579274440818,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T051816Z",
+      "iteration": 87,
+      "mutation": "narrower_universe",
+      "score": -0.09505718054701114,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T055037Z",
+      "iteration": 88,
+      "mutation": "wider_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T065338Z",
+      "iteration": 89,
+      "mutation": "stricter_costs",
+      "score": -0.26917626188791527,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T073613Z",
+      "iteration": 90,
+      "mutation": "higher_candidate_bar",
+      "score": 0.00905821292914466,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T081848Z",
+      "iteration": 91,
+      "mutation": "base",
+      "score": 0.047034979542554825,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T090129Z",
+      "iteration": 92,
+      "mutation": "broader_trend_grid",
+      "score": -0.5243131550753498,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T103004Z",
+      "iteration": 93,
+      "mutation": "narrower_universe",
+      "score": -0.20555879377392672,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T110216Z",
+      "iteration": 94,
+      "mutation": "wider_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T123655Z",
+      "iteration": 95,
+      "mutation": "narrower_universe",
+      "score": -0.786579752618581,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T131026Z",
+      "iteration": 96,
+      "mutation": "wider_universe",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T141602Z",
+      "iteration": 97,
+      "mutation": "diversified_candidates",
+      "score": -0.9161772615308201,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T151035Z",
+      "iteration": 98,
+      "mutation": "stricter_costs",
+      "score": -1.2809132617140933,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T155443Z",
+      "iteration": 99,
+      "mutation": "higher_candidate_bar",
+      "score": -0.7678144195177945,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T163852Z",
+      "iteration": 100,
+      "mutation": "base",
+      "score": -0.7678144195177945,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T172302Z",
+      "iteration": 101,
+      "mutation": "broader_trend_grid",
+      "score": -1.2807202652422411,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T185424Z",
+      "iteration": 102,
+      "mutation": "breakout_expansion",
+      "score": -0.7718779322288583,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T194917Z",
+      "iteration": 103,
+      "mutation": "reversion_expansion",
+      "score": -0.7718779322288583,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T204754Z",
+      "iteration": 104,
+      "mutation": "narrower_universe",
+      "score": -1.2905941202548092,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T212131Z",
+      "iteration": 105,
+      "mutation": "wider_universe",
+      "score": -0.7808366088911589,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T222724Z",
+      "iteration": 106,
+      "mutation": "diversified_candidates",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260318T232209Z",
+      "iteration": 107,
+      "mutation": "stricter_costs",
+      "score": -1.2809132617140933,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T000551Z",
+      "iteration": 108,
+      "mutation": "higher_candidate_bar",
+      "score": -0.7718779322288583,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T004946Z",
+      "iteration": 109,
+      "mutation": "base",
+      "score": -0.7718779322288583,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T013353Z",
+      "iteration": 110,
+      "mutation": "broader_trend_grid",
+      "score": -1.275892540142205,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T030449Z",
+      "iteration": 111,
+      "mutation": "breakout_expansion",
+      "score": -0.7718779322288583,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T035944Z",
+      "iteration": 112,
+      "mutation": "reversion_expansion",
+      "score": -0.7718779322288583,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T045811Z",
+      "iteration": 113,
+      "mutation": "narrower_universe",
+      "score": -1.2849073471843524,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T053100Z",
+      "iteration": 114,
+      "mutation": "wider_universe",
+      "score": -0.7894118102768184,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T070455Z",
+      "iteration": 115,
+      "mutation": "diversified_candidates",
+      "score": -1.2687081339088515,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T075847Z",
+      "iteration": 116,
+      "mutation": "stricter_costs",
+      "score": -0.9865521265180672,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T084222Z",
+      "iteration": 117,
+      "mutation": "higher_candidate_bar",
+      "score": -0.9833979351286666,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T092554Z",
+      "iteration": 118,
+      "mutation": "base",
+      "score": -0.9833979351286666,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T100926Z",
+      "iteration": 119,
+      "mutation": "broader_trend_grid",
+      "score": -0.9548171431213932,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T113905Z",
+      "iteration": 120,
+      "mutation": "breakout_expansion",
+      "score": -0.9831322015605315,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T123316Z",
+      "iteration": 121,
+      "mutation": "reversion_expansion",
+      "score": -0.9831322015605315,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T135951Z",
+      "iteration": 122,
+      "mutation": "narrower_universe",
+      "score": -1.3152728473244395,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T143242Z",
+      "iteration": 123,
+      "mutation": "wider_universe",
+      "score": -1.2702406893979628,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T153728Z",
+      "iteration": 124,
+      "mutation": "diversified_candidates",
+      "score": -1.2808404947309053,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T163136Z",
+      "iteration": 125,
+      "mutation": "stricter_costs",
+      "score": -1.2915627034485695,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T171501Z",
+      "iteration": 126,
+      "mutation": "higher_candidate_bar",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T175821Z",
+      "iteration": 127,
+      "mutation": "base",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T184141Z",
+      "iteration": 128,
+      "mutation": "broader_trend_grid",
+      "score": -1.8481154681005232,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T201053Z",
+      "iteration": 129,
+      "mutation": "breakout_expansion",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T210444Z",
+      "iteration": 130,
+      "mutation": "reversion_expansion",
+      "score": -10.0,
+      "status": "rejected"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T220209Z",
+      "iteration": 131,
+      "mutation": "narrower_universe",
+      "score": -1.3073494195692905,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T223450Z",
+      "iteration": 132,
+      "mutation": "wider_universe",
+      "score": -1.2666383888524015,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260319T233932Z",
+      "iteration": 133,
+      "mutation": "diversified_candidates",
+      "score": -1.2755381185646026,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260320T003342Z",
+      "iteration": 134,
+      "mutation": "stricter_costs",
+      "score": -0.799790155999706,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260320T011710Z",
+      "iteration": 135,
+      "mutation": "higher_candidate_bar",
+      "score": -1.8193427350729579,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260320T020047Z",
+      "iteration": 136,
+      "mutation": "base",
+      "score": -1.2767951719257031,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260320T024414Z",
+      "iteration": 137,
+      "mutation": "broader_trend_grid",
+      "score": -1.285051823259317,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260320T041339Z",
+      "iteration": 138,
+      "mutation": "breakout_expansion",
+      "score": -0.7806166547885705,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260320T050748Z",
+      "iteration": 139,
+      "mutation": "reversion_expansion",
+      "score": -0.7806166547885705,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260320T060538Z",
+      "iteration": 140,
+      "mutation": "narrower_universe",
+      "score": -1.3073494195692905,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260320T063831Z",
+      "iteration": 141,
+      "mutation": "wider_universe",
+      "score": -1.2884883762697519,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260320T074317Z",
+      "iteration": 142,
+      "mutation": "diversified_candidates",
+      "score": -0.8218528685603443,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260320T083718Z",
+      "iteration": 143,
+      "mutation": "stricter_costs",
+      "score": -0.7948745734501315,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260320T092043Z",
+      "iteration": 144,
+      "mutation": "higher_candidate_bar",
+      "score": -0.8092356382399308,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260320T100411Z",
+      "iteration": 145,
+      "mutation": "base",
+      "score": -0.8092356382399308,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260320T104744Z",
+      "iteration": 146,
+      "mutation": "broader_trend_grid",
+      "score": -1.3005592456541164,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260320T121732Z",
+      "iteration": 147,
+      "mutation": "breakout_expansion",
+      "score": -0.7820444790846316,
+      "status": "needs_iteration"
+    },
+    {
+      "artifact_dir": "C:\\yjcooperation\\artifacts\\20260320T131155Z",
+      "iteration": 148,
+      "mutation": "reversion_expansion",
+      "score": 1.1190184968395216,
+      "status": "accepted_for_paper"
+    }
+  ],
+  "stale_iterations": 0,
+  "stopped_by_signal": false,
+  "total_iterations": 148
+}
