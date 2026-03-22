@@ -1,17 +1,17 @@
-# Usage Guide
+# 사용 가이드
 
-## 1. Environment setup
+## 1. 환경 준비
 
 ```powershell
 cd C:\yjcooperation
 python -m pip install -e .[dev]
 ```
 
-This project targets Python `3.12+` and installs as the package `binance_quant`.
+이 프로젝트는 Python `3.12+` 기준으로 동작하며 패키지 이름은 `binance_quant`입니다.
 
-## 2. Local LLM setup
+## 2. 로컬 LLM 준비
 
-The paper runtime can use Ollama as a final decision gate after the indicator signal and ML filter.
+페이퍼 런타임은 지표 시그널과 ML 필터 뒤에 Ollama 기반 로컬 LLM을 최종 판단 레이어로 사용할 수 있습니다.
 
 ```powershell
 winget install --id Ollama.Ollama -e --accept-source-agreements --accept-package-agreements
@@ -19,96 +19,97 @@ winget install --id Ollama.Ollama -e --accept-source-agreements --accept-package
 & "$env:LOCALAPPDATA\Programs\Ollama\ollama.exe" pull qwen3:14b
 ```
 
-Quick checks:
+확인 명령:
 
 ```powershell
 & "$env:LOCALAPPDATA\Programs\Ollama\ollama.exe" list
 Invoke-WebRequest -UseBasicParsing http://127.0.0.1:11434/api/tags | Select-Object -ExpandProperty Content
 ```
 
-## 3. Core research workflow
+## 3. 핵심 리서치 흐름
 
-### Discover the Binance USD-M universe
+### 바이낸스 USD-M 유니버스 탐색
 
 ```powershell
 python -m binance_quant.cli discover-universe --config configs\base.yaml
 ```
 
-Outputs:
+출력:
 
 - `artifacts/latest/universe/*`
-- cached exchange metadata and ticker snapshots
+- 캐시된 거래소 메타데이터
+- 캐시된 24시간 티커 스냅샷
 
-### Backfill 15m historical data
+### 15분봉 과거 데이터 적재
 
 ```powershell
 python -m binance_quant.cli backfill --config configs\base.yaml
 ```
 
-Outputs:
+출력:
 
 - `data/market/klines/15m/*.parquet`
-- symbol quality reports under each experiment artifact
+- 실험별 심볼 품질 리포트
 
-### Run the research loop
+### 리서치 루프 실행
 
 ```powershell
 python -m binance_quant.cli run-research --config configs\base.yaml
 ```
 
-This runs:
+이 명령은 아래 순서를 한 번에 실행합니다.
 
-1. Pine/Python parity checks
-2. universe discovery
-3. market-data ingestion
-4. strategy generation and pre-screening
-5. event labeling and feature engineering
-6. walk-forward ML training and calibration
-7. threshold selection
-8. robustness rejection
-9. constrained portfolio assembly
-10. artifact and report generation
+1. Pine/Python 시그널 패리티 확인
+2. 유니버스 탐색
+3. 시장 데이터 적재
+4. 전략 생성과 프리스크린
+5. 이벤트 라벨링과 피처 생성
+6. 워크포워드 ML 학습과 확률 보정
+7. threshold 탐색
+8. 강건성 탈락 판정
+9. 제약 기반 포트폴리오 조립
+10. 실험 결과와 리포트 저장
 
-### Build the paper deployment bundle
+### 페이퍼 배포 번들 생성
 
 ```powershell
 python -m binance_quant.cli build-deployment --config configs\base.yaml
 ```
 
-Outputs:
+출력:
 
 - `artifacts/deployment/paper_bundle.pkl`
 - `artifacts/deployment/paper_manifest.json`
 
-## 4. Paper trading runtime
+## 4. 페이퍼 트레이딩 런타임
 
-### Run the paper runtime only
+### 런타임만 실행
 
 ```powershell
 python -m binance_quant.cli paper-runtime --config configs\base.yaml
 ```
 
-This mode:
+이 모드는 다음을 수행합니다.
 
-- listens to Binance 15m websocket klines
-- evaluates indicator signals
-- scores candidate trades with the trained ML filter
-- optionally runs the Ollama final decision gate
-- opens paper positions at the observed signal-time price
-- closes paper positions on TP, SL, liquidation, horizon, or signal exit
-- saves all decisions and positions to SQLite
+- 바이낸스 15분봉 웹소켓 수신
+- 지표 기반 시그널 평가
+- 학습된 ML 필터로 진입 확률 계산
+- 필요 시 Ollama 최종 판단 수행
+- 시그널 시점 관측가로 페이퍼 포지션 오픈
+- TP, SL, 강제청산, 보유기간 종료, 시그널 종료 시 관측가로 종료 기록
+- 모든 의사결정과 포지션 상태를 SQLite에 저장
 
-### Run the FastAPI dashboard
+### FastAPI 대시보드 실행
 
 ```powershell
 python -m binance_quant.cli serve-paper --config configs\base.yaml
 ```
 
-Dashboard URL:
+기본 주소:
 
 - `http://127.0.0.1:8000`
 
-Useful endpoints:
+주요 API:
 
 - `/api/overview`
 - `/api/status`
@@ -120,33 +121,31 @@ Useful endpoints:
 - `/api/runtime/start`
 - `/api/runtime/stop`
 
-## 5. Autonomous refresh loops
+## 5. 자동 루프
 
-### Weekly refresh
+### 주간 리프레시
 
 ```powershell
 python -m binance_quant.cli weekly-refresh --config configs\base.yaml
 ```
 
-### Bounded auto-loop
+### 횟수 제한 자동 개선 루프
 
 ```powershell
 python -m binance_quant.cli auto-loop --config configs\base.yaml
 ```
 
-### Continuous loop
+### 연속 무한 루프
 
 ```powershell
 python -m binance_quant.cli continuous-loop --config configs\base.yaml
 ```
 
-The continuous loop iterates until promotion gates pass or until `artifacts/latest/STOP_AUTO_LOOP` is created.
+연속 루프는 승격 게이트를 통과하거나 `artifacts/latest/STOP_AUTO_LOOP` 파일이 생길 때까지 계속 반복합니다.
 
-## 6. Daily retuning and retraining
+## 6. 매일 자동 튜닝과 재학습
 
-The paper runtime includes automatic daily retuning.
-
-Current defaults in `configs/base.yaml`:
+현재 `configs/base.yaml` 기본값은 아래와 같습니다.
 
 - `paper.auto_retune: true`
 - `paper.retune_interval_hours: 24`
@@ -154,16 +153,17 @@ Current defaults in `configs/base.yaml`:
 - `paper.initial_retune_delay_seconds: 90`
 - `paper.auto_rebuild_deployment: true`
 
-This means:
+의미는 다음과 같습니다.
 
-1. the runtime checks every 5 minutes whether 24 hours have passed since the last completed retune
-2. if due, it launches the full research loop again
-3. if a new candidate passes paper promotion gates, the deployment bundle is rebuilt automatically
-4. the live paper runtime restarts its stream universe with the updated deployment bundle
+1. 서버 시작 후 짧은 예열 시간을 둡니다.
+2. 5분마다 마지막 재튜닝 완료 시각을 확인합니다.
+3. 24시간이 지나면 전체 리서치 루프를 다시 실행합니다.
+4. 새 후보가 `accepted_for_paper`를 통과하면 배포 번들을 자동 재생성합니다.
+5. 페이퍼 런타임은 새 번들 기준으로 스트림 대상을 다시 반영합니다.
 
-## 7. Logs and state
+## 7. 로그와 상태 저장 위치
 
-Main local persistence locations:
+주요 로컬 저장 위치:
 
 - `artifacts/paper/paper_state.sqlite3`
 - `artifacts/latest/paper_runtime.log`
@@ -172,13 +172,13 @@ Main local persistence locations:
 - `artifacts/latest/research_summary.json`
 - `artifacts/latest/research_progress.json`
 
-## 8. Test commands
+## 8. 테스트 명령
 
 ```powershell
 python -m pytest
 python -m compileall src
 ```
 
-## 9. Git sync notes
+## 9. Git 동기화 주의사항
 
-For GitHub sync, the meaningful project files are intended to be versioned. The local virtual environment is excluded via `.gitignore` because it contains large binary files that exceed GitHub limits and should be rebuilt locally instead.
+GitHub에는 프로젝트 자체를 올리고, 로컬 가상환경은 올리지 않는 것이 맞습니다. `.venv`는 100MB를 넘는 바이너리를 포함해 GitHub 제한에 걸리므로 `.gitignore`로 제외했습니다.

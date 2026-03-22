@@ -1,128 +1,128 @@
-# Implementation Overview
+# 구현 개요
 
-## Current system scope
+## 현재 구현 범위
 
-This repository contains a full research-to-paper-trading pipeline for Binance USD-M Futures with a strict default focus on 15-minute candles.
+이 저장소는 Binance USD-M Futures를 대상으로 한 리서치부터 페이퍼 트레이딩까지의 전체 파이프라인을 구현합니다. 기본 분석 단위는 `15분봉`입니다.
 
-The implemented stack includes:
+현재 포함된 기능은 다음과 같습니다.
 
-- dynamic exchange-safe universe discovery
-- cached historical OHLCV ingestion to parquet
-- Pine-style strategy generation with Python parity checks
-- vectorized leveraged backtesting with fees, slippage, TP, SL, horizon, and liquidation handling
-- leak-aware event labeling and feature engineering
-- walk-forward ML filter training, calibration, and threshold selection
-- robustness rejection and constrained portfolio construction
-- experiment registry and artifact reporting
-- deployment bundle generation for paper inference
-- FastAPI paper portfolio dashboard
-- local Ollama final decision gate
-- automatic daily paper retuning and deployment refresh
+- 거래소 메타데이터 기반 유니버스 탐색
+- 캐시와 요청 예산을 고려한 안전한 시장 데이터 수집
+- Pine 스타일 전략 생성과 Python 패리티 검증
+- 수수료, 슬리피지, TP, SL, 보유기간 종료, 강제청산을 포함한 레버리지 백테스트
+- 누수 방지형 이벤트 라벨링과 피처 엔지니어링
+- 워크포워드 ML 학습, 확률 보정, threshold 탐색
+- 강건성 탈락 판정과 제약 기반 포트폴리오 조립
+- 실험 아티팩트와 리포트 저장
+- 페이퍼 추론용 배포 번들 생성
+- FastAPI 기반 페이퍼 포트폴리오 대시보드
+- Ollama 기반 로컬 LLM 최종 판단
+- 일 단위 자동 재튜닝과 배포 번들 자동 갱신
 
-## Signal and decision stack
+## 신호 결정 구조
 
-The live paper workflow is:
+실시간 페이퍼 판단 흐름은 아래와 같습니다.
 
-1. strategy templates emit candidate entry and exit signals
-2. the trained ML filter estimates whether the candidate signal should be taken
-3. the local LLM optionally makes the final allow, reject, or defer judgment
-4. the portfolio gate enforces concurrency, per-symbol lock, daily trade cap, and daily loss limit
-5. paper positions are recorded without sending Binance orders
+1. 전략 템플릿이 진입 또는 청산 후보 신호를 생성합니다.
+2. 학습된 ML 필터가 해당 신호를 받아들일지 확률로 평가합니다.
+3. 로컬 LLM이 최종적으로 허용, 거부, 보류를 판단할 수 있습니다.
+4. 포트폴리오 게이트가 동시 포지션 수, 심볼 중복, 일일 거래 수, 일일 손실 제한을 검사합니다.
+5. 실거래 주문은 보내지 않고 페이퍼 포지션만 기록합니다.
 
-## Strategy layer
+## 전략 레이어
 
-Current research families include:
+현재 리서치 풀에는 다음 전략군이 포함되어 있습니다.
 
-- trend EMA cross with RSI confirmation
-- trend pullback resumption
-- breakout
-- volatility squeeze
-- mean reversion
+- 추세 EMA 교차 + RSI 확인
+- 추세 눌림목 재진입
+- 돌파
+- 변동성 스퀴즈
+- 평균회귀
 
-Each family is parameterized and can be expanded across grids inside `configs/base.yaml`.
+각 전략군은 `configs/base.yaml` 안의 그리드 파라미터로 확장할 수 있습니다.
 
-## Validation and anti-overfitting controls
+## 검증과 과적합 방어
 
-Implemented validation guardrails include:
+현재 구현된 방어 장치는 아래와 같습니다.
 
-- time-ordered train, validation, calibration, and test slices
-- embargo bars in the ML splitter
+- 시간순 train, validation, calibration, test 분리
+- embargo bar 적용
 - fold-safe calibration
-- threshold search on validation-only segments
-- cost stress checks
-- Monte Carlo perturbation checks
-- symbol and strategy concentration gates
-- minimum trade-count and breadth gates
-- rejection of weak or unstable candidates before deployment
+- validation 기반 threshold 탐색
+- 비용 스트레스 테스트
+- Monte Carlo 거래열 교란 검증
+- 심볼 집중도와 전략군 집중도 게이트
+- 최소 거래 수와 breadth 게이트
+- 불안정 후보 자동 탈락
 
-## Portfolio and execution assumptions
+## 포트폴리오와 실행 가정
 
-Default research assumptions:
+기본 연구 가정:
 
-- timeframe: `15m`
-- leverage: `10x`
-- capital fraction per trade: `10%`
-- fee per side: `4 bps`
-- slippage per side: `1.5 bps`
-- stop: `1.5 ATR`
-- target: `2.5 ATR`
-- max holding: `48 bars`
+- 시간봉: `15m`
+- 레버리지: `10배`
+- 1회 진입 자본 비중: `10%`
+- 편도 수수료: `4 bps`
+- 편도 슬리피지: `1.5 bps`
+- 손절: `1.5 ATR`
+- 익절: `2.5 ATR`
+- 최대 보유: `48봉`
 
-Paper execution assumptions:
+페이퍼 실행 가정:
 
-- positions open at the observed signal-time price
-- positions close when the observed market reaches TP, SL, liquidation, horizon, or strategy exit
-- no real exchange orders are placed
+- 진입은 시그널 시점 관측 가격 기준
+- 종료는 TP, SL, 강제청산, 보유기간 종료, 시그널 종료가 발생한 시점의 관측 가격 기준
+- 실제 바이낸스 주문은 발생하지 않음
 
-## Paper dashboard capabilities
+## 대시보드 기능
 
-The dashboard currently supports:
+현재 대시보드에서 볼 수 있는 내용:
 
-- portfolio overview metrics
-- runtime process status
-- websocket stream status and reconnect count
-- active and closed position tables
-- recent decision history
-- retune history
-- live log console
-- runtime start and stop controls from the page
+- 포트폴리오 개요 메트릭
+- 런타임 프로세스 상태
+- 웹소켓 연결 상태와 재연결 횟수
+- 활성 포지션과 종료 포지션 표
+- 최근 의사결정 이력
+- 재튜닝 이력
+- 실시간 로그 콘솔
+- 웹페이지 내 런타임 시작과 중지 버튼
 
-## Local LLM integration
+## 로컬 LLM 통합
 
-The repository uses Ollama as a local final decision layer.
+현재 로컬 LLM 레이어는 Ollama를 사용합니다.
 
-Current default model:
+기본 모델:
 
 - `qwen3:14b`
 
-The LLM is not the primary signal generator. It sits after the rules-based strategy signal and after the ML probability filter.
+LLM은 1차 전략 생성기가 아니라, 지표 시그널과 ML 필터 뒤에 위치한 최종 판단 보조 레이어입니다.
 
-## Daily automatic retuning
+## 일일 자동 재튜닝
 
-The paper runtime now performs automated daily maintenance:
+페이퍼 런타임은 아래 자동 유지보수 기능을 포함합니다.
 
-- waits for a short warm-up period after startup
-- checks every 5 minutes whether a full retune is due
-- reruns the research loop every 24 hours
-- rebuilds the deployment bundle automatically if a new candidate reaches `accepted_for_paper`
-- restarts the paper stream universe with the updated deployment bundle
+- 시작 후 짧은 예열 시간 대기
+- 5분마다 재튜닝 필요 여부 확인
+- 24시간마다 전체 리서치 루프 재실행
+- 새 후보가 `accepted_for_paper`를 통과하면 배포 번들 자동 재생성
+- 새 번들로 스트림 유니버스를 다시 반영
 
-## Local persistence model
+## 로컬 저장 구조
 
-The system writes local state to:
+주요 저장 위치:
 
-- parquet market data under `data/market`
-- experiment artifacts under `artifacts/<timestamp>`
-- latest summaries under `artifacts/latest`
-- deployment bundle under `artifacts/deployment`
-- paper decisions and positions under `artifacts/paper/paper_state.sqlite3`
-- runtime logs under `artifacts/latest/paper_runtime.log`
+- `data/market`: 과거 시장 데이터 parquet
+- `artifacts/<timestamp>`: 실험별 리포트와 진단 결과
+- `artifacts/latest`: 최신 요약, 진행 상태, 로그
+- `artifacts/deployment`: 페이퍼 배포 번들
+- `artifacts/paper/paper_state.sqlite3`: 의사결정, 포지션, 재튜닝, 서비스 상태
+- `artifacts/latest/paper_runtime.log`: 페이퍼 런타임 로그
 
-## Current operational limitations
+## 현재 운영상 한계
 
-Important constraints to understand:
+현재 반드시 알고 있어야 할 점:
 
-- this repository does not place live exchange orders
-- paper positions are observational, not executable fills
-- actual GitHub push still requires valid GitHub authentication on this machine
-- the local virtual environment is intentionally excluded from version control
+- 이 저장소는 실거래 주문을 보내지 않습니다.
+- 페이퍼 포지션은 체결 모사가 아니라 관측 가격 기록입니다.
+- GitHub push는 이 PC에 유효한 GitHub 인증이 있어야 완료됩니다.
+- 로컬 가상환경 `.venv`는 GitHub 제한 때문에 버전관리 대상에서 제외했습니다.
