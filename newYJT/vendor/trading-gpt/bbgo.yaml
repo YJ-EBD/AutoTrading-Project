@@ -1,0 +1,135 @@
+---
+logging:
+  trade: true
+  order: true
+
+persistence:
+  json:
+    directory: "./data/"
+
+environment:
+  disableDefaultKLineSubscription: false
+  disableHistoryKLinePreload: false
+  disableStartupBalanceQuery: false
+  disableSessionTradeBuffer: false
+  disableMarketDataStore: false
+  maxSessionTradeBufferSize: false
+
+sessions:
+  okex:
+    exchange: okex
+    envVarPrefix: okex
+    margin: true
+    isolatedMargin: false
+    isolatedMarginSymbol: SUIUSDT
+
+exchangeStrategies:
+- on: okex
+  jarvis:
+    llm:
+      googleai:
+        model: "gemini-1.5-pro-latest"
+      openai:
+        base_url: "https://api.deepseek.com"
+        model: "deepseek-coder"
+      anthropic:
+        model: "claude-3-5-sonnet-20241022"
+        extended_thinking: true
+        thinking_budget: 10000
+      ollama:
+        server_url: "http://localhost:11434"
+        model: "mistral-nemo:latest" # Options：wizardlm2:7b, codegemma:7b, llama3:latest, and mistral:latest
+      primary: "anthropic"
+      secondly: "ollama"
+    env:
+      exchange:
+        kline_num: 50
+        indicators:
+          VR3:
+            type: "vr"
+            max_num: 5
+            params:
+              interval: "5m"
+              windowSize: "3"
+          BOLL:
+            type: "boll"
+            max_num: 5
+            params:
+              interval: "5m"
+              window_size: "20"
+              band_width: "2.0"
+        handle_position_close: false
+        clean_position:
+          enabled: false
+          interval: 5m
+      twitterapi:
+        enabled: true
+        base_url: "https://api.twitterapi.io"
+        timeout: 60s
+        search_items:
+          - name: "news_changed"
+            description: "SUI trending news and discussions:"
+            query: "SUI crypto"
+            query_type: "Top"
+            interval: "5m"
+            before: "20s"
+            max_results: 10
+      include_events:
+        - news_changed
+        - kline_changed
+        - indicator_changed
+        - position_changed
+        - update_finish
+    agent:
+      trading:
+        enabled: true
+        name: "AI"
+        temperature: 0.1
+        max_context_length: 4096
+        backgroup: "I want you to act as an trading assistant. The trading assistant supports registering entities, analyzes market data provided by crypto entities, and generates entity control commands. After receiving the command, the entity will report the result of the command execution. The goal of the transaction assistant is: to maximize returns by generating entity control commands."
+    notify:
+      feishu_hook:
+        enabled: true
+        url: "https://open.feishu.cn/open-apis/bot/v2/hook/e926c8b5-50e6-41e8-8f70-12a8631dfd93"
+    symbol: SUIUSDT
+    interval: 5m
+    subscribe_intervals: ["15m"]
+    leverage: 3
+    max_num: 50
+    # Memory configuration
+    # The strategy runs in cycles, and AI memory resets at the beginning of each cycle.
+    # This drives the AI to maintain perfect documentation in the memory file.
+    # After each reset, the AI relies ENTIRELY on the Memory Part to understand the project and continue work effectively.
+    memory:
+      enabled: true
+      memory_path: "memory-bank/trading-memory.md"
+      max_words: 1000
+    strategy: |
+      1. Identify Key Support and Resistance Levels
+      - *Support Level*: A price level where a downtrend can be expected to pause due to a concentration of demand.
+      - *Resistance Level*: A price level where an uptrend can be expected to pause due to a concentration of supply.
+      - *Tools*: Use historical price data, trendlines, and moving averages to identify key support and resistance levels.
+
+      2. Wait for Price to Approach Key Levels
+      - *Confirmation Signal*: When the price nears the identified support or resistance level, observe market behavior and volume changes.
+      - *Volume Observation*: A breakout with significant volume is considered more reliable.
+
+      3. Enter the Trade
+      - *Buy Breakout*: Execute a buy order when the price breaks above the resistance level.
+      - *Sell Breakout*: Execute a sell order when the price breaks below the support level.
+      - *Order Type*: Use market orders to ensure quick entry during a breakout, or limit orders to set a specific entry price after the breakout.
+
+      4. Set Stop-Loss and Take-Profit Levels
+      - *Stop-Loss*: Protect capital in case of a failed breakout. Typically set just below the breakout level (for a buy) or just above (for a sell).
+      - *Take-Profit*: Lock in profits when the price reaches a predetermined target. Targets can be based on historical price levels, technical indicators (e.g., Fibonacci extensions), or a fixed risk-reward ratio (e.g., 1:2 or 1:3).
+
+      5. Monitor and Manage the Trade
+      - *Continuous Monitoring*: Keep an eye on price movements, especially as they near the stop-loss or take-profit levels.
+      - *Dynamic Adjustments*: Adjust stop-loss and take-profit levels based on market conditions to lock in more profits when favorable.
+    strategy_attention_points:
+      - Analyze K-line patterns to determine support and resistance levels
+      - BOLL can be used to confirm support and resistance levels
+      - VR3 can be used to confirm a breakout
+      - Enter after a breakout.
+      - If a false breakout occurs, enter the market in the opposite direction.
+      - If the stop loss price of a short position needs to be greater than the closing price, the take profit price should be less than the closing price

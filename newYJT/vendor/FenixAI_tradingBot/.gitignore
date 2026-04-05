@@ -1,0 +1,230 @@
+# ============================================================================
+# Python Compilation & Environment
+# ============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+/lib/
+/lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+fenix_env/
+
+# ============================================================================
+# Dependencies & Node
+# ============================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ============================================================================
+# IDE & Editor
+# ============================================================================
+.vscode/
+!.vscode/extensions.json
+.idea/
+.idea_modules/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+.AppleDouble
+.LSOverride
+*.code-workspace
+
+# ============================================================================
+# Build & Compilation
+# ============================================================================
+dist/
+dist-ssr/
+build/
+.vite/
+
+# ============================================================================
+# Frontend
+# ============================================================================
+.next/
+out/
+.nuxt/
+dist/
+.cache/
+
+# ============================================================================
+# Database
+# ============================================================================
+*.db
+*.sqlite
+*.sqlite3
+fenix_trading.db
+
+# ============================================================================
+# Logs & Monitoring
+# ============================================================================
+logs/
+*.log
+*.jsonl
+**/*.log
+npm-debug.log*
+yarn-debug.log*
+lerna-debug.log*
+
+# ============================================================================
+# Cache & Temporary
+# ============================================================================
+.cache/
+cache/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.cover
+
+# ============================================================================
+# LLM & Memory (May contain sensitive data)
+# ============================================================================
+llm_responses/
+reasoning_bank/
+*.cache
+*.pkl
+*.pickle
+
+# ============================================================================
+# Environment & Secrets
+# ============================================================================
+.env
+.env.local
+.env.*.local
+.env.example
+*.key
+*.pem
+*.crt
+secrets.json
+config/secrets*.yaml
+security/
+
+# ============================================================================
+# OS Generated Files
+# ============================================================================
+.DS_Store
+Thumbs.db
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+desktop.ini
+
+# ============================================================================
+# Backups & Exports
+# ============================================================================
+backups/
+*.bak
+*.backup
+*.tmp
+*.swp
+*.swo
+*~
+.#*
+
+# ============================================================================
+# Distribution & Packaging
+# ============================================================================
+.egg-info/
+.tox/
+.coverage
+.coverage.*
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# ============================================================================
+# IDEs Specific
+# ============================================================================
+.vscode/
+!.vscode/extensions.json
+.idea/
+.project
+.pydevproject
+.settings/
+*.iml
+.classpath
+.factorypath
+*.code-workspace
+
+# ============================================================================
+# MacOS
+# ============================================================================
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# ============================================================================
+# Windows
+# ============================================================================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# ============================================================================
+# Local Testing & Development
+# ============================================================================
+.local/
+local_config.yaml
+test_output/
+debug_*.log
+debug_*.py
+
+# ============================================================================
+# External AI Agent Files (Do not commit)
+# ============================================================================
+AGENTS.md
+BOOTSTRAP.md
+HEARTBEAT.md
+IDENTITY.md
+SOUL.md
+TOOLS.md
+USER.md
+
+# ============================================================================
+# Test Artifacts & Logs
+# ============================================================================
+FENIX_V3_TEST_OUTPUT_KIMI.txt
+startup_debug.log
+run_paper_test.sh
+run_v3_test.sh

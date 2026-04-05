@@ -1,0 +1,45 @@
+{
+  "generated_for": "newYJT",
+  "repos": [
+    {
+      "name": "freqtrade",
+      "url": "https://github.com/freqtrade/freqtrade.git",
+      "commit": "7e7e475d4a79d7536341929a6b96161c395743ab"
+    },
+    {
+      "name": "FinRL",
+      "url": "https://github.com/AI4Finance-Foundation/FinRL.git",
+      "commit": "73751ede5a540e78305f1735400fe8b9513bc572"
+    },
+    {
+      "name": "FinRL-Trading",
+      "url": "https://github.com/AI4Finance-Foundation/FinRL-Trading.git",
+      "commit": "e0dcd86e28c8fa7aec371d0e7cb0a25962f85158"
+    },
+    {
+      "name": "FinGPT",
+      "url": "https://github.com/AI4Finance-Foundation/FinGPT.git",
+      "commit": "5d010c6f4d759d5d9bb7cb3325c7ee2f54dd3ba9"
+    },
+    {
+      "name": "PromptWizard",
+      "url": "https://github.com/microsoft/PromptWizard.git",
+      "commit": "a1d43f876ef4468b0549a3ceff8bd691b80cd667"
+    },
+    {
+      "name": "nautilus_AItrader",
+      "url": "https://github.com/Patrick-code-Bot/nautilus_AItrader.git",
+      "commit": "573e7080d3a2c15103f7c70c8a118ce4e2495fdd"
+    },
+    {
+      "name": "ultimate-crypto-trading-bot",
+      "url": "https://github.com/dextergocode/ultimate-crypto-trading-bot.git",
+      "commit": "bd459b39cbe34cbcc2bcd2b303bd364a49a56981"
+    },
+    {
+      "name": "binance-anthropic-trading-bot",
+      "url": "https://github.com/dmrrlc/binance-anthropic-trading-bot.git",
+      "commit": "05dfd7f8eed891136e712799cef2a8ddc390e760"
+    }
+  ]
+}

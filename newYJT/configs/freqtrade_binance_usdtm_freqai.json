@@ -1,0 +1,169 @@
+{
+  "$schema": "https://schema.freqtrade.io/schema.json",
+  "trading_mode": "futures",
+  "margin_mode": "isolated",
+  "max_open_trades": 20,
+  "stake_currency": "USDT",
+  "stake_amount": 10,
+  "tradable_balance_ratio": 1,
+  "fiat_display_currency": "USD",
+  "dry_run": true,
+  "dry_run_wallet": 1000,
+  "timeframe": "3m",
+  "stoploss": -0.035,
+  "futures_funding_rate": 0,
+  "cancel_open_orders_on_exit": true,
+  "order_types": {
+    "entry": "limit",
+    "exit": "market",
+    "force_entry": "market",
+    "force_exit": "market",
+    "emergency_exit": "market",
+    "stoploss": "market",
+    "stoploss_on_exchange": true,
+    "stoploss_on_exchange_interval": 60,
+    "stoploss_price_type": "mark"
+  },
+  "unfilledtimeout": {
+    "entry": 5,
+    "exit": 20
+  },
+  "exchange": {
+    "name": "binance",
+    "key": "",
+    "secret": "",
+    "ccxt_config": {},
+    "ccxt_async_config": {},
+    "pair_whitelist": [],
+    "pair_blacklist": []
+  },
+  "entry_pricing": {
+    "price_side": "same",
+    "use_order_book": true,
+    "order_book_top": 1,
+    "price_last_balance": 0.0,
+    "check_depth_of_market": {
+      "enabled": false,
+      "bids_to_ask_delta": 1
+    }
+  },
+  "exit_pricing": {
+    "price_side": "other",
+    "use_order_book": true,
+    "order_book_top": 1
+  },
+  "pairlists": [
+    {
+      "method": "VolumePairList",
+      "number_assets": 9999,
+      "sort_key": "quoteVolume",
+      "refresh_period": 900
+    },
+    {
+      "method": "AgeFilter",
+      "min_days_listed": 14
+    },
+    {
+      "method": "PrecisionFilter"
+    },
+    {
+      "method": "PriceFilter",
+      "low_price_ratio": 0.005,
+      "min_price": 0.000001
+    },
+    {
+      "method": "SpreadFilter",
+      "max_spread_ratio": 0.005
+    },
+    {
+      "method": "FullTradesFilter"
+    }
+  ],
+  "freqai": {
+    "enabled": true,
+    "purge_old_models": 2,
+    "train_period_days": 21,
+    "backtest_period_days": 5,
+    "live_retrain_hours": 8,
+    "identifier": "newyjt-binance-usdtm-aggressive-mldl-v1",
+    "feature_parameters": {
+      "include_timeframes": [
+        "3m",
+        "15m",
+        "1h"
+      ],
+      "include_corr_pairlist": [
+        "BTC/USDT:USDT",
+        "ETH/USDT:USDT"
+      ],
+      "label_period_candles": 24,
+      "include_shifted_candles": 3,
+      "DI_threshold": 0.9,
+      "weight_factor": 0.9,
+      "principal_component_analysis": false,
+      "use_SVM_to_remove_outliers": true,
+      "indicator_periods_candles": [
+        8,
+        21,
+        55
+      ],
+      "plot_feature_importances": 0
+    },
+    "data_split_parameters": {
+      "test_size": 0.25,
+      "random_state": 1
+    },
+    "model_training_parameters": {
+      "ensemble_weights": {
+        "xgboost": 0.55,
+        "pytorch": 0.45
+      },
+      "ensemble": {
+        "agreement_bonus": 0.08,
+        "temperature": 0.92
+      },
+      "xgboost": {
+        "n_estimators": 900,
+        "max_depth": 6,
+        "learning_rate": 0.05,
+        "subsample": 0.9,
+        "colsample_bytree": 0.85,
+        "min_child_weight": 3,
+        "device": "cuda",
+        "tree_method": "hist",
+        "eval_metric": "logloss"
+      },
+      "pytorch": {
+        "learning_rate": 0.0003,
+        "trainer_kwargs": {
+          "n_epochs": 5,
+          "batch_size": 256,
+          "early_stopping_patience": 2
+        },
+        "model_kwargs": {
+          "hidden_dim": 128,
+          "dropout_percent": 0.15,
+          "n_layer": 2
+        }
+      }
+    }
+  },
+  "bot_name": "newYJT-freqtrade-pure-github",
+  "force_entry_enable": true,
+  "initial_state": "running",
+  "api_server": {
+    "enabled": true,
+    "listen_ip_address": "127.0.0.1",
+    "listen_port": 8080,
+    "verbosity": "error",
+    "enable_openapi": true,
+    "jwt_secret_key": "newyjt-local-jwt-secret-2026",
+    "CORS_origins": [],
+    "username": "newyjt",
+    "password": "newyjt-local-pass",
+    "ws_token": "newyjt-local-ws-token"
+  },
+  "internals": {
+    "process_throttle_secs": 5
+  }
+}

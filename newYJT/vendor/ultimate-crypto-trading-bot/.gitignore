@@ -1,0 +1,15 @@
+# TradingView specific
+*.log
+*.tmp
+backtest_data/
+personal_configs/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo

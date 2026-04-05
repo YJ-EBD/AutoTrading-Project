@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>newYJT Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    .tabbar { display:flex; gap:12px; margin: 18px 0 6px; flex-wrap: wrap; }
+    .tab-btn {
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.04);
+      color: inherit;
+      padding: 10px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .tab-btn.active {
+      border-color: rgba(90, 200, 250, 0.75);
+      background: rgba(90, 200, 250, 0.16);
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .card .label-line { display:flex; justify-content:space-between; gap:12px; align-items:center; }
+    .section-title-row { display:flex; justify-content:space-between; align-items:center; gap:16px; margin: 14px 0 0; }
+    .section-title-row .subtle { margin:0; }
+    #live_model_name,
+    #live_model_weights,
+    #live_llm_model,
+    #live_llm_fallback_model {
+      font-size: 18px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      white-space: normal;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div>
+      <h1>newYJT Dashboard</h1>
+      <div class="subtle">시뮬레이션과 자동매매 상태를 분리해서 확인하는 대시보드입니다.</div>
+      <div class="links subtle">
+        <a href="/runtime/status.json">Status JSON</a>
+        <a href="/runtime/live_preflight.json">Preflight JSON</a>
+        <a href="/runtime/binance_trade_shadow.json">Trade Shadow JSON</a>
+        <a href="/runtime/logs/freqtrade_console.log">Freqtrade Log</a>
+        <a href="/runtime/logs/live_preflight_console.log">Preflight Log</a>
+        <a href="/runtime/logs/trade_shadow_console.log">Trade Shadow Log</a>
+        <a href="/docs/structure_map.md">Structure Map</a>
+        <a href="/trade_checklist.md">Trade Checklist</a>
+      </div>
+    </div>
+    <div class="pill">
+      <span>Mode</span>
+      <strong id="mode">-</strong>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card"><div class="muted">Generated At</div><div id="generated_at" class="metric mono">-</div></div>
+    <div class="card"><div class="muted">API Keys</div><div id="key_state" class="metric">-</div><div id="key_masked" class="muted">-</div></div>
+    <div class="card"><div class="muted">Order Submission</div><div id="order_submission" class="metric">-</div><div id="live_requested" class="muted">-</div></div>
+    <div class="card"><div class="muted">Preflight</div><div id="preflight_status" class="metric">-</div><div id="preflight_summary" class="muted">-</div></div>
+  </div>
+
+  <div class="tabbar" role="tablist" aria-label="dashboard tabs">
+    <button id="tab_btn_simulation" class="tab-btn active" type="button" data-tab="simulation" role="tab" aria-selected="true">시뮬레이션</button>
+    <button id="tab_btn_live" class="tab-btn" type="button" data-tab="live" role="tab" aria-selected="false">자동매매</button>
+  </div>
+
+  <section id="tab_simulation" class="tab-panel active" role="tabpanel" aria-labelledby="tab_btn_simulation">
+    <div class="grid">
+      <div class="card"><div class="muted">Simulation Balance</div><div id="current_balance" class="metric">-</div><div id="balance_source" class="muted">-</div></div>
+      <div class="card"><div class="muted">Simulation Available</div><div id="available_balance" class="metric">-</div></div>
+      <div class="card"><div class="muted">Net Profit</div><div id="net_profit" class="metric">-</div></div>
+      <div class="card"><div class="muted">Win Rate</div><div id="win_rate" class="metric">-</div></div>
+
+      <div class="card"><div class="muted">Tracked Pairs</div><div id="tracked_pairs" class="metric">-</div></div>
+      <div class="card"><div class="muted">Active Pairs</div><div id="active_pairs" class="metric">-</div></div>
+      <div class="card"><div class="muted">Total Trades</div><div id="total_trades" class="metric">-</div></div>
+      <div class="card"><div class="muted">Closed Trades</div><div id="closed_trades" class="metric">-</div></div>
+      <div class="card"><div class="muted">Open Trades</div><div id="open_trades" class="metric">-</div></div>
+      <div class="card"><div class="muted">Profit Factor</div><div id="profit_factor" class="metric">-</div></div>
+      <div class="card"><div class="muted">Fees Paid</div><div id="fees_paid" class="metric">-</div></div>
+      <div class="card"><div class="muted">ROI</div><div id="roi_pct" class="metric">-</div></div>
+    </div>
+
+    <div class="section grid">
+      <div class="card">
+        <h2>Live Preflight Checks</h2>
+        <div class="muted" id="preflight_checks_summary">-</div>
+        <ul class="list" id="preflight_issues"></ul>
+      </div>
+      <div class="card">
+        <h2>Test Order Check</h2>
+        <div class="muted" id="test_order_status">-</div>
+        <div class="muted" id="test_order_symbol">-</div>
+        <div class="muted" id="test_order_notional">-</div>
+      </div>
+      <div class="card">
+        <h2>Simulation → Live Preview</h2>
+        <div class="muted" id="trade_shadow_mode">-</div>
+        <div class="muted" id="trade_shadow_block">-</div>
+        <div class="muted" id="trade_shadow_open_orders">-</div>
+        <div class="muted" id="trade_shadow_preview_count">-</div>
+        <div class="muted" id="actual_trades_count">-</div>
+        <div class="muted" id="trade_shadow_sltp_note">-</div>
+      </div>
+    </div>
+
+    <div class="section card">
+      <h2>Simulation Open Positions</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Pair</th>
+              <th>Side</th>
+              <th>Open Time</th>
+              <th>Open Rate</th>
+              <th>Current Rate</th>
+              <th>Stake</th>
+              <th>Lev</th>
+              <th>Gross</th>
+              <th>Fee</th>
+              <th>Net</th>
+              <th>ROI</th>
+              <th>Recovery</th>
+              <th>Tag</th>
+            </tr>
+          </thead>
+          <tbody id="open_positions_body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section card">
+      <h2>Trade Preview Orders From Simulation</h2>
+      <div class="muted">TP/SL values here are internal bot targets, not exchange-native protective orders.</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th>Side</th>
+              <th>Mark</th>
+              <th>Stake</th>
+              <th>Lev</th>
+              <th>Qty</th>
+              <th>Notional</th>
+              <th>Internal TP</th>
+              <th>Internal SL</th>
+              <th>Blocked</th>
+            </tr>
+          </thead>
+          <tbody id="trade_shadow_preview_body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section card">
+      <h2>Recent Closed Simulation Trades</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Pair</th>
+              <th>Side</th>
+              <th>Open Time</th>
+              <th>Close Time</th>
+              <th>Open Rate</th>
+              <th>Close Rate</th>
+              <th>Stake</th>
+              <th>Gross</th>
+              <th>Fee</th>
+              <th>Net</th>
+              <th>ROI</th>
+              <th>Avg Max TP</th>
+              <th>Avg Max SL</th>
+              <th>Exit</th>
+              <th>Tag</th>
+            </tr>
+          </thead>
+          <tbody id="recent_closed_body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section card">
+      <h2>Pair Stats</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Pair</th>
+              <th>Trades</th>
+              <th>Wins</th>
+              <th>Losses</th>
+              <th>Win Rate</th>
+              <th>Net</th>
+              <th>Fees</th>
+              <th>Avg ROI</th>
+              <th>Max TP</th>
+              <th>Max SL</th>
+            </tr>
+          </thead>
+          <tbody id="pair_stats_body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab_live" class="tab-panel" role="tabpanel" aria-labelledby="tab_btn_live">
+    <div class="grid">
+      <div class="card"><div class="muted">Actual Wallet Balance</div><div id="actual_total_wallet_balance" class="metric">-</div><div id="actual_balance_note" class="muted">-</div></div>
+      <div class="card"><div class="muted">Actual Available Balance</div><div id="actual_available_balance" class="metric">-</div></div>
+      <div class="card"><div class="muted">Actual Positions</div><div id="actual_positions_count" class="metric">-</div></div>
+      <div class="card"><div class="muted">Dynamic Stake</div><div id="actual_dynamic_stake" class="metric">-</div></div>
+
+      <div class="card"><div class="muted">Actual Open Orders</div><div id="actual_open_orders_count" class="metric">-</div></div>
+      <div class="card"><div class="muted">Recent Actual Trades</div><div id="actual_recent_trades_metric" class="metric">-</div></div>
+      <div class="card"><div class="muted">Realized PnL</div><div id="actual_realized_pnl_total" class="metric">-</div></div>
+      <div class="card"><div class="muted">Commission</div><div id="actual_commission_total" class="metric">-</div></div>
+      <div class="card"><div class="muted">Net After Commission</div><div id="actual_net_after_commission" class="metric">-</div></div>
+      <div class="card"><div class="muted">Current Model</div><div id="live_model_name" class="metric">-</div></div>
+      <div class="card"><div class="muted">ML/DL Weights</div><div id="live_model_weights" class="metric">-</div></div>
+      <div class="card"><div class="muted">LLM Veto Model</div><div id="live_llm_model" class="metric">-</div></div>
+      <div class="card"><div class="muted">LLM Fallback</div><div id="live_llm_fallback_model" class="metric">-</div></div>
+      <div class="card"><div class="muted">Live Mode</div><div id="live_mode_badge" class="metric">-</div></div>
+      <div class="card"><div class="muted">Live Order Submission</div><div id="live_submission_state" class="metric">-</div></div>
+      <div class="card"><div class="muted">Trade Preview Count</div><div id="live_preview_count" class="metric">-</div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title-row">
+        <h2>Bot Performance</h2>
+        <p id="live_bot_metrics_note" class="subtle">-</p>
+      </div>
+      <div class="grid">
+        <div class="card"><div class="muted">Live Win Rate</div><div id="live_win_rate" class="metric">-</div></div>
+        <div class="card"><div class="muted">Live Net Profit</div><div id="live_net_profit" class="metric">-</div></div>
+        <div class="card"><div class="muted">Live ROI</div><div id="live_roi_pct" class="metric">-</div></div>
+        <div class="card"><div class="muted">Profit Factor</div><div id="live_profit_factor" class="metric">-</div></div>
+        <div class="card"><div class="muted">Total Trades</div><div id="live_total_trades" class="metric">-</div></div>
+        <div class="card"><div class="muted">Closed Trades</div><div id="live_closed_trades" class="metric">-</div></div>
+        <div class="card"><div class="muted">Open Trades</div><div id="live_open_trades" class="metric">-</div></div>
+        <div class="card"><div class="muted">Fees Paid</div><div id="live_fees_paid" class="metric">-</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title-row">
+        <h2>Current Record</h2>
+        <p id="tuning_summary" class="subtle">-</p>
+      </div>
+      <div class="grid">
+        <div class="card"><div class="muted">Record Label</div><div id="tuning_label" class="metric">-</div></div>
+        <div class="card"><div class="muted">Applied At</div><div id="tuning_applied_at" class="metric mono">-</div></div>
+        <div class="card"><div class="muted">Since Reset Trades</div><div id="tuning_total_trades" class="metric">-</div></div>
+        <div class="card"><div class="muted">Since Reset PnL</div><div id="tuning_profit_abs" class="metric">-</div></div>
+        <div class="card"><div class="muted">Since Reset Win Rate</div><div id="tuning_win_rate" class="metric">-</div></div>
+        <div class="card"><div class="muted">Carryover Open Trades</div><div id="tuning_carryover_open" class="metric">-</div></div>
+      </div>
+      <div class="card">
+        <div class="muted">Record Notes</div>
+        <div id="tuning_notes" class="subtle">-</div>
+      </div>
+    </div>
+
+    <div class="section grid">
+      <div class="card">
+        <h2>TP / SL Rules</h2>
+        <div class="muted" id="policy_rr">-</div>
+        <div class="muted" id="policy_tp_mode">-</div>
+        <div class="muted" id="policy_sl_mode">-</div>
+        <div class="muted" id="policy_reentry">-</div>
+      </div>
+      <div class="card">
+        <h2>ROI Ladder</h2>
+        <div class="subtle" id="policy_roi_ladder">-</div>
+      </div>
+      <div class="card">
+        <h2>Profit Lock Ladder</h2>
+        <div class="subtle" id="policy_profit_lock_ladder">-</div>
+      </div>
+      <div class="card">
+        <h2>Automation</h2>
+        <div class="muted" id="automation_retrain">-</div>
+        <div class="muted" id="automation_latest_train">-</div>
+        <div class="muted" id="automation_tuning">-</div>
+        <div class="muted" id="automation_component_status">-</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title-row">
+        <h2>Signal Pipeline</h2>
+        <p id="pipeline_summary" class="subtle">-</p>
+      </div>
+      <div class="grid">
+        <div class="card"><div class="muted">Strategy</div><div id="pipeline_strategy_metric" class="metric">-</div><div id="pipeline_strategy_detail" class="muted">-</div></div>
+        <div class="card"><div class="muted">ML</div><div id="pipeline_ml_metric" class="metric">-</div><div id="pipeline_ml_detail" class="muted">-</div></div>
+        <div class="card"><div class="muted">DL</div><div id="pipeline_dl_metric" class="metric">-</div><div id="pipeline_dl_detail" class="muted">-</div></div>
+        <div class="card"><div class="muted">LLM</div><div id="pipeline_llm_metric" class="metric">-</div><div id="pipeline_llm_detail" class="muted">-</div></div>
+      </div>
+    </div>
+
+    <div class="section grid">
+      <div class="card">
+        <h2>Live Bot Summary</h2>
+        <div class="muted" id="live_summary_line_1">-</div>
+        <div class="muted" id="live_summary_line_2">-</div>
+        <div class="muted" id="live_summary_line_3">-</div>
+        <div class="muted" id="live_summary_line_4">-</div>
+        <div class="muted" id="live_summary_line_5">-</div>
+      </div>
+      <div class="card">
+        <h2>Preflight Snapshot</h2>
+        <div class="muted" id="live_preflight_ready">-</div>
+        <div class="muted" id="live_preflight_pairs">-</div>
+        <div class="muted" id="live_preflight_test_order">-</div>
+        <div class="muted" id="live_preflight_sltp_note">-</div>
+      </div>
+      <div class="card">
+        <h2>Actual Trade Snapshot</h2>
+        <div class="muted" id="live_actual_positions_text">-</div>
+        <div class="muted" id="live_actual_orders_text">-</div>
+        <div class="muted" id="live_actual_trades_text">-</div>
+        <div class="muted" id="live_actual_sltp_note">-</div>
+      </div>
+    </div>
+
+    <div class="section card">
+      <h2>Bot Managed Positions</h2>
+      <div class="muted" id="live_bot_positions_summary">-</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Pair</th>
+              <th>Side</th>
+              <th>Open Time</th>
+              <th>Open Rate</th>
+              <th>Current Rate</th>
+              <th>Stake</th>
+              <th>Lev</th>
+              <th>Gross</th>
+              <th>Fee</th>
+              <th>Net</th>
+              <th>ROI</th>
+              <th>Recovery</th>
+              <th>Tag</th>
+            </tr>
+          </thead>
+          <tbody id="live_bot_positions_body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section card">
+      <h2>Actual Binance Positions</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th>Amount</th>
+              <th>Entry</th>
+              <th>Mark</th>
+              <th>Unrealized PnL</th>
+              <th>Lev</th>
+              <th>Position Side</th>
+            </tr>
+          </thead>
+          <tbody id="actual_positions_body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section card">
+      <h2>Actual Binance Open Orders</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th>Side</th>
+              <th>Type</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Stop</th>
+              <th>Status</th>
+              <th>Order ID</th>
+            </tr>
+          </thead>
+          <tbody id="actual_open_orders_body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section card">
+      <h2>Actual Binance Recent Trades</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Symbol</th>
+              <th>Side</th>
+              <th>Price</th>
+              <th>Qty</th>
+              <th>Quote Qty</th>
+              <th>Realized PnL</th>
+              <th>Commission</th>
+              <th>Position Side</th>
+              <th>Order ID</th>
+            </tr>
+          </thead>
+          <tbody id="actual_recent_trades_body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section card">
+      <h2>Recent Bot Closed Trades</h2>
+      <div class="muted" id="live_recent_closed_summary">-</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Pair</th>
+              <th>Side</th>
+              <th>Open Time</th>
+              <th>Close Time</th>
+              <th>Open Rate</th>
+              <th>Close Rate</th>
+              <th>Stake</th>
+              <th>Gross</th>
+              <th>Fee</th>
+              <th>Net</th>
+              <th>ROI</th>
+              <th>Max TP</th>
+              <th>Max SL</th>
+              <th>Exit</th>
+              <th>Tag</th>
+            </tr>
+          </thead>
+          <tbody id="live_recent_closed_body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section card">
+      <h2>Bot Pair Performance</h2>
+      <div class="muted" id="live_pair_stats_summary">-</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Pair</th>
+              <th>Trades</th>
+              <th>Wins</th>
+              <th>Losses</th>
+              <th>Win Rate</th>
+              <th>Net</th>
+              <th>Fees</th>
+              <th>Avg ROI</th>
+              <th>Max TP</th>
+              <th>Max SL</th>
+            </tr>
+          </thead>
+          <tbody id="live_pair_stats_body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function fmtNum(value, digits = 2) {
+      const n = Number(value);
+      if (value === null || value === undefined || value === "" || Number.isNaN(n)) return "-";
+      return n.toFixed(digits);
+    }
+
+    function fmtMoney(value, digits = 4) {
+      const n = Number(value);
+      if (value === null || value === undefined || value === "" || Number.isNaN(n)) return "-";
+      const cls = n >= 0 ? "good" : "bad";
+      return `<span class="${cls}">${n.toFixed(digits)} USD</span>`;
+    }
+
+    function fmtPct(value, digits = 4) {
+      const n = Number(value);
+      if (value === null || value === undefined || value === "" || Number.isNaN(n)) return "-";
+      const cls = n >= 0 ? "good" : "bad";
+      return `<span class="${cls}">${n.toFixed(digits)}%</span>`;
+    }
+
+    function fmtText(value) {
+      if (value === null || value === undefined || value === "") return "-";
+      return String(value);
+    }
+
+    function fmtTime(value) {
+      if (value === null || value === undefined || value === "") return "-";
+      const n = Number(value);
+      if (Number.isFinite(n) && n > 1000000) {
+        return new Date(n).toLocaleString();
+      }
+      return String(value);
+    }
+
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = fmtText(value);
+    }
+
+    function setHtml(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = value;
+    }
+
+    function fmtPairReasonList(items) {
+      if (!items || !items.length) return "none";
+      return items.map((item) => {
+        if (!item || typeof item !== "object") return fmtText(item);
+        return item.reason ? `${fmtText(item.pair)} (${fmtText(item.reason)})` : fmtText(item.pair);
+      }).join(", ");
+    }
+
+    function setPipelineStage(prefix, stage) {
+      if (!stage) {
+        setText(`${prefix}_metric`, "-");
+        setText(`${prefix}_detail`, "-");
+        return;
+      }
+      if ((stage.evaluated_count ?? 0) === 0) {
+        setText(`${prefix}_metric`, "waiting");
+        setText(`${prefix}_detail`, "Waiting for the first analyzed candle after restart.");
+        return;
+      }
+      setText(
+        `${prefix}_metric`,
+        `${stage.pass_count ?? 0} pass / ${stage.blocked_count ?? 0} blocked`
+      );
+      const blocked = fmtPairReasonList(stage.blocked_pairs || []);
+      const passed = (stage.passed_pairs || []).length ? (stage.passed_pairs || []).join(", ") : "none";
+      setText(
+        `${prefix}_detail`,
+        `Evaluated ${stage.evaluated_count ?? 0} / passed: ${passed} / blocked: ${blocked}`
+      );
+    }
+
+    function renderRows(id, rows, emptyText) {
+      const tbody = document.getElementById(id);
+      if (!tbody) return;
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="20" class="muted">${emptyText}</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = rows.join("");
+    }
+
+    function tr(cells) {
+      return `<tr>${cells.map((cell) => `<td>${cell}</td>`).join("")}</tr>`;
+    }
+
+    function activateTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach((button) => {
+        const active = button.dataset.tab === tabName;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      document.querySelectorAll('.tab-panel').forEach((panel) => {
+        panel.classList.toggle('active', panel.id === `tab_${tabName}`);
+      });
+      try {
+        localStorage.setItem('newyjt_dashboard_tab', tabName);
+      } catch (_) {}
+    }
+
+    document.querySelectorAll('.tab-btn').forEach((button) => {
+      button.addEventListener('click', () => activateTab(button.dataset.tab));
+    });
+
+    try {
+      const savedTab = localStorage.getItem('newyjt_dashboard_tab');
+      if (savedTab === 'simulation' || savedTab === 'live') {
+        activateTab(savedTab);
+      }
+    } catch (_) {}
+
+    async function refresh() {
+      const response = await fetch(`/runtime/status.json?t=${Date.now()}`, { cache: "no-store" });
+      const data = await response.json();
+
+      const mode = data.mode || {};
+      const preflight = data.live_preflight || {};
+      const checks = preflight.checks || {};
+      const testOrder = checks.test_order || {};
+      const actual = data.actual_binance_account || {};
+      const shadow = data.trade_shadow || {};
+      const shadowAccount = shadow.actual_account || {};
+      const shadowSummary = shadow.actual_trade_summary || {};
+      const stats = data.stats || {};
+      const visibleStats = data.visible_stats || stats;
+      const balance = data.balance || {};
+      const engine = data.engine || {};
+      const policy = data.tp_sl_policy || {};
+      const automation = data.automation || {};
+      const pipeline = data.pipeline || {};
+      const pipelineStages = pipeline.stages || {};
+      const tuning = data.tuning || {};
+      const tuningStats = tuning.stats_since_tuning || {};
+      const botOpenPositions = data.open_positions || [];
+      const recentClosedTrades = data.recent_closed || [];
+      const pairStats = data.pair_stats || [];
+      const previewOrders = shadow.preview_orders_from_simulation || [];
+      const actualPositions = shadow.actual_positions || [];
+      const actualOpenOrders = shadow.actual_open_orders || [];
+      const actualRecentTrades = shadow.actual_recent_trades || [];
+      const feasibleCount = checks.pair_feasibility?.feasible_symbol_count ?? 0;
+      const blockedCount = checks.pair_feasibility?.blocked_symbol_count ?? 0;
+
+      setText("generated_at", data.generated_at);
+      setHtml("mode", `<span class="${mode.mode === "live_preflight" ? "warn" : ""}">${fmtText(mode.mode)}</span>`);
+      setText("key_state", mode.api_keys_present ? "Configured" : "Missing");
+      setText("key_masked", mode.api_key_masked || "settings.env not loaded");
+      setHtml("order_submission", mode.order_submission_enabled ? '<span class="bad">Enabled</span>' : '<span class="good">Blocked</span>');
+      setText("live_requested", mode.live_requested ? "Live requested" : "Dry run requested");
+      setHtml("preflight_status", `<span class="${preflight.status === "passed" ? "good" : "bad"}">${fmtText(preflight.status)}</span>`);
+      setText("preflight_summary", `Ready: ${preflight.ready_for_live_checks ? "yes" : "no"} / Order submission: ${mode.order_submission_enabled ? "enabled" : "blocked"}`);
+
+      setHtml("current_balance", fmtMoney(stats.current_balance_usd, 4));
+      setText("balance_source", `${fmtText(balance.source)} / start=${fmtText(balance.starting_balance_source)}`);
+      setHtml("available_balance", fmtMoney(stats.available_balance_usd, 4));
+      setHtml("net_profit", fmtMoney(stats.profit_abs_usd, 4));
+      setHtml("win_rate", fmtPct(stats.win_rate_pct, 2));
+      setText("tracked_pairs", data.tracked_pairs_resolved ?? 0);
+      setText("active_pairs", data.active_pairs_count ?? 0);
+      setText("total_trades", stats.total_trades ?? 0);
+      setText("closed_trades", stats.closed_trades ?? 0);
+      setText("open_trades", stats.open_trades ?? 0);
+      setText("profit_factor", fmtNum(stats.profit_factor, 4));
+      setHtml("fees_paid", fmtMoney(stats.fees_paid_usd, 4));
+      setHtml("roi_pct", fmtPct(stats.roi_pct, 4));
+
+      setText("preflight_checks_summary", `Feasible pairs: ${feasibleCount} / Blocked pairs: ${blockedCount}`);
+      const issues = preflight.issues || [];
+      const issueRows = issues.length ? issues.map((issue) => `<li>${fmtText(issue)}</li>`) : ['<li>No issues</li>'];
+      document.getElementById("preflight_issues").innerHTML = issueRows.join("");
+
+      setText("test_order_status", `Status: ${fmtText(testOrder.status)}`);
+      setText("test_order_symbol", `Symbol: ${fmtText(testOrder.symbol)}`);
+      setText("test_order_notional", `Estimated notional: ${fmtText(testOrder.estimated_notional)}`);
+
+      setText("trade_shadow_mode", `Mode: ${fmtText(shadow.mode)}`);
+      setText("trade_shadow_block", `Real order block: ${shadow.block_real_order_submission ? "on" : "off"}`);
+      setText("trade_shadow_open_orders", `Open orders: ${shadowAccount.open_orders_count ?? 0}`);
+      setText("trade_shadow_preview_count", `Preview orders: ${previewOrders.length}`);
+      setText("actual_trades_count", `Recent actual trades: ${shadowSummary.trades_count ?? 0}`);
+      setText("trade_shadow_sltp_note", "Internal SL/TP only. Exchange TP/SL orders are not auto-placed.");
+
+      setHtml("actual_total_wallet_balance", fmtMoney(actual.total_wallet_balance ?? shadowAccount.total_wallet_balance, 8));
+      setHtml("actual_available_balance", fmtMoney(actual.available_balance ?? shadowAccount.available_balance, 8));
+      setText("actual_positions_count", actual.positions_count ?? shadowAccount.positions_count ?? actualPositions.length);
+      setHtml("actual_dynamic_stake", fmtMoney(actual.dynamic_stake, 8));
+      setText("actual_balance_note", `Stake ratio ${fmtText(actual.stake_ratio_pct)}%`);
+      setText("actual_open_orders_count", actualOpenOrders.length);
+      setText("actual_recent_trades_metric", shadowSummary.trades_count ?? actualRecentTrades.length);
+      setHtml("actual_realized_pnl_total", fmtMoney(shadowSummary.realized_pnl_total, 8));
+      setHtml("actual_commission_total", fmtMoney(shadowSummary.commission_total, 8));
+      setHtml("actual_net_after_commission", fmtMoney(shadowSummary.net_after_commission, 8));
+      const xgbWeight = engine.ensemble_weights?.xgboost;
+      const pytorchWeight = engine.ensemble_weights?.pytorch;
+      const weightSummaryHtml = xgbWeight == null && pytorchWeight == null
+        ? "n/a"
+        : `ML ${fmtPct(xgbWeight * 100, 0)} / DL ${fmtPct(pytorchWeight * 100, 0)}`;
+      const weightSummaryText = xgbWeight == null && pytorchWeight == null
+        ? "n/a"
+        : `ML ${fmtNum(xgbWeight * 100, 0)}% / DL ${fmtNum(pytorchWeight * 100, 0)}%`;
+      setText("live_model_name", engine.freqai_model || "-");
+      setHtml("live_model_weights", weightSummaryHtml);
+      setText("live_llm_model", engine.llm_model || "disabled");
+      setText("live_llm_fallback_model", engine.llm_fallback_model || "none");
+      setHtml("live_mode_badge", shadow.allow_mutating_requests ? '<span class="bad">LIVE ORDER ACTIVE</span>' : '<span class="warn">PREVIEW ONLY</span>');
+      setHtml("live_submission_state", mode.order_submission_enabled ? '<span class="bad">submission enabled</span>' : '<span class="good">submission blocked</span>');
+      setText("live_preview_count", previewOrders.length);
+      if (tuning.active) {
+        setText(
+          "live_bot_metrics_note",
+          `Visible performance is reset-based from trade #${fmtText(tuning.baseline_trade_id)} / carryover open trades ${fmtText(visibleStats.carryover_open_trades ?? 0)} / engine ${fmtText(engine.freqai_model)}`
+        );
+      } else {
+        setText("live_bot_metrics_note", `Based on the active ${fmtText(mode.mode)} bot database / engine ${fmtText(engine.freqai_model)}`);
+      }
+      setHtml("live_win_rate", fmtPct(visibleStats.win_rate_pct, 2));
+      setHtml("live_net_profit", fmtMoney(visibleStats.profit_abs_usd, 4));
+      setHtml("live_roi_pct", tuning.active ? fmtText("reset-based") : fmtPct(stats.roi_pct, 4));
+      setText("live_profit_factor", fmtNum(visibleStats.profit_factor, 4));
+      setText("live_total_trades", visibleStats.total_trades ?? 0);
+      setText("live_closed_trades", visibleStats.closed_trades ?? 0);
+      setText("live_open_trades", visibleStats.open_trades ?? 0);
+      setHtml("live_fees_paid", fmtMoney(visibleStats.fees_paid_usd, 4));
+      if (!tuning.active) {
+        setText("tuning_summary", "No tuning marker recorded yet.");
+        setText("tuning_label", "not marked");
+        setText("tuning_applied_at", "-");
+        setText("tuning_total_trades", "0");
+        setHtml("tuning_profit_abs", fmtMoney(0, 4));
+        setHtml("tuning_win_rate", fmtPct(0, 2));
+        setText("tuning_carryover_open", "0");
+        setText("tuning_notes", "No tuning notes");
+      } else {
+          setText(
+            "tuning_summary",
+            `Current visible record starts after trade #${fmtText(tuning.baseline_trade_id)} / strategy ${fmtText(tuning.strategy_version)}`
+          );
+        setText("tuning_label", tuning.label || tuning.strategy_version || "tuned");
+        setText("tuning_applied_at", tuning.applied_at || "-");
+        setText(
+          "tuning_total_trades",
+          `${tuningStats.total_trades ?? 0} total / ${tuningStats.closed_trades ?? 0} closed / ${tuningStats.open_trades ?? 0} open`
+        );
+        setHtml("tuning_profit_abs", fmtMoney(tuningStats.profit_abs_usd, 4));
+        setHtml("tuning_win_rate", fmtPct(tuningStats.win_rate_pct, 2));
+        setText("tuning_carryover_open", tuning.carryover_open_trades_count ?? 0);
+        setText("tuning_notes", (tuning.notes || []).join(" / ") || "No tuning notes");
+      }
+      const roiLadder = (policy.roi_schedule || []).map((item) => {
+        const label = item.label || (item.max_duration_min == null ? "later" : `${item.max_duration_min}m`);
+        return `${label} -> ${fmtNum(item.target_pct, 1)}%`;
+      }).join(" / ");
+      const profitLockLadder = (policy.profit_lock_schedule || []).map((item) => {
+        return `profit ${fmtNum(item.min_profit_pct, 1)}% -> SL ${fmtNum(item.stoploss_pct, 1)}%`;
+      }).join(" / ");
+      const leverageCaps = (policy.leverage_base_caps || []).map((item) => {
+        return `${fmtNum(item.min_leverage, 0)}x+ => ${fmtNum(item.base_stoploss_pct, 1)}%`;
+      }).join(" / ");
+      const recoveryDcaLevels = (policy.recovery_dca_levels || []).map((item) => `L${fmtText(item.level)} @ -${fmtNum(item.loss_pct, 1)}% x${fmtNum(item.stake_multiplier, 2)}`).join(" / ");
+      setText("policy_rr", `Profile ${fmtText(policy.reward_risk_profile)} / initial TP ${fmtNum(policy.initial_take_profit_pct, 1)}% vs base SL ${fmtNum(policy.base_stoploss_pct, 1)}%`);
+      setText("policy_tp_mode", `TP is internal ROI ladder plus recovery reclaim target. Custom exit path is ${policy.custom_exit_active ? 'active' : 'idle'} because use_exit_signal is ${policy.use_exit_signal ? 'on' : 'off'}.`);
+      setText("policy_sl_mode", `SL is exchange stoploss ${policy.exchange_stoploss_enabled ? 'on' : 'off'} / ${fmtText(policy.exchange_stoploss_price_type)} price / refresh ${fmtText(policy.exchange_stoploss_interval_sec)}s / leverage caps ${leverageCaps || 'n/a'}`);
+      setText("policy_reentry", `Same-pair cooldown ${fmtText(policy.pair_cooldown_minutes)}m / stoploss reentry lock ${fmtText(policy.stoploss_reentry_cooldown_minutes)}m / recovery ${policy.recovery_mode_enabled ? 'on' : 'off'} / arm peak ${fmtNum(policy.recovery_arm_peak_pct, 2)}% / fail-safe ${fmtNum(policy.recovery_failsafe_pct, 2)}% / reclaim ${fmtNum(policy.recovery_reclaim_ratio_pct, 1)}% / DCA ${recoveryDcaLevels || 'none'} / DCA spacing ${fmtText(policy.recovery_dca_spacing_minutes)}m / max hold ${fmtText(policy.recovery_max_hold_minutes)}m`);
+      setText("policy_roi_ladder", roiLadder || "-");
+      setText("policy_profit_lock_ladder", profitLockLadder || "-");
+      setText("automation_retrain", `FreqAI retrain ${automation.freqai_enabled ? 'enabled' : 'disabled'} / every ${fmtText(automation.live_retrain_hours)}h / train window ${fmtText(automation.train_period_days)} days`);
+      setText("automation_latest_train", `Latest model train ${fmtText(automation.latest_trained_pair)} @ ${fmtText(automation.latest_trained_at)} / trained pairs ${fmtText(automation.trained_pairs_count)}`);
+      setText("automation_tuning", `Auto parameter tuning ${automation.auto_parameter_tuning_enabled ? 'enabled' : 'disabled'} / mode ${fmtText(automation.tuning_mode)}`);
+      setText("automation_component_status", `ML/DL snapshot ${fmtText(automation.component_snapshot_pairs)} pairs @ ${fmtText(automation.component_snapshot_generated_at)} / LLM snapshot ${fmtText(automation.llm_snapshot_pairs)} pairs @ ${fmtText(automation.llm_snapshot_generated_at)}`);
+      if ((pipeline.evaluated_pairs ?? 0) === 0) {
+        setText("pipeline_summary", "Waiting for the first analyzed candle after restart.");
+      } else {
+        setText(
+          "pipeline_summary",
+          `Evaluated ${pipeline.evaluated_pairs ?? 0} active pairs / final candidates ${pipeline.final_candidates ?? 0} / ready pairs ${(pipeline.final_candidate_pairs || []).join(", ") || "none"}`
+        );
+      }
+      setPipelineStage("pipeline_strategy", pipelineStages.strategy);
+      setPipelineStage("pipeline_ml", pipelineStages.ml);
+      setPipelineStage("pipeline_dl", pipelineStages.dl);
+      setPipelineStage("pipeline_llm", pipelineStages.llm);
+      setText("live_summary_line_1", `Bot mode: ${fmtText(shadow.mode)} / real order submission: ${shadow.allow_mutating_requests ? 'enabled' : 'blocked'}`);
+      setText("live_summary_line_2", `Wallet total ${fmtText(shadowAccount.total_wallet_balance)} / available ${fmtText(shadowAccount.available_balance)}`);
+      setText("live_summary_line_3", `Bot open positions ${botOpenPositions.length} / exchange positions ${actualPositions.length} / open orders ${actualOpenOrders.length}`);
+      setText("live_summary_line_4", "Dashboard TP/SL labels refer to internal bot exits, not exchange-native protective orders.");
+      setText("live_summary_line_5", `Engine ${fmtText(engine.freqai_model)} / strategy ${fmtText(engine.strategy)} / weights ${weightSummaryText} / LLM ${fmtText(engine.llm_model || "disabled")} / fallback ${fmtText(engine.llm_fallback_model || "none")}`);
+      setText("live_preflight_ready", `Ready for live checks: ${preflight.ready_for_live_checks ? 'yes' : 'no'} / status: ${fmtText(preflight.status)}`);
+      setText("live_preflight_pairs", `Feasible pairs ${feasibleCount} / Blocked pairs ${blockedCount}`);
+      setText("live_preflight_test_order", `Test order: ${fmtText(testOrder.status)} / ${fmtText(testOrder.symbol)} / notional ${fmtText(testOrder.estimated_notional)}`);
+      setText("live_preflight_sltp_note", "Preflight checks sizing and feasibility only. It does not place exchange TP/SL orders.");
+      setText("live_actual_positions_text", `Exchange positions: ${actualPositions.length} / bot positions: ${botOpenPositions.length}`);
+      setText("live_actual_orders_text", `Exchange open orders: ${actualOpenOrders.length}`);
+      setText("live_actual_trades_text", `Recent exchange fills: ${shadowSummary.trades_count ?? actualRecentTrades.length}`);
+      setText("live_actual_sltp_note", "If separate exchange TP/SL orders are not used, this table can remain empty while the bot still manages exits internally.");
+      setText("live_bot_positions_summary", `Bot-managed live positions: ${botOpenPositions.length}`);
+      setText("live_recent_closed_summary", `Recent bot closed trades: ${recentClosedTrades.length} / Max TP-SL shows the best favorable move and worst adverse move reached while the trade was open.`);
+      setText("live_pair_stats_summary", `Pairs with realized performance: ${pairStats.length} / Avg Max TP-SL is the trade-by-trade average excursion for each pair.`);
+
+      const openPositionRows = botOpenPositions.map((item) => tr([
+        fmtText(item.id),
+        fmtText(item.pair),
+        fmtText(item.side),
+        fmtText(item.open_date),
+        fmtNum(item.open_rate, 4),
+        fmtNum(item.current_rate, 4),
+        fmtMoney(item.stake_amount, 4),
+        fmtNum(item.leverage, 2),
+        fmtMoney(item.gross_profit_abs, 4),
+        fmtMoney(item.fee_paid_abs, 4),
+        fmtMoney(item.net_profit_abs, 4),
+        fmtPct(item.roi_pct, 2),
+        fmtText(item.recovery_summary),
+        fmtText(item.enter_tag),
+      ]));
+
+      const recentClosedRows = recentClosedTrades.map((item) => tr([
+        fmtText(item.id),
+        fmtText(item.pair),
+        fmtText(item.side),
+        fmtText(item.open_date),
+        fmtText(item.close_date),
+        fmtNum(item.open_rate, 4),
+        fmtNum(item.close_rate, 4),
+        fmtMoney(item.stake_amount, 4),
+        fmtMoney(item.gross_profit_abs, 4),
+        fmtMoney(item.fee_total_abs, 4),
+        fmtMoney(item.net_profit_abs, 4),
+        fmtPct(item.profit_pct, 4),
+        fmtPct(item.max_tp_pct, 4),
+        fmtPct(item.max_sl_pct, 4),
+        fmtText(item.exit_reason),
+        fmtText(item.enter_tag),
+      ]));
+
+      const pairStatsRows = pairStats.map((item) => tr([
+        fmtText(item.pair),
+        fmtText(item.trades),
+        fmtText(item.wins),
+        fmtText(item.losses),
+        fmtPct(item.win_rate, 2),
+        fmtMoney(item.net_profit_abs, 4),
+        fmtMoney(item.fees_abs, 4),
+        fmtPct(item.avg_profit_pct, 4),
+        fmtPct(item.avg_max_tp_pct, 4),
+        fmtPct(item.avg_max_sl_pct, 4),
+      ]));
+
+      renderRows(
+        "open_positions_body",
+        openPositionRows,
+        "No open simulation positions"
+      );
+
+      renderRows(
+        "live_bot_positions_body",
+        openPositionRows,
+        "No bot-managed live positions"
+      );
+
+      renderRows(
+        "trade_shadow_preview_body",
+        previewOrders.map((item) => tr([
+          fmtText(item.symbol),
+          fmtText(item.side),
+          fmtNum(item.mark_price, 6),
+          fmtMoney(item.stake_amount_usdt, 6),
+          fmtNum(item.leverage, 2),
+          fmtText(item.quantity),
+          fmtNum(item.estimated_notional, 6),
+          fmtText(item.take_profit_price),
+          fmtText(item.stop_loss_price),
+          item.blocked_before_order_submit ? '<span class="warn">blocked</span>' : '<span class="good">ready</span>',
+        ])),
+        "No preview orders"
+      );
+
+      renderRows(
+        "actual_positions_body",
+        actualPositions.map((item) => tr([
+          fmtText(item.symbol),
+          fmtText(item.positionAmt),
+          fmtText(item.entryPrice),
+          fmtText(item.markPrice),
+          fmtText(item.unRealizedProfit),
+          fmtText(item.leverage),
+          fmtText(item.positionSide),
+        ])),
+        "No actual positions"
+      );
+
+      renderRows(
+        "actual_open_orders_body",
+        actualOpenOrders.map((item) => tr([
+          fmtText(item.symbol),
+          fmtText(item.side),
+          fmtText(item.type),
+          fmtText(item.origQty),
+          fmtText(item.price),
+          fmtText(item.stopPrice),
+          fmtText(item.status),
+          fmtText(item.orderId),
+        ])),
+        "No actual open orders"
+      );
+
+      renderRows(
+        "actual_recent_trades_body",
+        actualRecentTrades.map((item) => tr([
+          fmtTime(item.time),
+          fmtText(item.symbol),
+          fmtText(item.side),
+          fmtText(item.price),
+          fmtText(item.qty),
+          fmtText(item.quoteQty),
+          fmtText(item.realizedPnl),
+          fmtText(item.commission),
+          fmtText(item.positionSide),
+          fmtText(item.orderId),
+        ])),
+        "No actual recent trades"
+      );
+
+      renderRows(
+        "recent_closed_body",
+        recentClosedRows,
+        "No closed simulation trades"
+      );
+
+      renderRows(
+        "live_recent_closed_body",
+        recentClosedRows,
+        "No bot closed trades yet"
+      );
+
+      renderRows(
+        "pair_stats_body",
+        pairStatsRows,
+        "No pair stats"
+      );
+
+      renderRows(
+        "live_pair_stats_body",
+        pairStatsRows,
+        "No live pair stats yet"
+      );
+    }
+
+    refresh().catch((error) => {
+      console.error(error);
+      document.body.insertAdjacentHTML("beforeend", `<div class="card bad">Dashboard load failed: ${error}</div>`);
+    });
+    setInterval(() => refresh().catch(console.error), 5000);
+  </script>
+</body>
+</html>

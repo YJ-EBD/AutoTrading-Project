@@ -151,10 +151,10 @@ def apply_mutation(settings: Settings, mutation_name: str) -> Settings:
         candidate.universe.max_symbols = max(4, candidate.universe.max_symbols - 2)
         return candidate
     if mutation_name == "wider_universe":
-        candidate.universe.max_symbols = min(16, candidate.universe.max_symbols + 4)
+        candidate.universe.max_symbols = min(20, candidate.universe.max_symbols + 4)
         return candidate
     if mutation_name == "diversified_candidates":
-        candidate.universe.max_symbols = min(12, candidate.universe.max_symbols + 2)
+        candidate.universe.max_symbols = min(20, candidate.universe.max_symbols + 2)
         candidate.research.relaxed_min_positive_symbols = min(
             candidate.universe.max_symbols,
             candidate.research.relaxed_min_positive_symbols + 1,

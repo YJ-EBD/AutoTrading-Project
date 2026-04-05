@@ -138,6 +138,7 @@ class PaperTradeRepository:
 
     def open_position(self, position: PaperPosition) -> int:
         payload = asdict(position)
+        metadata_payload = dict(position.metadata)
         with self._connect() as connection:
             cursor = connection.execute(
                 """
@@ -164,7 +165,7 @@ class PaperTradeRepository:
                     position.model_probability,
                     position.llm_action,
                     position.llm_confidence,
-                    json.dumps(payload, default=str),
+                    json.dumps(metadata_payload, default=str),
                 ),
             )
             return int(cursor.lastrowid)
@@ -204,7 +205,11 @@ class PaperTradeRepository:
         max_adverse_excursion: float,
         max_favorable_excursion: float,
         bars_held: int,
+        stop_price: float | None = None,
+        target_price: float | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
+        metadata_json = json.dumps(metadata, default=str) if metadata is not None else None
         with self._connect() as connection:
             connection.execute(
                 """
@@ -214,7 +219,10 @@ class PaperTradeRepository:
                     net_return = ?,
                     max_adverse_excursion = ?,
                     max_favorable_excursion = ?,
-                    bars_held = ?
+                    bars_held = ?,
+                    stop_price = COALESCE(?, stop_price),
+                    target_price = COALESCE(?, target_price),
+                    metadata_json = COALESCE(?, metadata_json)
                 WHERE position_id = ?
                 """,
                 (
@@ -224,6 +232,9 @@ class PaperTradeRepository:
                     max_adverse_excursion,
                     max_favorable_excursion,
                     bars_held,
+                    stop_price,
+                    target_price,
+                    metadata_json,
                     position_id,
                 ),
             )
@@ -321,6 +332,18 @@ class PaperTradeRepository:
                 (utc_now().isoformat(), status, json.dumps(summary, default=str), retune_id),
             )
 
+    def mark_running_retunes_stale(self, status: str = "interrupted") -> int:
+        with self._connect() as connection:
+            cursor = connection.execute(
+                """
+                UPDATE retune_events
+                SET completed_at = ?, status = ?
+                WHERE status = 'running' AND completed_at IS NULL
+                """,
+                (utc_now().isoformat(), status),
+            )
+            return int(cursor.rowcount or 0)
+
     def recent_retunes(self, limit: int = 20) -> list[dict[str, Any]]:
         return self._query_rows(
             "SELECT * FROM retune_events ORDER BY started_at DESC LIMIT ?",
@@ -357,6 +380,13 @@ class PaperTradeRepository:
         realized_returns = [float(item["net_return"]) for item in recent_closed]
         wins = [value for value in realized_returns if value > 0]
         losses = [value for value in realized_returns if value <= 0]
+        loss_denominator = abs(sum(losses))
+        if not losses:
+            profit_factor = float(len(wins) > 0)
+        elif loss_denominator == 0:
+            profit_factor = float("inf") if wins else 0.0
+        else:
+            profit_factor = sum(wins) / loss_denominator
         return {
             "active_positions": len(active_positions),
             "closed_positions": len(recent_closed),
@@ -364,7 +394,7 @@ class PaperTradeRepository:
             "realized_expectancy": (sum(realized_returns) / len(realized_returns)) if realized_returns else 0.0,
             "realized_net_return_sum": sum(realized_returns),
             "win_rate": (len(wins) / len(realized_returns)) if realized_returns else 0.0,
-            "profit_factor": (sum(wins) / abs(sum(losses))) if losses else float(len(wins) > 0),
+            "profit_factor": profit_factor,
             "active_symbols": sorted({item["symbol"] for item in active_positions}),
         }
 
@@ -375,7 +405,13 @@ class PaperTradeRepository:
 
     def _row_to_dict(self, row: sqlite3.Row) -> dict[str, Any]:
         payload = dict(row)
-        for key in ("payload_json", "metadata_json", "summary_json"):
+        aliases = {
+            "payload_json": "payload",
+            "metadata_json": "metadata",
+            "summary_json": "summary",
+        }
+        for key, alias in aliases.items():
             if key in payload and payload[key]:
                 payload[key] = json.loads(payload[key])
+                payload[alias] = payload[key]
         return payload

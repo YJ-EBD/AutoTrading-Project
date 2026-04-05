@@ -126,3 +126,48 @@ def test_select_diversified_survivors_drops_high_overlap_same_family() -> None:
     assert "trend_a" in selected
     assert "breakout_a" in selected
     assert "trend_b" not in selected
+
+
+def test_zero_survivor_seed_promotes_near_miss_candidates_when_standard_rescue_finds_none() -> None:
+    loop = build_loop()
+    settings = loop.settings
+    pre_screen = pd.DataFrame(
+        [
+            {
+                "strategy_id": "trend_near_miss",
+                "family": "trend_ema",
+                "trade_count": float(settings.research.min_candidate_trades + 20),
+                "expectancy": 0.0007,
+                "profit_factor": settings.research.relaxed_min_profit_factor - 0.04,
+                "max_drawdown": settings.research.relaxed_max_drawdown_fraction - 0.02,
+                "positive_symbol_count": 2,
+                "strict_survived": False,
+                "ml_candidate_survived": False,
+                "family_seed_survived": False,
+                "rescue_reason": "",
+                "survived": False,
+                "survival_tier": "rejected",
+            },
+            {
+                "strategy_id": "breakout_near_miss",
+                "family": "breakout",
+                "trade_count": float(settings.research.min_candidate_trades + 30),
+                "expectancy": 0.0003,
+                "profit_factor": settings.research.relaxed_min_profit_factor - 0.035,
+                "max_drawdown": settings.research.relaxed_max_drawdown_fraction + 0.02,
+                "positive_symbol_count": 1,
+                "strict_survived": False,
+                "ml_candidate_survived": False,
+                "family_seed_survived": False,
+                "rescue_reason": "",
+                "survived": False,
+                "survival_tier": "rejected",
+            },
+        ]
+    )
+
+    rescued = loop._apply_family_seed_rescue(pre_screen)
+
+    assert rescued["survived"].astype(bool).sum() == 2
+    assert set(rescued.loc[rescued["survived"], "survival_tier"]) == {"zero_survivor_seed"}
+    assert set(rescued.loc[rescued["survived"], "rescue_reason"]) == {"zero_survivor_seed"}

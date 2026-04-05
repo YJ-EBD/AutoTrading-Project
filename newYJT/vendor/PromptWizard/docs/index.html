@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content=" PromptWizard:Task-Aware Prompt Optimization Framework">
+  <meta name="keywords" content="PromptWizard">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PromptWizard</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+  <style>
+    .red-text {
+    color: red;
+}
+
+    /* Collapsible content - initially hidden */
+    .col_content_1 {
+        padding: 15px;
+        background-color: #f1f1f1;
+        display: none;
+    }
+    .col_content_2 {
+        padding: 15px;
+        background-color: #f1f1f1;
+        display: none;
+    }
+    .col_content_3 {
+        padding: 15px;
+        background-color: #f1f1f1;
+        display: none;
+    }
+    .col_content_4 {
+        padding: 15px;
+        background-color: #f1f1f1;
+        display: none;
+    }
+    .col_content_5 {
+        padding: 15px;
+        background-color: #f1f1f1;
+        display: none;
+    }
+    .col_content_6 {
+        padding: 15px;
+        background-color: #f1f1f1;
+        display: none;
+    }
+    .col_content_7 {
+        padding: 15px;
+        background-color: #f1f1f1;
+        display: none;
+    }
+    .col_content_8 {
+        padding: 15px;
+        background-color: #f1f1f1;
+        display: none;
+    }
+    .col_content_9 {
+        padding: 15px;
+        background-color: #f1f1f1;
+        display: none;
+    }
+    .col_content_10 {
+        padding: 15px;
+        background-color: #f1f1f1;
+        display: none;
+    }
+    .col_content_11 {
+        padding: 15px;
+        background-color: #f1f1f1;
+        display: none;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    table, th, td {
+        border: 1px solid black;
+    }
+    th, td {
+        padding: 8px;
+        text-align: left;
+    }
+
+    .btn {
+            display: flex; /* Use flexbox for layout */
+            justify-content: space-between; /* Space out content on left and right */
+            align-items: center; /* Center content vertically */
+            padding: 10px 20px; /* Add padding to the button */
+            font-size: 18px; /* Text size */
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%; /* Button width (you can adjust this) */
+        }
+
+        /* Style for the + sign */
+        .btn .icon {
+            font-size: 24px; /* Size of the + sign */
+        }
+
+        .btn:hover {
+            background-color: gray; /* Hover effect */
+        }
+
+        /* Container for the slider */
+        .slider-container {
+            width: 80%;  /* Set the width of the slider */
+            margin: 0 auto;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Slide wrapper that holds all the images */
+        .slider-wrapper {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        /* Each image box (b5 box) */
+        .box {
+          
+          flex: 0 0 100%;  /* Each image takes full width of the container */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .box img {
+            width: 90%;  /* Make images responsive to fit the container */
+            max-height: 400px;  /* Control max height */
+            object-fit: cover;  /* Ensure images maintain aspect ratio */
+        }
+
+        /* Navigation buttons (next and previous) */
+        .prev, .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .prev {
+            left: 10px;
+        }
+
+        .next {
+            right: 10px;
+        }
+
+        * {box-sizing: border-box;}
+        body {font-family: Verdana, sans-serif;}
+        .mySlides {display: none;}
+        img {vertical-align: middle;}
+
+        /* Slideshow container */
+        .slideshow-container {
+          max-width: 1000px;
+          position: relative;
+          margin: auto;
+        }
+
+        /* Caption text */
+        .text {
+          color: #f2f2f2;
+          font-size: 15px;
+          padding: 8px 12px;
+          position: absolute;
+          bottom: 8px;
+          width: 100%;
+          text-align: center;
+        }
+
+        /* Number text (1/3 etc) */
+        .numbertext {
+          color: #f2f2f2;
+          font-size: 12px;
+          padding: 8px 12px;
+          position: absolute;
+          top: 0;
+        }
+
+        /* The dots/bullets/indicators */
+        .dot {
+          height: 15px;
+          width: 15px;
+          margin: 0 2px;
+          background-color: #bbb;
+          border-radius: 50%;
+          display: inline-block;
+          transition: background-color 0.6s ease;
+        }
+
+        .active {
+          background-color: #717171;
+        }
+
+        /* Fading animation */
+        .fade {
+          animation-name: fade;
+          animation-duration: 1.5s;
+        }
+
+        @keyframes fade {
+          from {opacity: .4} 
+          to {opacity: 1}
+        }
+
+        /* On smaller screens, decrease text size */
+        @media only screen and (max-width: 300px) {
+          .text {font-size: 11px}
+        }
+       
+    
+</style>
+
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">🧙 PromptWizard<br><p style="white-space: nowrap;">Task-Aware Prompt Optimization Framework</p></h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a>Eshaan Agarwal</a>,</span>
+            <span class="author-block">
+              <a>Joykirat Singh</a>,</span>
+            <span class="author-block">
+              <a>Vivek Dani</a>,
+            </span>
+            <span class="author-block">
+              <a>Raghav Magazine</a>,
+            </span>
+            <span class="author-block">
+              <a>Tanuja Ganu</a>,
+            </span>
+            <span class="author-block">
+              <a>Akshay Nambi</a>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Microsoft Research</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/pdf/2405.18369"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2405.18369"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/microsoft/PromptWizard"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+                
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="slideshow-container">
+
+  <div class="mySlides fade">
+    <div class="numbertext">1 / 3</div>
+    <p align="center">
+    <img src="images/overview.png">
+    </p>
+  </div>
+  
+  <div class="mySlides fade">
+    <div class="numbertext">2 / 3</div>
+    <p align="center">
+    <img width="700" height="700" src="images/iterative_flowchart-1.png">
+    </p>
+  </div>
+  
+  <div class="mySlides fade">
+    <div class="numbertext">3 / 3</div>
+    <p align="center">
+    <img width="700" height="700" src="images/sequential_flowchart-1.png">
+    </p>
+  </p>
+  </div>
+  
+  </div>
+  <br>
+  
+  <div style="text-align:center">
+    <span class="dot"></span> 
+    <span class="dot"></span> 
+    <span class="dot"></span> 
+  </div>
+  
+  <script>
+  let slideIndex = 0;
+  showSlides();
+  
+  function showSlides() {
+    let i;
+    let slides = document.getElementsByClassName("mySlides");
+    let dots = document.getElementsByClassName("dot");
+    for (i = 0; i < slides.length; i++) {
+      slides[i].style.display = "none";  
+    }
+    slideIndex++;
+    if (slideIndex > slides.length) {slideIndex = 1}    
+    for (i = 0; i < dots.length; i++) {
+      dots[i].className = dots[i].className.replace(" active", "");
+    }
+    slides[slideIndex-1].style.display = "block";  
+    dots[slideIndex-1].className += " active";
+    setTimeout(showSlides, 2000); // Change image every 2 seconds
+  }
+  </script>
+
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <div class="content has-text-justified">
+          <b>PromptWizard</b> is an open source framework for automated prompt and example optimization, leveraging a feedback-driven critique and synthesis process to balance exploration and exploitation. It consistently outperforms state-of-the-art methods while significantly reducing computational costs, enabling efficient and scalable prompt engineering across diverse tasks and LLMs. 
+        </div>
+      </div>
+    </div>
+
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Overview</h2>
+        <div class="content has-text-justified">
+          Large language models (LLMs) like GPT-4 have achieved remarkable performance across diverse tasks. At the core of this success is prompting—the process of providing input instructions to guide models toward desired outputs. Studies have shown that prompting significantly influences LLM performance, making prompt engineering—the design and refinement of prompts—critical for maximizing accuracy. However, crafting effective prompts remains a labor-intensive and domain-specific task, requiring human expertise and subjective judgment. As models evolve and tasks vary, the need to repeatedly design prompts raises an important question: <br> <b>Can prompt engineering be automated to streamline this process and enhance scalability? </b>
+        </div>
+      </div>
+    </div>
+
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Motivation. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Motivation</h2>
+        <div class="content has-text-justified">
+
+          <h3>Prompting is central to LLMs!</h3>
+          <ul>
+            <li><b>Prompting</b>: The process of providing input instructions to guide models towards desired output</li>
+            <li><b>Prompt Engineering</b>: The process of designing and refining of prompts​</li>
+            <li>Crating effective prompts is a challenge as:​</li>
+            <ol>
+              <li>The task is labor-intensive</li>
+              <li>Prompts need to be domain-specific to work effectively</li>
+              <li>Often it equires human expertise and is subjective​</li>
+              <li>Also as models and tasks evolve, there is a need for repeated design</li>
+            </ol>
+          </ul>
+          
+        </div>
+      </div>
+    </div>
+    <!--/ Motivation. -->
+
+</section>
+
+
+
+
+
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">PromptWizard Working </h2>
+        <div class="content has-text-justified">
+          <p>
+            PromptWizard (PW) is a discrete prompt optimization framework that employs a self-evolving mechanism where the LLM generates, critiques, and refines its own prompts and examples, continuously improving through iterative feedback and synthesis. This self-adaptive approach ensures holistic optimization by evolving both the instructions and in-context learning examples for better task performance. 
+          </p>
+          <h3>Three Key Insights :</h3>
+          <p>
+            <ol>
+              <li><b>Feedback-driven Refinement</b>: LLM generates, critiques, and refines its own prompts and examples, continuously improving through iterative feedback and synthesis​
+              </li>
+              <li><b>Critique and Synthesize diverse examples</b>: Generates synthetic examples that are robust, diverse and task-aware. Also it optimizes both prompt and examples in tandem​
+              </li>
+              <li><b>Self generated Chain of Thought (CoT)</b> steps with combination of positive, negative and synthetic examples</li>
+            </ol>
+
+            <p>
+              Following are the details of each step :
+            </p>
+
+            
+            <button class="btn" onclick="toggleContent(this,'1')">1. Feedback driven Refinement <span class="icon">+</span></button>
+            <div class="col_content_1">
+              <ul>
+                <li>Prompt wizard uses a systematic, feedback-driven proces where it incorporates a critique component that provides feedback, thus guiding and refining the prompt over multiple iterations​</li>
+                <li>The following steps help in carrying out this systematically</li>
+                <ul>
+                  <li><b>Mutate</b>: Takes an initial problem description + thinking Styles to generate prompts​</li>
+                  <li><b>Scoring</b>: Evaluate the performance of the generated prompts to determine best prompt​</li>
+                  <li><b>Critique</b>: Reviews where the prompt succeeded and failed by analyzing cases where the LLM struggled​</li>
+                  <li><b>Synthesize</b>: Uses critique’s feedback to refine the best prompt</li>
+                </ul>
+                  </li>
+              </ul>
+            </div>
+
+            <script>
+              // Function to toggle the visibility of the collapsible content
+              function toggleContent(button,index) {
+                  var content = document.querySelector(".col_content_"+index);
+                  const icon = button.querySelector('.icon');
+                  if (content.style.display === "block") {
+                      content.style.display = "none"; // Hide content if it's visible
+                      icon.textContent = icon.textContent.replace('-', '+');
+                  } else {
+                      content.style.display = "block"; // Show content if it's hidden
+                      icon.textContent = icon.textContent.replace('+', '-');
+                  }
+              }
+          </script>
+            <br>
+            <button class="btn" onclick="toggleContent(this,'2')">2. Critique and Synthesize diverse examples <span class="icon">+</span></button>
+            <div class="col_content_2">
+              <ul>
+                <li>PromptWizard improves both prompt instructions and few-shot examples in tandem​</li>
+                <li>It uses self-reflection to synthesize examples that are diverse and task-relevant​ </li>
+                <li>An iterative feedback loop is used that continuously refines both the prompt and few-shot examples​</li>
+                <li>Few shot example optimization:​</li>
+                <ul>
+                  <li><b>Critique</b>: Analyzes previously selected examples and use the feedback to determine how examples should evolve​</li>
+                  <li><b>Synthesize</b>: Incorporates feedback to generate new synthetic examples that are more diverse, robust, and task-relevant​</li>
+                </ul>
+                <li>Prompt instruction optimization:​</li>
+                <ul>
+                  <li><b>Critique</b>: Identifies weaknesses and gaps that require addressing to further refine the prompt instruction​</li>
+                  <li><b>Synthesize</b>:  Leverages feedback from the critique to synthesize and refine the prompt instruction</li>
+                </ul>
+              </ul>
+                
+            </div>
+            <br>
+            <button class="btn" onclick="toggleContent(this,'3')">3. Chain of Thought Reasoning <span class="icon">+</span></button>
+            <div class="col_content_3">
+                <p>
+                  <ul>
+                    <li>Incorporating chain-of-thought (CoT) reasoning improves problem-solving abilities of the model​</li>
+                    <li>CoT Reasoning takes the selected few-shot examples and generates a detailed reasoning chain for each example to facilitate problem-solving​</li>
+                    <li>An LLM to check the coherence and relevance of examples​</li>
+                </ul>
+                  ​</p>
+            </div>
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Results. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Results</h2>
+        <div class="content has-text-justified">
+
+          <button class="btn" onclick="toggleContent(this,'4')">Instruction Induction Dataset<span class="icon">+</span></button>
+          <div class="col_content_4">
+            <p align="center">
+            <img src="./images/comaprision.png" >
+            </p>
+            <p align="center"><b>PromptWizard outperforms the baselines, achieving the highest accuracy on <b class="red-text">13/19 tasks (68%)</b> with 0-shot and <b class="red-text">16/19 (84%)</b> with 1-shot</b></p>
+            <p align="center">
+            <img src="./images/ppc.png" >
+            </p>
+            <p align="center"><b>PromptWizard consistently performs near the best possible accuracy across all tasks</b></p>
+            <p align="center">
+              <img src="./images/cost_analysis.png" >
+              </p>
+              <p align="center"><b>PromptWizard costs just $0.05 per task, <b class="red-text">5-60x reduction</b> in overall tokens/cost</b>​</p> 
+          </div>
+          </div>
+          
+          <button class="btn" onclick="toggleContent(this,'5')">Arithmetic Tasks<span class="icon">+</span></button>
+          <div class="col_content_5">
+              <p align="center">
+              <img src="./images/arithmetic_task.png" >
+              </p>
+          </div>
+          <br>
+          <button class="btn" onclick="toggleContent(this,'7')">Big Bench Hard<span class="icon">+</span></button>
+          <div class="col_content_7">
+              <p align="center">
+              <img src="./images/bigbench.png" >
+              </p>
+          </div>
+          <br>
+          <button class="btn" onclick="toggleContent(this,'8')">Prompts Using SLMs<span class="icon">+</span></button>
+          <div class="col_content_8">
+              <p align="center">
+              <img src="./images/slm_prompt.png" >
+              </p>
+              <p align="center"><b>PromptWizard using Llama-70B show a negligible <b b class="red-text">< 1% drop</b> in accuracy</b> ​</p>
+          </div>
+          <br>
+          <button class="btn" onclick="toggleContent(this,'9')">Varying the In-Context Examples<span class="icon">+</span></button>
+          <div class="col_content_9">
+              <p align="center">
+              <img src="./images/icl_results.png" >
+              </p>
+              <p align="center"><b>PromptWizard shows strong resilience even with fewer training samples mainly due to synthetic example generation and reasoning chains​</b>​</p>
+          </div>
+          <br>
+          <button class="btn" onclick="toggleContent(this,'10')">Comparision with naive prompting<span class="icon">+</span></button>
+          <div class="col_content_10">
+              <p align="center">
+              <img src="./images/prompting.png" >
+              </p>
+              <p align="center"><b>Substantial performance improvements across all models when optimized prompts are generated by PromptWizard on GSM8k dataset</b>​</p>
+          </div>    
+          <br>
+          <button class="btn" onclick="toggleContent(this,'11')">Comparision with Feedback based and other Prompt Optimization Techniques<span class="icon">+</span></button>
+          <div class="col_content_11">
+              <p align="center">
+                <table>
+                  <tr>
+                      <td>Dataset</td>
+                      <td colspan="4">Accuracy (high)</td>
+                  </tr>
+                  <tr>
+                      <td></td>
+                      <td>DSPy</td>
+                      <td>PromptAgent </td>
+                      <td>APO</td>
+                      <td>PW</td>
+                  </tr>
+                  <tr>
+                      <td>GSM8k</td>
+                      <td>78.2</td>
+                      <td>68.84</td>
+                      <td>25.67</td>
+                      <td><b>90</b></td>
+                  </tr>
+                  <tr>
+                      <td>AQUARAT</td>
+                      <td>55.1</td>
+                      <td>56.67</td>
+                      <td>20.12</td>
+                      <td><b>58.2</b></td>
+                  </tr>
+                  <tr>
+                      <td>SVAMP</td>
+                      <td>77</td>
+                      <td>78.67</td>
+                      <td>75.25</td>
+                      <td><b>82.3</b></td>
+                  </tr>
+                  <tr>
+                      <td>ETHOS</td>
+                      <td>84.1</td>
+                      <td>84.25</td>
+                      <td>80.62</td>
+                      <td><b>89.4</b></td>
+                  </tr>
+              </table>
+              <br>
+              <table>
+                <tr>
+                    <td>Dataset</td>
+                    <td colspan="4">Calls (low)</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>DSPy</td>
+                    <td>PromptAgent </td>
+                    <td>APO</td>
+                    <td>PW</td>
+                </tr>
+                <tr>
+                    <td>GSM8k</td>
+                    <td>915</td>
+                    <td>2115</td>
+                    <td>8490</td>
+                    <td><b>147</b></td>
+                </tr>
+                <tr>
+                    <td>AQUARAT</td>
+                    <td>920</td>
+                    <td>2200</td>
+                    <td>8500</td>
+                    <td><b>112</b></td>
+                </tr>
+                <tr>
+                    <td>SVAMP</td>
+                    <td>2300</td>
+                    <td>2111</td>
+                    <td>8000</td>
+                    <td><b>178</b></td>
+                </tr>
+                <tr>
+                    <td>ETHOS</td>
+                    <td>660</td>
+                    <td>2217</td>
+                    <td>8200</td>
+                    <td><b>80</b></td>
+                </tr>
+            </table>
+            <br>
+            <table>
+              <tr>
+                  <td>Dataset</td>
+                  <td colspan="4">Tokens (low)</td>
+              </tr>
+              <tr>
+                  <td></td>
+                  <td>DSPy</td>
+                  <td>PromptAgent </td>
+                  <td>APO</td>
+                  <td>PW</td>
+              </tr>
+              <tr>
+                  <td>GSM8k</td>
+                  <td>262</td>
+                  <td>500</td>
+                  <td><b>109</b></td>
+                  <td>237</td>
+              </tr>
+              <tr>
+                  <td>AQUARAT</td>
+                  <td>326</td>
+                  <td>875</td>
+                  <td><b>125</b></td>
+                  <td>200</td>
+              </tr>
+              <tr>
+                  <td>SVAMP</td>
+                  <td>189</td>
+                  <td>680</td>
+                  <td><b>85</b></td>
+                  <td>127</td>
+              </tr>
+              <tr>
+                  <td>ETHOS</td>
+                  <td>175</td>
+                  <td>417</td>
+                  <td><b>55</b></td>
+                  <td>190</td>
+              </tr>
+          </table>          
+            </p>
+            <br>
+              <p align="center"> <b>PromptWizard outperforms feedback based methods like APO, PromptAgent and other prompt optimization techniques like DSPy in terms of accuracy and number of API calls for optimization on various datasets.
+              ​</p> 
+              </b>
+          </div> 
+        </div>
+      </div>
+    </div>
+    <!--/ Results. -->
+
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@misc{agarwal2024promptwizardtaskawarepromptoptimization,
+      title={PromptWizard: Task-Aware Prompt Optimization Framework}, 
+      author={Eshaan Agarwal and Joykirat Singh and Vivek Dani and Raghav Magazine and Tanuja Ganu and Akshay Nambi},
+      year={2024},
+      eprint={2405.18369},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2405.18369}, 
+}</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This means you are free to borrow the <a
+              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
+            we just ask that you link back to this page in the footer.
+            Please remember to remove the analytics code included in the header of the website which
+            you do not want on your website.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

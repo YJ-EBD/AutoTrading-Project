@@ -9,8 +9,7 @@ from ..config import Settings
 LOG_FORMAT = "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
 
 
-def ensure_paper_log_handler(settings: Settings) -> Path:
-    log_path = settings.paper_log_path
+def ensure_file_log_handler(log_path: Path) -> Path:
     log_path.parent.mkdir(parents=True, exist_ok=True)
     root_logger = logging.getLogger()
     target = str(log_path.resolve())
@@ -26,6 +25,10 @@ def ensure_paper_log_handler(settings: Settings) -> Path:
     file_handler.setFormatter(logging.Formatter(LOG_FORMAT))
     root_logger.addHandler(file_handler)
     return log_path
+
+
+def ensure_paper_log_handler(settings: Settings) -> Path:
+    return ensure_file_log_handler(settings.paper_log_path)
 
 
 def read_log_tail(log_path: Path, limit: int) -> list[str]:

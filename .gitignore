@@ -5,5 +5,28 @@ __pycache__/
 *.pyo
 *.pyd
 *.tmp
+*.log
 *.log~
 src/binance_quant_research.egg-info/
+newYJT/settings.env
+newYJT/runtime/settings_state.json
+*.zip
+*.parquet
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+*.db
+*.db-journal
+_tmp_page.html
+
+# Generated experiment/runtime outputs
+artifacts/
+data/
+
+# Local backups and legacy snapshots
+BackUPnewYJT/
+newYJT_legacy_*/
+newYJT_hybrid_legacy_*/
+
+# newYJT runtime-only state
+newYJT/runtime/

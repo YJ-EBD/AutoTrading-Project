@@ -1,0 +1,18 @@
+{
+    "api_key": "your_binance_api_key",
+    "api_secret": "your_binance_api_secret",
+    "claude_api_key": "your_claude_api_key",
+    "simulation_mode": true,
+    "trading_pairs": ["BTCUSDT", "ETHUSDT", "BNBUSDT"],
+    "trade_amount_usdt": 100,
+    "stop_loss_percentage": 2.0,
+    "take_profit_percentage": 3.0,
+    "evaluation_interval": 3600,
+    "analysis_interval": "1h",
+    "analysis_lookback": 100,
+    "min_pattern_size": 5,
+    "confidence_threshold": 0.7,
+    "risk_per_trade_percentage": 1.0,
+    "max_daily_loss_usdt": 100,
+    "max_position_size_usdt": 1000
+}

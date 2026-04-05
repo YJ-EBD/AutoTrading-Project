@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ ui.compare_page_title }}</title>
+  <style>
+    :root {
+      --bg: #f4efe7;
+      --panel: rgba(255, 252, 246, 0.94);
+      --ink: #172026;
+      --muted: #61707a;
+      --accent: #0f766e;
+      --accent2: #b45309;
+      --good: #166534;
+      --bad: #b42318;
+      --border: rgba(23, 32, 38, 0.1);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(15,118,110,.14), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(180,83,9,.12), transparent 30%),
+        linear-gradient(150deg, #f4efe7, #eef2ef 50%, #f7f4ee);
+    }
+    .wrap { width: min(1460px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48px; }
+    .hero { margin-bottom: 20px; }
+    .eyebrow { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+    h1 { margin: 8px 0 10px; font-size: clamp(30px, 4vw, 50px); line-height: .98; font-family: "Space Grotesk", "Segoe UI", sans-serif; }
+    .subtitle { margin: 0; color: var(--muted); max-width: 920px; line-height: 1.6; }
+    .actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+    .btn {
+      border: 1px solid rgba(15,118,110,.2);
+      background: rgba(15,118,110,.08);
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .grid { display: grid; gap: 18px; grid-template-columns: repeat(12, minmax(0, 1fr)); }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 24px 60px rgba(23, 32, 38, 0.1);
+    }
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-12 { grid-column: span 12; }
+    h2 { margin: 0 0 14px; font-size: 22px; font-family: "Space Grotesk", "Segoe UI", sans-serif; }
+    .metrics { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+    .metric { border: 1px solid rgba(23,32,38,.08); border-radius: 16px; padding: 12px 14px; background: rgba(255,255,255,.45); }
+    .metric-name { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; }
+    .metric-value { margin-top: 6px; font-size: 22px; font-weight: 700; }
+    .good { color: var(--good); }
+    .bad { color: var(--bad); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(23,32,38,.08); }
+    th { color: var(--muted); text-transform: uppercase; font-size: 11px; letter-spacing: .12em; }
+    .footer-note { margin-top: 14px; color: var(--muted); font-size: 12px; }
+    @media (max-width: 1100px) {
+      .span-4, .span-6 { grid-column: span 12; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">{{ ui.compare_page_title }}</div>
+      <h1>{{ ui.compare_heading }}</h1>
+      <p class="subtitle">{{ ui.compare_subtitle }}</p>
+      <div class="actions">
+        <button class="btn" id="refresh-hydra-benchmark">{{ ui.compare_refresh_benchmark }}</button>
+        <a class="btn" href="/">메인 대시보드</a>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card span-4">
+        <h2>{{ ui.compare_current_runtime }}</h2>
+        <div class="metrics" id="current-metrics"></div>
+      </article>
+
+      <article class="card span-4">
+        <h2>{{ ui.compare_hydra_paper }}</h2>
+        <div class="metrics" id="hydra-paper-metrics"></div>
+      </article>
+
+      <article class="card span-4">
+        <h2>{{ ui.compare_hydra_benchmark }}</h2>
+        <div class="metrics" id="hydra-benchmark-metrics"></div>
+      </article>
+
+      <article class="card span-6">
+        <h2>{{ ui.compare_hydra_service }}</h2>
+        <table>
+          <tbody id="hydra-runtime-table"></tbody>
+        </table>
+      </article>
+
+      <article class="card span-6">
+        <h2>{{ ui.compare_hydra_closed }}</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>심볼</th>
+              <th>진입</th>
+              <th>종료</th>
+              <th>사유</th>
+              <th>ROI</th>
+              <th>손익</th>
+            </tr>
+          </thead>
+          <tbody id="hydra-paper-table"></tbody>
+        </table>
+      </article>
+
+      <article class="card span-12">
+        <h2>Hydra 벤치마크 심볼별 결과</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>심볼</th>
+              <th>수익률</th>
+              <th>거래 수</th>
+              <th>승률</th>
+              <th>최대 낙폭</th>
+            </tr>
+          </thead>
+          <tbody id="hydra-symbol-table"></tbody>
+        </table>
+        <p class="footer-note" id="hydra-benchmark-path"></p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const ui = {{ ui | tojson }};
+
+    function escapeHtml(value) {
+      return String(value ?? "-")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatPct(value) {
+      const n = Number(value);
+      return Number.isFinite(n) ? `${n.toFixed(2)}%` : "-";
+    }
+
+    function formatUsd(value) {
+      const n = Number(value);
+      return Number.isFinite(n) ? `$${n.toFixed(2)}` : "-";
+    }
+
+    function metricCard(label, value, cls = "") {
+      return `<div class="metric"><div class="metric-name">${escapeHtml(label)}</div><div class="metric-value ${cls}">${escapeHtml(value)}</div></div>`;
+    }
+
+    function setHtml(id, html) {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = html;
+    }
+
+    function renderCompare(payload) {
+      const currentOverview = payload.current?.overview || {};
+      const currentRuntime = payload.current?.runtime || {};
+      const hydraRuntime = payload.hydra_runtime || {};
+      const hydraHealth = hydraRuntime.health || {};
+      const hydraService = hydraRuntime.status || {};
+      const hydraPaper = hydraRuntime.paper_overview || {};
+      const hydraPaperStatus = hydraRuntime.paper_status || {};
+      const hydraClosed = hydraRuntime.paper_closed_positions || [];
+      const hydraBenchmark = payload.hydra_benchmark || {};
+      const aggregate = hydraBenchmark.aggregate || {};
+
+      setHtml("current-metrics", [
+        metricCard(ui.compare_metric_total_return, formatPct((Number(currentOverview.realized_net_return_sum || 0) * 100)), Number(currentOverview.realized_net_return_sum || 0) >= 0 ? "good" : "bad"),
+        metricCard(ui.compare_metric_total_trades, String(currentOverview.closed_positions ?? 0)),
+        metricCard(ui.compare_metric_win_rate, formatPct((Number(currentOverview.win_rate || 0) * 100)), Number(currentOverview.win_rate || 0) >= 0.5 ? "good" : "bad"),
+        metricCard(ui.compare_metric_profit_factor, Number(currentOverview.profit_factor || 0).toFixed(2), Number(currentOverview.profit_factor || 0) >= 1 ? "good" : "bad"),
+        metricCard(ui.compare_metric_realized_pnl, formatUsd(currentOverview.realized_net_pnl_usd || 0), Number(currentOverview.realized_net_pnl_usd || 0) >= 0 ? "good" : "bad"),
+        metricCard(ui.compare_metric_status, escapeHtml(currentRuntime.runtime_status?.status || "-")),
+      ].join(""));
+
+      setHtml("hydra-paper-metrics", [
+        metricCard(ui.compare_metric_total_return, formatPct((Number(hydraPaper.realized_net_return_sum || 0) * 100)), Number(hydraPaper.realized_net_return_sum || 0) >= 0 ? "good" : "bad"),
+        metricCard(ui.compare_metric_total_trades, String(hydraPaper.closed_positions ?? 0)),
+        metricCard(ui.compare_metric_win_rate, formatPct((Number(hydraPaper.win_rate || 0) * 100)), Number(hydraPaper.win_rate || 0) >= 0.5 ? "good" : "bad"),
+        metricCard(ui.compare_metric_profit_factor, Number(hydraPaper.profit_factor || 0).toFixed(2), Number(hydraPaper.profit_factor || 0) >= 1 ? "good" : "bad"),
+        metricCard(ui.compare_metric_realized_pnl, formatUsd(hydraPaper.realized_net_pnl_usd || 0), Number(hydraPaper.realized_net_pnl_usd || 0) >= 0 ? "good" : "bad"),
+        metricCard(ui.compare_metric_status, escapeHtml(hydraPaperStatus.runtime_status?.status || "-")),
+      ].join(""));
+
+      setHtml("hydra-benchmark-metrics", hydraBenchmark.available ? [
+        metricCard(ui.compare_metric_generated_at, escapeHtml(hydraBenchmark.generated_at || "-")),
+        metricCard(ui.compare_metric_total_return, formatPct(aggregate.total_return_pct || 0), Number(aggregate.total_return_pct || 0) >= 0 ? "good" : "bad"),
+        metricCard(ui.compare_metric_total_trades, String(aggregate.total_trades ?? 0)),
+        metricCard(ui.compare_metric_win_rate, formatPct(aggregate.win_rate || 0), Number(aggregate.win_rate || 0) >= 50 ? "good" : "bad"),
+        metricCard(ui.compare_metric_drawdown, formatPct(aggregate.max_drawdown_pct || 0), "bad"),
+        metricCard(ui.compare_metric_profitable_symbols, `${aggregate.profitable_symbols ?? 0} / ${hydraBenchmark.symbol_count ?? 0}`),
+      ].join("") : metricCard(ui.compare_hydra_benchmark, ui.compare_no_benchmark));
+
+      const runtimeRows = [
+        ["Health", hydraHealth.status || "-"],
+        ["Hydra profile", hydraService.profile || "-"],
+        ["Version", hydraService.version || "-"],
+        ["Paper symbols", String((hydraPaper.selected_symbols || []).length)],
+        ["Paper active", String(hydraPaper.active_positions ?? 0)],
+        ["Fetched", hydraRuntime.fetched_at || "-"],
+      ];
+      setHtml("hydra-runtime-table", runtimeRows.map(([k, v]) => `<tr><th>${escapeHtml(k)}</th><td>${escapeHtml(v)}</td></tr>`).join(""));
+
+      const paperRows = Array.isArray(hydraClosed) && hydraClosed.length
+        ? hydraClosed.map((item) => `
+            <tr>
+              <td>${escapeHtml(item.symbol)}</td>
+              <td>${escapeHtml(item.entry_observed_price)}</td>
+              <td>${escapeHtml(item.exit_observed_price)}</td>
+              <td>${escapeHtml(item.exit_reason)}</td>
+              <td class="${Number(item.net_return || 0) >= 0 ? "good" : "bad"}">${escapeHtml(formatPct((Number(item.net_return || 0) * 100)))}</td>
+              <td class="${Number(item.net_return || 0) >= 0 ? "good" : "bad"}">${escapeHtml(formatUsd((Number(item.net_return || 0) * Number(hydraPaper.starting_equity_usd || 0))))}</td>
+            </tr>
+          `).join("")
+        : `<tr><td colspan="6">아직 Hydra paper 종료 포지션이 없습니다.</td></tr>`;
+      setHtml("hydra-paper-table", paperRows);
+
+      const symbolRows = hydraBenchmark.available && hydraBenchmark.per_symbol?.length
+        ? hydraBenchmark.per_symbol.map((item) => `
+            <tr>
+              <td>${escapeHtml(item.symbol)}</td>
+              <td class="${Number(item.total_return_pct) >= 0 ? "good" : "bad"}">${escapeHtml(formatPct(item.total_return_pct))}</td>
+              <td>${escapeHtml(String(item.trade_count))}</td>
+              <td>${escapeHtml(formatPct(item.win_rate))}</td>
+              <td class="bad">${escapeHtml(formatPct(item.max_drawdown_pct))}</td>
+            </tr>
+          `).join("")
+        : `<tr><td colspan="5">${escapeHtml(ui.compare_no_benchmark)}</td></tr>`;
+      setHtml("hydra-symbol-table", symbolRows);
+
+      const pathEl = document.getElementById("hydra-benchmark-path");
+      if (pathEl) {
+        pathEl.textContent = hydraBenchmark.path || "";
+      }
+    }
+
+    async function refreshCompare() {
+      const response = await fetch("/api/compare", { cache: "no-store" });
+      if (!response.ok) return;
+      renderCompare(await response.json());
+    }
+
+    async function refreshHydraBenchmark() {
+      const response = await fetch("/api/compare/hydra-refresh", { method: "POST" });
+      if (!response.ok) {
+        alert("Hydra benchmark refresh failed.");
+        return;
+      }
+      await refreshCompare();
+    }
+
+    document.getElementById("refresh-hydra-benchmark")?.addEventListener("click", refreshHydraBenchmark);
+    refreshCompare();
+    setInterval(refreshCompare, 10000);
+  </script>
+</body>
+</html>

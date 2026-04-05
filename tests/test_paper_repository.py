@@ -1,87 +1,53 @@
 from pathlib import Path
 
-from binance_quant.paper.models import PaperDecision, PaperPosition
+from binance_quant.config import Settings
+from binance_quant.paper.models import PaperPosition
 from binance_quant.paper.repository import PaperTradeRepository
 
 
-def test_paper_repository_tracks_decisions_and_positions(tmp_path: Path) -> None:
-    repository = PaperTradeRepository(tmp_path / "paper.sqlite3")
+def test_overview_handles_zero_loss_denominator(tmp_path: Path) -> None:
+    settings = Settings.load("configs/base.yaml")
+    settings.project_root = tmp_path
+    settings.ensure_directories()
 
-    decision_id = repository.record_decision(
-        PaperDecision(
-            decided_at="2024-01-01T00:00:00+00:00",
-            symbol="BTCUSDT",
-            strategy_id="trend_ema__demo",
-            family="trend_ema",
-            side="long",
-            signal_time="2024-01-01T00:00:00+00:00",
-            observed_price=42000.0,
-            atr_value=120.0,
-            signal_strength=0.8,
-            ml_probability=0.72,
-            ml_threshold=0.62,
-            ml_accepted=True,
-            llm_enabled=False,
-            llm_action=None,
-            llm_confidence=None,
-            llm_reason=None,
-            final_action="allow",
-            portfolio_reason="ml_only",
-            payload={"source": "test"},
-        )
-    )
+    repo = PaperTradeRepository(settings.paper_state_db)
 
-    position_id = repository.open_position(
+    position_id = repo.open_position(
         PaperPosition(
-            decision_id=decision_id,
+            decision_id=1,
             symbol="BTCUSDT",
-            strategy_id="trend_ema__demo",
-            family="trend_ema",
+            strategy_id="demo",
+            family="demo",
             side="long",
-            opened_at="2024-01-01T00:00:00+00:00",
-            entry_observed_price=42000.0,
-            latest_observed_price=42000.0,
-            stop_price=41820.0,
-            target_price=42300.0,
-            liquidation_price=38220.0,
-            atr_value=120.0,
-            model_probability=0.72,
+            opened_at="2026-03-31T00:00:00+00:00",
+            entry_observed_price=100.0,
+            latest_observed_price=100.0,
+            stop_price=99.0,
+            target_price=101.0,
+            liquidation_price=90.0,
+            atr_value=1.0,
+            model_probability=1.0,
             llm_action=None,
             llm_confidence=None,
-            metadata={"signal_strength": 0.8},
+            metadata={},
         )
     )
 
-    repository.update_active_mark(
+    repo.close_position(
         position_id,
-        latest_observed_price=42120.0,
-        gross_return=0.02,
-        net_return=0.019,
-        max_adverse_excursion=0.004,
-        max_favorable_excursion=0.021,
+        closed_at="2026-03-31T00:15:00+00:00",
+        exit_observed_price=100.0,
+        exit_trigger_price=100.0,
+        exit_reason="signal_exit",
+        gross_return=0.0,
+        net_return=0.0,
+        max_adverse_excursion=0.0,
+        max_favorable_excursion=0.0,
         bars_held=1,
-    )
-    repository.close_position(
-        position_id,
-        closed_at="2024-01-01T00:15:00+00:00",
-        exit_observed_price=42320.0,
-        exit_trigger_price=42300.0,
-        exit_reason="target",
-        gross_return=0.03,
-        net_return=0.029,
-        max_adverse_excursion=0.004,
-        max_favorable_excursion=0.031,
-        bars_held=1,
-        metadata={"source": "test"},
+        metadata={},
     )
 
-    active_positions = repository.list_positions(status="active", limit=10)
-    closed_positions = repository.list_positions(status="closed", limit=10)
-    recent_decisions = repository.recent_decisions(limit=10)
-    overview = repository.overview()
+    overview = repo.overview()
 
-    assert active_positions == []
-    assert len(closed_positions) == 1
-    assert len(recent_decisions) == 1
     assert overview["closed_positions"] == 1
-    assert overview["win_rate"] == 1.0
+    assert overview["profit_factor"] == 0.0

@@ -9,6 +9,7 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.isotonic import IsotonicRegression
 from sklearn.linear_model import LogisticRegression
+from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -86,6 +87,25 @@ def build_model_registry(settings: Settings) -> dict[str, Any]:
             max_depth=6,
             random_state=settings.research.random_seed,
             n_jobs=1,
+        ),
+        "mlp": Pipeline(
+            [
+                ("scaler", StandardScaler()),
+                (
+                    "model",
+                    MLPClassifier(
+                        hidden_layer_sizes=(128, 64),
+                        activation="relu",
+                        alpha=1e-4,
+                        learning_rate_init=1e-3,
+                        max_iter=400,
+                        early_stopping=True,
+                        validation_fraction=0.1,
+                        n_iter_no_change=20,
+                        random_state=settings.research.random_seed,
+                    ),
+                ),
+            ]
         ),
     }
     if XGBClassifier is not None:
@@ -210,12 +230,33 @@ def evaluate_models(features: pd.DataFrame, events: pd.DataFrame, settings: Sett
 def clone_estimator(estimator: Any) -> Any:
     if isinstance(estimator, Pipeline):
         model = estimator["model"]
-        return Pipeline(
-            [
-                ("scaler", StandardScaler()),
-                ("model", LogisticRegression(max_iter=model.max_iter, random_state=model.random_state)),
-            ]
-        )
+        if isinstance(model, LogisticRegression):
+            return Pipeline(
+                [
+                    ("scaler", StandardScaler()),
+                    ("model", LogisticRegression(max_iter=model.max_iter, random_state=model.random_state)),
+                ]
+            )
+        if isinstance(model, MLPClassifier):
+            return Pipeline(
+                [
+                    ("scaler", StandardScaler()),
+                    (
+                        "model",
+                        MLPClassifier(
+                            hidden_layer_sizes=model.hidden_layer_sizes,
+                            activation=model.activation,
+                            alpha=model.alpha,
+                            learning_rate_init=model.learning_rate_init,
+                            max_iter=model.max_iter,
+                            early_stopping=model.early_stopping,
+                            validation_fraction=model.validation_fraction,
+                            n_iter_no_change=model.n_iter_no_change,
+                            random_state=model.random_state,
+                        ),
+                    ),
+                ]
+            )
     if isinstance(estimator, RandomForestClassifier):
         return RandomForestClassifier(
             n_estimators=estimator.n_estimators,
@@ -235,9 +276,17 @@ def predict_probabilities(model: Any, X: pd.DataFrame) -> np.ndarray:
 
 def model_feature_importance(model: Any, columns: pd.Index) -> dict[str, float]:
     if isinstance(model, Pipeline):
-        coefficients = np.abs(model["model"].coef_[0]) if hasattr(model["model"], "coef_") else np.zeros(len(columns))
-        total = coefficients.sum() or 1.0
-        return {column: float(weight / total) for column, weight in zip(columns, coefficients)}
+        inner = model["model"]
+        if hasattr(inner, "coef_"):
+            coefficients = np.abs(inner.coef_[0])
+            total = coefficients.sum() or 1.0
+            return {column: float(weight / total) for column, weight in zip(columns, coefficients)}
+        if hasattr(inner, "coefs_") and inner.coefs_:
+            first_layer = np.asarray(inner.coefs_[0], dtype=float)
+            weights = np.mean(np.abs(first_layer), axis=1)
+            total = weights.sum() or 1.0
+            return {column: float(weight / total) for column, weight in zip(columns, weights)}
+        return {column: 0.0 for column in columns}
     if hasattr(model, "feature_importances_"):
         importances = np.asarray(model.feature_importances_, dtype=float)
         total = importances.sum() or 1.0

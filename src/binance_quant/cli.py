@@ -9,6 +9,7 @@ from .data.ingestion import KlineIngestionService
 from .exchange.client import BinancePublicClient, ClientDependencies
 from .exchange.rate_limit import RateBudgetManager
 from .exchange.universe import UniverseManager
+from .hydra_compare import run_hydra_benchmark, serve_hydra_runtime
 from .ml.deployment import build_deployment_bundle
 from .orchestration.auto_loop import run_autonomous_loop, run_continuous_loop
 from .orchestration.research_loop import ResearchLoop
@@ -38,8 +39,10 @@ def main() -> None:
             "auto-loop",
             "continuous-loop",
             "build-deployment",
+            "run-hydra-benchmark",
             "paper-runtime",
             "serve-paper",
+            "serve-hydra",
         ],
     )
     parser.add_argument("--config", default="configs/base.yaml")
@@ -76,12 +79,19 @@ def main() -> None:
         bundle = build_deployment_bundle(settings)
         print(json.dumps(bundle.manifest.__dict__, indent=2, default=str))
         return
+    if args.command == "run-hydra-benchmark":
+        result = run_hydra_benchmark(settings)
+        print(json.dumps(result, indent=2, default=str))
+        return
     if args.command == "paper-runtime":
         runtime = PaperTradingRuntime(settings)
         asyncio.run(runtime.serve())
         return
     if args.command == "serve-paper":
         serve_dashboard(settings, start_runtime=True)
+        return
+    if args.command == "serve-hydra":
+        serve_hydra_runtime(settings)
         return
     result = run_weekly_refresh(settings)
     print(json.dumps(result, indent=2, default=str))

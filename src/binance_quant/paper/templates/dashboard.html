@@ -318,12 +318,14 @@
   {% set service_status_payload = runtime.get("service_status", {}) %}
   {% set bundle_manifest_payload = runtime.get("bundle_manifest", {}) %}
   {% set stream_status_payload = runtime.get("stream_status", {}) %}
+  {% set kill_switch_payload = runtime.get("kill_switch", {}) %}
   {% set status_labels = ui.status_labels %}
   {% set exit_reason_labels = ui.exit_reason_labels %}
   {% set decision_reason_labels = ui.decision_reason_labels %}
   {% set runtime_status = runtime_status_payload.get("status", "idle") %}
   {% set service_running = service_status_payload.get("is_running", false) %}
   {% set stream_status_value = stream_status_payload.get("status", "idle") %}
+  {% set kill_switch_active = kill_switch_payload.get("active", false) %}
 
   <main class="wrap">
     <section class="hero">
@@ -335,31 +337,39 @@
     <section class="metrics">
       <article class="card">
         <div class="metric-label">{{ ui.metric_active_positions }}</div>
-        <div class="metric-value">{{ overview.active_positions }}</div>
+        <div class="metric-value" id="metric-active-positions">{{ overview.active_positions }}</div>
       </article>
       <article class="card">
         <div class="metric-label">{{ ui.metric_closed_positions }}</div>
-        <div class="metric-value">{{ overview.closed_positions }}</div>
+        <div class="metric-value" id="metric-closed-positions">{{ overview.closed_positions }}</div>
       </article>
       <article class="card">
         <div class="metric-label">{{ ui.metric_decision_count }}</div>
-        <div class="metric-value">{{ overview.decision_count }}</div>
+        <div class="metric-value" id="metric-decision-count">{{ overview.decision_count }}</div>
       </article>
       <article class="card">
         <div class="metric-label">{{ ui.metric_realized_expectancy }}</div>
-        <div class="metric-value {% if overview.realized_expectancy >= 0 %}good{% else %}bad{% endif %}">
+        <div class="metric-value {% if overview.realized_expectancy >= 0 %}good{% else %}bad{% endif %}" id="metric-realized-expectancy">
           {{ "%.4f"|format(overview.realized_expectancy) }}
         </div>
       </article>
       <article class="card">
         <div class="metric-label">{{ ui.metric_profit_factor }}</div>
-        <div class="metric-value {% if overview.profit_factor >= 1 %}good{% else %}bad{% endif %}">
+        <div class="metric-value {% if overview.profit_factor >= 1 %}good{% else %}bad{% endif %}" id="metric-profit-factor">
           {{ "%.2f"|format(overview.profit_factor) }}
         </div>
       </article>
       <article class="card">
+        <div class="metric-label">{{ ui.metric_account_base }}</div>
+        <div class="metric-value" id="metric-account-base">${{ "%.2f"|format(overview.starting_equity_usd) }}</div>
+      </article>
+      <article class="card">
+        <div class="metric-label">{{ ui.metric_position_margin }}</div>
+        <div class="metric-value" id="metric-position-margin">${{ "%.2f"|format(overview.position_margin_usd) }}</div>
+      </article>
+      <article class="card">
         <div class="metric-label">{{ ui.metric_llm_available }}</div>
-        <div class="metric-value">{{ ui.yes if runtime.get("llm_available") else ui.no }}</div>
+        <div class="metric-value" id="metric-llm-available">{{ ui.yes if runtime.get("llm_available") else ui.no }}</div>
       </article>
     </section>
 
@@ -374,6 +384,8 @@
         <div class="action-row">
           <button class="action-button start" id="runtime-start-button" type="button" {% if service_running %}disabled{% endif %}>{{ ui.start_button }}</button>
           <button class="action-button stop" id="runtime-stop-button" type="button" {% if not service_running %}disabled{% endif %}>{{ ui.stop_button }}</button>
+          <button class="action-button stop" id="kill-switch-activate-button" type="button" {% if kill_switch_active %}disabled{% endif %}>{{ ui.kill_switch_activate_button }}</button>
+          <button class="action-button start" id="kill-switch-deactivate-button" type="button" {% if not kill_switch_active %}disabled{% endif %}>{{ ui.kill_switch_deactivate_button }}</button>
         </div>
         <div class="status-grid">
           <div class="status-row">
@@ -391,6 +403,10 @@
           <div class="status-row">
             <div class="status-name">{{ ui.status_runtime_stage }}</div>
             <div class="status-value" id="runtime-stage">{{ status_labels.get(runtime_status, runtime_status) }}</div>
+          </div>
+          <div class="status-row">
+            <div class="status-name">{{ ui.status_kill_switch }}</div>
+            <div class="status-value" id="kill-switch-status">{{ ui.kill_switch_on if kill_switch_active else ui.kill_switch_off }}</div>
           </div>
         </div>
 
@@ -420,7 +436,7 @@
               <th>{{ ui.table_artifact }}</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="retunes-table-body">
             {% for item in recent_retunes %}
               <tr>
                 <td>{{ item.started_at }}</td>
@@ -479,11 +495,13 @@
               <th>{{ ui.table_entry_price }}</th>
               <th>{{ ui.table_current_price }}</th>
               <th>{{ ui.table_target_stop }}</th>
-              <th>{{ ui.table_net_return }}</th>
+              <th>{{ ui.table_account_net_roi_percent }}</th>
+              <th>{{ ui.table_position_net_roi_percent }}</th>
+              <th>{{ ui.table_net_pnl_usd }}</th>
               <th>{{ ui.table_status }}</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="active-positions-body">
             {% for item in active_positions %}
               <tr>
                 <td>{{ item.symbol }}</td>
@@ -494,13 +512,19 @@
                 <td>{{ "%.6f"|format(item.latest_observed_price) }}</td>
                 <td>{{ "%.6f"|format(item.target_price) }} / {{ "%.6f"|format(item.stop_price) }}</td>
                 <td class="{% if item.net_return >= 0 %}metric-value good{% else %}metric-value bad{% endif %}">
-                  {{ "%.4f"|format(item.net_return) }}
+                  {{ "%.2f"|format(item.account_net_roi_percent) }}%
+                </td>
+                <td class="{% if item.net_return >= 0 %}metric-value good{% else %}metric-value bad{% endif %}">
+                  {{ "%.2f"|format(item.position_net_roi_percent) }}%
+                </td>
+                <td class="{% if item.net_return >= 0 %}metric-value good{% else %}metric-value bad{% endif %}">
+                  ${{ "%.2f"|format(item.net_pnl_usd) }}
                 </td>
                 <td><span class="badge active">{{ status_labels.get(item.status, item.status) }}</span></td>
               </tr>
             {% else %}
               <tr>
-                <td colspan="9">{{ ui.no_active_positions }}</td>
+                <td colspan="11">{{ ui.no_active_positions }}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -518,10 +542,12 @@
               <th>{{ ui.table_closed_at }}</th>
               <th>{{ ui.table_exit_reason }}</th>
               <th>{{ ui.table_entry_exit_price }}</th>
-              <th>{{ ui.table_net_return }}</th>
+              <th>{{ ui.table_account_net_roi_percent }}</th>
+              <th>{{ ui.table_position_net_roi_percent }}</th>
+              <th>{{ ui.table_net_pnl_usd }}</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="closed-positions-body">
             {% for item in closed_positions %}
               <tr>
                 <td>{{ item.symbol }}</td>
@@ -531,12 +557,18 @@
                 <td><span class="badge closed">{{ exit_reason_labels.get(item.exit_reason, item.exit_reason) if item.exit_reason else "-" }}</span></td>
                 <td>{{ "%.6f"|format(item.entry_observed_price) }} / {{ "%.6f"|format(item.exit_observed_price or 0.0) }}</td>
                 <td class="{% if item.net_return >= 0 %}metric-value good{% else %}metric-value bad{% endif %}">
-                  {{ "%.4f"|format(item.net_return) }}
+                  {{ "%.2f"|format(item.account_net_roi_percent) }}%
+                </td>
+                <td class="{% if item.net_return >= 0 %}metric-value good{% else %}metric-value bad{% endif %}">
+                  {{ "%.2f"|format(item.position_net_roi_percent) }}%
+                </td>
+                <td class="{% if item.net_return >= 0 %}metric-value good{% else %}metric-value bad{% endif %}">
+                  ${{ "%.2f"|format(item.net_pnl_usd) }}
                 </td>
               </tr>
             {% else %}
               <tr>
-                <td colspan="7">{{ ui.no_closed_positions }}</td>
+                <td colspan="9">{{ ui.no_closed_positions }}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -558,7 +590,7 @@
               <th>{{ ui.table_reason }}</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="decisions-body">
             {% for item in recent_decisions %}
               <tr>
                 <td>{{ item.decided_at }}</td>
@@ -590,6 +622,177 @@
       return statusLabels[value] || value || "-";
     }
 
+    function reasonLabelFor(value) {
+      return (ui.decision_reason_labels || {})[value] || value || "-";
+    }
+
+    function exitReasonLabelFor(value) {
+      return (ui.exit_reason_labels || {})[value] || value || "-";
+    }
+
+    function sideLabelFor(value) {
+      return value === "long" ? ui.side_long : value === "short" ? ui.side_short : (value || "-");
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "-")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatFixed(value, digits) {
+      const number = Number(value);
+      if (!Number.isFinite(number)) {
+        return "-";
+      }
+      return number.toFixed(digits);
+    }
+
+    function formatCurrency(value) {
+      const number = Number(value);
+      if (!Number.isFinite(number)) {
+        return "-";
+      }
+      return `$${number.toFixed(2)}`;
+    }
+
+    function setMetricValue(elementId, value, formatter, goodThreshold = null) {
+      const element = document.getElementById(elementId);
+      if (!element) {
+        return;
+      }
+      element.textContent = formatter ? formatter(value) : String(value ?? "-");
+      if (goodThreshold !== null) {
+        element.classList.remove("good", "bad");
+        element.classList.add(Number(value) >= goodThreshold ? "good" : "bad");
+      }
+    }
+
+    function renderRetunes(items) {
+      const tbody = document.getElementById("retunes-table-body");
+      if (!tbody) {
+        return;
+      }
+      if (!items || !items.length) {
+        tbody.innerHTML = `<tr><td colspan="3">${escapeHtml(ui.no_retunes)}</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = items.map((item) => `
+        <tr>
+          <td>${escapeHtml(item.started_at)}</td>
+          <td><span class="badge ${escapeHtml(item.status)}">${escapeHtml(labelFor(item.status))}</span></td>
+          <td>${escapeHtml(item.source_artifact || "-")}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderActivePositions(items) {
+      const tbody = document.getElementById("active-positions-body");
+      if (!tbody) {
+        return;
+      }
+      if (!items || !items.length) {
+        tbody.innerHTML = `<tr><td colspan="11">${escapeHtml(ui.no_active_positions)}</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = items.map((item) => {
+        const netClass = Number(item.net_return) >= 0 ? "metric-value good" : "metric-value bad";
+        return `
+          <tr>
+            <td>${escapeHtml(item.symbol)}</td>
+            <td>${escapeHtml(item.strategy_id)}</td>
+            <td>${escapeHtml(sideLabelFor(item.side))}</td>
+            <td>${escapeHtml(item.opened_at)}</td>
+            <td>${escapeHtml(formatFixed(item.entry_observed_price, 6))}</td>
+            <td>${escapeHtml(formatFixed(item.latest_observed_price, 6))}</td>
+            <td>${escapeHtml(formatFixed(item.target_price, 6))} / ${escapeHtml(formatFixed(item.stop_price, 6))}</td>
+            <td class="${netClass}">${escapeHtml(formatFixed(item.account_net_roi_percent, 2))}%</td>
+            <td class="${netClass}">${escapeHtml(formatFixed(item.position_net_roi_percent, 2))}%</td>
+            <td class="${netClass}">${escapeHtml(formatCurrency(item.net_pnl_usd))}</td>
+            <td><span class="badge active">${escapeHtml(labelFor(item.status))}</span></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderClosedPositions(items) {
+      const tbody = document.getElementById("closed-positions-body");
+      if (!tbody) {
+        return;
+      }
+      if (!items || !items.length) {
+        tbody.innerHTML = `<tr><td colspan="9">${escapeHtml(ui.no_closed_positions)}</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = items.map((item) => {
+        const netClass = Number(item.net_return) >= 0 ? "metric-value good" : "metric-value bad";
+        return `
+          <tr>
+            <td>${escapeHtml(item.symbol)}</td>
+            <td>${escapeHtml(item.strategy_id)}</td>
+            <td>${escapeHtml(sideLabelFor(item.side))}</td>
+            <td>${escapeHtml(item.closed_at)}</td>
+            <td><span class="badge closed">${escapeHtml(exitReasonLabelFor(item.exit_reason))}</span></td>
+            <td>${escapeHtml(formatFixed(item.entry_observed_price, 6))} / ${escapeHtml(formatFixed(item.exit_observed_price, 6))}</td>
+            <td class="${netClass}">${escapeHtml(formatFixed(item.account_net_roi_percent, 2))}%</td>
+            <td class="${netClass}">${escapeHtml(formatFixed(item.position_net_roi_percent, 2))}%</td>
+            <td class="${netClass}">${escapeHtml(formatCurrency(item.net_pnl_usd))}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderDecisions(items) {
+      const tbody = document.getElementById("decisions-body");
+      if (!tbody) {
+        return;
+      }
+      if (!items || !items.length) {
+        tbody.innerHTML = `<tr><td colspan="8">${escapeHtml(ui.no_decisions)}</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = items.map((item) => `
+        <tr>
+          <td>${escapeHtml(item.decided_at)}</td>
+          <td>${escapeHtml(item.symbol)}</td>
+          <td>${escapeHtml(item.strategy_id)}</td>
+          <td>${escapeHtml(formatFixed(item.ml_probability, 4))}</td>
+          <td>${escapeHtml(formatFixed(item.ml_threshold, 4))}</td>
+          <td>${escapeHtml(labelFor(item.llm_action))}</td>
+          <td><span class="badge ${escapeHtml(item.final_action)}">${escapeHtml(labelFor(item.final_action))}</span></td>
+          <td>${escapeHtml(reasonLabelFor(item.portfolio_reason))}</td>
+        </tr>
+      `).join("");
+    }
+
+    async function refreshOverview() {
+      try {
+        const response = await fetch("/api/overview", { cache: "no-store" });
+        if (!response.ok) {
+          return;
+        }
+        const payload = await response.json();
+        const overview = payload.overview || {};
+        setMetricValue("metric-active-positions", overview.active_positions);
+        setMetricValue("metric-closed-positions", overview.closed_positions);
+        setMetricValue("metric-decision-count", overview.decision_count);
+        setMetricValue("metric-realized-expectancy", overview.realized_expectancy, (value) => formatFixed(value, 4), 0);
+        setMetricValue("metric-profit-factor", overview.profit_factor, (value) => formatFixed(value, 2), 1);
+        setMetricValue("metric-account-base", overview.starting_equity_usd, (value) => formatCurrency(value));
+        setMetricValue("metric-position-margin", overview.position_margin_usd, (value) => formatCurrency(value));
+        setMetricValue("metric-llm-available", payload.runtime && payload.runtime.llm_available ? ui.yes : ui.no);
+        renderRetunes(payload.recent_retunes || []);
+        renderActivePositions(payload.active_positions || []);
+        renderClosedPositions(payload.closed_positions || []);
+        renderDecisions(payload.recent_decisions || []);
+      } catch (error) {
+        console.error("overview refresh failed", error);
+      }
+    }
+
     async function refreshRuntimeStatus() {
       try {
         const response = await fetch("/api/status", { cache: "no-store" });
@@ -612,6 +815,10 @@
         const streamLastError = document.getElementById("stream-last-error");
         const startButton = document.getElementById("runtime-start-button");
         const stopButton = document.getElementById("runtime-stop-button");
+        const killSwitchStatus = document.getElementById("kill-switch-status");
+        const killSwitchActivateButton = document.getElementById("kill-switch-activate-button");
+        const killSwitchDeactivateButton = document.getElementById("kill-switch-deactivate-button");
+        const killSwitch = payload.kill_switch || {};
 
         if (pill) {
           pill.textContent = service.is_running ? ui.running_pill : ui.stopped_pill;
@@ -648,6 +855,15 @@
         }
         if (stopButton) {
           stopButton.disabled = !service.is_running;
+        }
+        if (killSwitchStatus) {
+          killSwitchStatus.textContent = killSwitch.active ? ui.kill_switch_on : ui.kill_switch_off;
+        }
+        if (killSwitchActivateButton) {
+          killSwitchActivateButton.disabled = Boolean(killSwitch.active);
+        }
+        if (killSwitchDeactivateButton) {
+          killSwitchDeactivateButton.disabled = !killSwitch.active;
         }
       } catch (error) {
         console.error("runtime status refresh failed", error);
@@ -695,6 +911,25 @@
       }
     }
 
+    async function callKillSwitchAction(action) {
+      try {
+        const response = await fetch(`/api/kill-switch/${action}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" }
+        });
+        if (!response.ok) {
+          throw new Error(`kill switch ${action} failed`);
+        }
+        await refreshRuntimeStatus();
+        await refreshOverview();
+        await refreshLogs();
+      } catch (error) {
+        console.error(`kill switch ${action} failed`, error);
+        const actionText = action === "activate" ? ui.kill_switch_activate_button : ui.kill_switch_deactivate_button;
+        alert(ui.kill_switch_action_error.replace("{action}", actionText));
+      }
+    }
+
     const startButton = document.getElementById("runtime-start-button");
     const stopButton = document.getElementById("runtime-stop-button");
     if (startButton) {
@@ -703,11 +938,21 @@
     if (stopButton) {
       stopButton.addEventListener("click", () => callRuntimeAction("stop"));
     }
+    const killSwitchActivateButton = document.getElementById("kill-switch-activate-button");
+    const killSwitchDeactivateButton = document.getElementById("kill-switch-deactivate-button");
+    if (killSwitchActivateButton) {
+      killSwitchActivateButton.addEventListener("click", () => callKillSwitchAction("activate"));
+    }
+    if (killSwitchDeactivateButton) {
+      killSwitchDeactivateButton.addEventListener("click", () => callKillSwitchAction("deactivate"));
+    }
 
     refreshRuntimeStatus();
     refreshLogs();
+    refreshOverview();
     setInterval(refreshRuntimeStatus, 5000);
     setInterval(refreshLogs, 5000);
+    setInterval(refreshOverview, 5000);
   </script>
 </body>
 </html>

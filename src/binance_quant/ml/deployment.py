@@ -113,7 +113,7 @@ def build_deployment_bundle(settings: Settings, source_artifact: str | Path | No
     seed_everything(settings.research.random_seed)
     artifact_dir = resolve_source_artifact(settings, source_artifact)
     manifest_payload = load_json(artifact_dir / "reports" / "best_model.json")
-    selected_strategy_ids = _selected_strategy_ids(artifact_dir)
+    selected_strategy_ids = _selected_strategy_ids(settings, artifact_dir)
     selected_symbols = _selected_symbols(artifact_dir)
     variants = _selected_variants(settings, selected_strategy_ids)
     events = _rebuild_events(settings, selected_symbols, variants)
@@ -147,19 +147,110 @@ def build_deployment_bundle(settings: Settings, source_artifact: str | Path | No
     return bundle
 
 
-def _selected_strategy_ids(artifact_dir: Path) -> list[str]:
+def _selected_strategy_ids(settings: Settings, artifact_dir: Path) -> list[str]:
     pre_screen_path = artifact_dir / "reports" / "pre_screen.csv"
     pre_screen = pd.read_csv(pre_screen_path)
+    pre_screen = _filter_deployment_families(settings, pre_screen)
+    selected: list[str] = []
     if "selected_for_ml" in pre_screen.columns:
         selected = pre_screen.loc[pre_screen["selected_for_ml"].astype(bool), "strategy_id"].astype(str).tolist()
-        if selected:
-            return selected
-    return (
-        pre_screen.loc[pre_screen["survived"].astype(bool), "strategy_id"]
-        .astype(str)
-        .drop_duplicates()
-        .tolist()
+    if not selected and "survived" in pre_screen.columns:
+        selected = (
+            pre_screen.loc[pre_screen["survived"].astype(bool), "strategy_id"]
+            .astype(str)
+            .drop_duplicates()
+            .tolist()
+        )
+    selected = list(dict.fromkeys(selected))
+    min_count = max(1, settings.deployment.min_strategy_count)
+    max_count = max(min_count, settings.deployment.max_strategy_count)
+    if len(selected) >= min_count:
+        return selected[:max_count]
+
+    augmented = _augment_strategy_ids_for_deployment(settings, pre_screen, selected)
+    return augmented[:max_count]
+
+
+def _filter_deployment_families(settings: Settings, pre_screen: pd.DataFrame) -> pd.DataFrame:
+    excluded = {str(family) for family in settings.deployment.excluded_families}
+    if not excluded or "family" not in pre_screen.columns:
+        return pre_screen
+    filtered = pre_screen.loc[~pre_screen["family"].astype(str).isin(excluded)].copy()
+    if not filtered.empty:
+        return filtered
+    return pre_screen.copy()
+
+
+def _augment_strategy_ids_for_deployment(
+    settings: Settings,
+    pre_screen: pd.DataFrame,
+    initial: list[str],
+) -> list[str]:
+    selected = list(dict.fromkeys(initial))
+    min_count = max(1, settings.deployment.min_strategy_count)
+    max_count = max(min_count, settings.deployment.max_strategy_count)
+    if len(selected) >= min_count:
+        return selected[:max_count]
+
+    ranked = pre_screen.copy()
+    for column in [
+        "selected_for_ml",
+        "survived",
+        "ml_candidate_survived",
+        "family_seed_survived",
+        "strict_survived",
+    ]:
+        if column in ranked.columns:
+            ranked[column] = ranked[column].fillna(False).astype(bool)
+        else:
+            ranked[column] = False
+    for column in ["positive_symbol_count", "expectancy", "profit_factor", "trade_count"]:
+        if column in ranked.columns:
+            ranked[column] = pd.to_numeric(ranked[column], errors="coerce").fillna(0.0)
+        else:
+            ranked[column] = 0.0
+    if "family" not in ranked.columns:
+        ranked["family"] = ""
+
+    ranked = ranked.sort_values(
+        by=[
+            "selected_for_ml",
+            "survived",
+            "ml_candidate_survived",
+            "family_seed_survived",
+            "positive_symbol_count",
+            "expectancy",
+            "profit_factor",
+            "trade_count",
+        ],
+        ascending=[False, False, False, False, False, False, False, False],
     )
+
+    family_counts = {
+        str(row.get("family")): sum(
+            str(existing_row.get("family")) == str(row.get("family"))
+            for existing_row in pre_screen.loc[pre_screen["strategy_id"].astype(str).isin(selected)].to_dict("records")
+        )
+        for _, row in ranked.iterrows()
+    }
+    for _, row in ranked.iterrows():
+        strategy_id = str(row.get("strategy_id"))
+        family = str(row.get("family"))
+        if strategy_id in selected:
+            continue
+        if float(row.get("expectancy", 0.0)) < settings.deployment.augmentation_min_expectancy:
+            continue
+        if float(row.get("profit_factor", 0.0)) < settings.deployment.augmentation_min_profit_factor:
+            continue
+        if int(row.get("positive_symbol_count", 0)) < settings.research.relaxed_min_positive_symbols:
+            continue
+        if family_counts.get(family, 0) >= settings.deployment.max_strategies_per_family:
+            continue
+        selected.append(strategy_id)
+        family_counts[family] = family_counts.get(family, 0) + 1
+        if len(selected) >= max_count:
+            break
+    return selected
 
 
 def _selected_symbols(artifact_dir: Path) -> list[str]:

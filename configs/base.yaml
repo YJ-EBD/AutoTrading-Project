@@ -29,6 +29,13 @@ exchange:
   websocket_open_timeout_seconds: 30
   websocket_close_timeout_seconds: 10
   websocket_reconnect_delay_seconds: 5.0
+  websocket_reconnect_delay_max_seconds: 30.0
+  websocket_reconnect_backoff_multiplier: 1.5
+  websocket_reconnect_jitter_seconds: 1.0
+  websocket_receive_timeout_seconds: 90
+  websocket_stall_pong_timeout_seconds: 15
+  websocket_disable_builtin_ping: true
+  websocket_max_queue: 256
 
 universe:
   allowed_quote_assets:
@@ -41,7 +48,7 @@ universe:
   min_24h_quote_volume_usd: 10000000
   min_history_days: 90
   min_last_price: 0.0
-  max_symbols: 8
+  max_symbols: 20
   unique_base_assets_only: true
   exclude_symbols: []
   include_symbols: []
@@ -58,19 +65,19 @@ backtest:
   capital_fraction_per_trade: 0.1
   fee_bps_per_side: 4.0
   slippage_bps_per_side: 1.5
-  stop_atr_multiple: 1.5
-  target_atr_multiple: 2.5
-  max_holding_bars: 48
+  stop_atr_multiple: 0.8
+  target_atr_multiple: 1.2
+  max_holding_bars: 16
   max_concurrent_positions: 3
   liquidation_buffer_fraction: 0.9
   liquidation_loss_fraction: 0.98
   min_trade_count: 40
 
 labeling:
-  horizon_bars: 48
-  target_atr_multiple: 2.5
-  stop_atr_multiple: 1.5
-  max_adverse_excursion_limit: 0.03
+  horizon_bars: 16
+  target_atr_multiple: 1.2
+  stop_atr_multiple: 0.8
+  max_adverse_excursion_limit: 0.02
 
 research:
   random_seed: 42
@@ -81,13 +88,18 @@ research:
   relaxed_min_profit_factor: 0.92
   relaxed_min_expectancy: -0.0008
   relaxed_max_drawdown_fraction: 0.45
-  relaxed_min_positive_symbols: 2
+  relaxed_min_positive_symbols: 1
   family_seed_profit_factor_margin: 0.03
   family_seed_expectancy_margin: 0.0005
   family_seed_max_drawdown_buffer: 0.05
-  max_survivors_per_family: 2
-  max_signal_overlap: 0.6
-  min_survivor_count: 3
+  zero_survivor_seed_profit_factor_margin: 0.08
+  zero_survivor_seed_expectancy_floor: 0.0
+  zero_survivor_seed_max_drawdown_buffer: 0.12
+  zero_survivor_seed_min_positive_symbols: 1
+  zero_survivor_seed_max_families: 2
+  max_survivors_per_family: 3
+  max_signal_overlap: 0.75
+  min_survivor_count: 4
   monte_carlo_iterations: 250
   feature_correlation_threshold: 0.95
 
@@ -121,8 +133,8 @@ ml:
     - xgboost
 
 portfolio:
-  max_trades_per_day: 20
-  max_concurrent_positions: 4
+  max_trades_per_day: 60
+  max_concurrent_positions: 8
   max_symbol_weight: 0.35
   max_strategy_weight: 0.5
   min_portfolio_trades: 10
@@ -143,10 +155,19 @@ deployment:
   auto_rebuild_on_start: true
   calibration_fraction: 0.2
   minimum_calibration_events: 80
+  min_strategy_count: 4
+  max_strategy_count: 6
+  max_strategies_per_family: 4
+  augmentation_min_expectancy: -0.005
+  augmentation_min_profit_factor: 0.65
+  excluded_families: [breakout]
 
 paper:
   state_db: artifacts/paper/paper_state.sqlite3
   log_path: artifacts/latest/paper_runtime.log
+  starting_equity_usd: 1000.0
+  loss_analysis_report_path: artifacts/latest/loss_analysis_report.md
+  loss_analysis_summary_path: artifacts/latest/loss_analysis_summary.json
   initial_lookback_bars: 600
   max_runtime_bars: 1200
   position_check_interval_seconds: 2
@@ -158,6 +179,67 @@ paper:
   initial_retune_delay_seconds: 90
   summary_window_days: 7
   auto_rebuild_deployment: true
+  retune_on_loss_trigger: true
+  loss_trigger_min_closed_positions: 2
+  loss_trigger_loss_streak: 2
+  loss_trigger_net_return_fraction: -0.015
+  loss_trigger_cooldown_minutes: 30
+  same_symbol_loss_cooldown_hours: 1
+  same_strategy_loss_cooldown_hours: 3
+  same_family_loss_cooldown_hours: 4
+  family_loss_block_min_closed_trades: 2
+  family_loss_block_max_win_rate: 0.25
+  family_loss_block_net_return_fraction: -0.02
+  strategy_performance_block_lookback_days: 7
+  strategy_performance_block_min_closed_trades: 3
+  strategy_performance_block_max_win_rate: 0.25
+  strategy_performance_block_net_return_fraction: -0.03
+  symbol_performance_block_lookback_days: 7
+  symbol_performance_block_min_closed_trades: 3
+  symbol_performance_block_max_win_rate: 0.25
+  symbol_performance_block_net_return_fraction: -0.03
+  adaptive_threshold_loss_step: 0.05
+  adaptive_threshold_max_offset: 0.15
+  min_daily_trade_target: 10
+  max_daily_trade_target: 20
+  trade_target_lookback_hours: 24
+  trade_target_threshold_step: 0.08
+  min_live_threshold_floor: 0.1
+  max_live_threshold_ceiling: 0.7
+  enable_confidence_position_sizing: true
+  low_confidence_multiplier: 0.75
+  medium_confidence_multiplier: 1.0
+  high_confidence_multiplier: 1.5
+  medium_confidence_probability: 0.55
+  high_confidence_probability: 0.7
+  max_position_capital_fraction: 0.15
+  enable_confidence_target_scaling: true
+  low_confidence_target_atr_multiple: 1.0
+  medium_confidence_target_atr_multiple: 1.2
+  high_confidence_target_atr_multiple: 1.6
+  enable_trailing_stop: true
+  trailing_activation_price_fraction: 0.01
+  trailing_distance_price_fraction: 0.005
+  trailing_update_threshold_price_fraction: 0.002
+  mark_stale_retunes_on_start: true
+  loss_retune_deployment_min_trade_count: 12
+  loss_retune_deployment_min_distinct_symbols: 4
+  loss_retune_deployment_min_distinct_families: 2
+  loss_retune_deployment_min_expectancy: 0.012
+  loss_retune_deployment_min_precision: 0.6
+  emergency_candidate_deployment_enabled: true
+  emergency_candidate_min_trade_count: 8
+  emergency_candidate_min_distinct_symbols: 4
+  emergency_candidate_min_distinct_families: 2
+  emergency_candidate_min_expectancy: 0.015
+  emergency_candidate_min_precision: 0.7
+  throughput_candidate_deployment_enabled: true
+  throughput_candidate_min_trade_count: 40
+  throughput_candidate_min_distinct_symbols: 6
+  throughput_candidate_min_expectancy: 0.01
+  throughput_candidate_min_precision: 0.6
+  kill_switch_enabled: true
+  kill_switch_auto_daily_loss_fraction: 0.08
 
 dashboard:
   host: 127.0.0.1
@@ -166,16 +248,19 @@ dashboard:
   decision_log_limit: 100
   closed_trade_limit: 100
   log_tail_lines: 200
+  api_key: ""
+  api_key_header: X-YJCOOP-KEY
 
 local_llm:
   enabled: true
   provider: ollama
   base_url: http://127.0.0.1:11434
-  model: qwen3:14b
-  timeout_seconds: 180
+  model: qwen3:8b
+  fallback_models: [gemma3:4b, qwen3:14b]
+  timeout_seconds: 60
   temperature: 0.1
   max_output_tokens: 256
-  require_allow_action: true
+  require_allow_action: false
   allow_reject_below_probability_delta: 0.03
 
 autoloop:
@@ -193,25 +278,64 @@ autoloop:
     - stricter_costs
     - higher_candidate_bar
 
+hydra_compare:
+  enabled: true
+  repo_path: C:/yjcooperation_external/Hydra-Engine
+  host: 127.0.0.1
+  port: 8001
+  api_key: yj-hydra-local
+  market: binance
+  timeframe: 15m
+  benchmark_lookback_days: 30
+  benchmark_initial_capital_usd: 1000.0
+  benchmark_trade_amount_usd: 100.0
+  benchmark_symbols_limit: 8
+  summary_path: artifacts/latest/hydra_benchmark_summary.json
+  paper_enabled: true
+  paper_state_db: artifacts/hydra_compare/paper_state.sqlite3
+  paper_log_path: artifacts/latest/hydra_paper_runtime.log
+  paper_initial_lookback_bars: 600
+  paper_max_runtime_bars: 1200
+  paper_symbols_limit: 8
+
 strategy_search:
   trend_ema:
-    fast_lengths: [9, 12, 21]
-    slow_lengths: [34, 55, 89]
-    rsi_thresholds: [52, 55, 58]
+    fast_lengths: [5, 8, 12, 21]
+    slow_lengths: [13, 21, 34, 55, 89]
+    rsi_thresholds: [50, 52, 55, 58]
     directions: [both, long_only, short_only]
   trend_pullback:
-    fast_lengths: [21, 34]
-    slow_lengths: [55, 89]
-    pullback_rsi_levels: [45, 48]
+    fast_lengths: [8, 13, 21, 34]
+    slow_lengths: [21, 34, 55, 89]
+    pullback_rsi_levels: [40, 45, 48]
   breakout:
-    windows: [20, 30, 55]
-    atr_filters: [0.8, 1.0, 1.2]
+    windows: [5, 10, 20, 30, 55]
+    atr_filters: [0.6, 0.8, 1.0, 1.2]
     directions: [both, long_only, short_only]
   vol_squeeze:
-    windows: [20, 30]
-    squeeze_thresholds: [0.25, 0.35]
-    volume_z_thresholds: [0.5, 1.0]
+    windows: [10, 20, 30]
+    squeeze_thresholds: [0.15, 0.25, 0.35]
+    volume_z_thresholds: [0.0, 0.5, 1.0]
   mean_reversion:
-    bb_windows: [20, 30]
-    z_scores: [1.5, 2.0]
-    rsi_thresholds: [30, 35]
+    bb_windows: [10, 20, 30]
+    z_scores: [1.0, 1.5, 2.0]
+    rsi_thresholds: [25, 30, 35]
+  scalp_momentum:
+    fast_lengths: [5, 8]
+    slow_lengths: [13, 21]
+    breakout_windows: [3, 5]
+    volume_z_thresholds: [0.0, 0.5]
+    directions: [both, long_only, short_only]
+  freqtrade_adx:
+    buy_rsi_thresholds: [25, 30, 35]
+    sell_rsi_thresholds: [65, 70, 75]
+    buy_plus_di_thresholds: [0.2, 0.4, 0.6]
+    sell_minus_di_thresholds: [0.0, 0.2, 0.4]
+    directions: [both, long_only, short_only]
+  ultimate_crypto:
+    fast_lengths: [9, 12]
+    slow_lengths: [21, 34]
+    long_ma_lengths: [144, 200]
+    volume_thresholds: [1.2, 1.5]
+    volatility_thresholds: [1.5, 2.0]
+    directions: [both, long_only, short_only]

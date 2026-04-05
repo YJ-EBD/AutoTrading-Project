@@ -47,6 +47,13 @@ class ExchangeConfig:
     websocket_open_timeout_seconds: int = 30
     websocket_close_timeout_seconds: int = 10
     websocket_reconnect_delay_seconds: float = 5.0
+    websocket_reconnect_delay_max_seconds: float = 30.0
+    websocket_reconnect_backoff_multiplier: float = 1.5
+    websocket_reconnect_jitter_seconds: float = 1.0
+    websocket_receive_timeout_seconds: int = 90
+    websocket_stall_pong_timeout_seconds: int = 15
+    websocket_disable_builtin_ping: bool = True
+    websocket_max_queue: int = 256
 
 
 @dataclass
@@ -58,7 +65,7 @@ class UniverseConfig:
     min_24h_quote_volume_usd: float = 10_000_000
     min_history_days: int = 90
     min_last_price: float = 0.0
-    max_symbols: int = 8
+    max_symbols: int = 20
     unique_base_assets_only: bool = True
     exclude_symbols: list[str] = field(default_factory=list)
     include_symbols: list[str] = field(default_factory=list)
@@ -79,9 +86,9 @@ class BacktestConfig:
     capital_fraction_per_trade: float = 0.1
     fee_bps_per_side: float = 4.0
     slippage_bps_per_side: float = 1.5
-    stop_atr_multiple: float = 1.5
-    target_atr_multiple: float = 2.5
-    max_holding_bars: int = 48
+    stop_atr_multiple: float = 0.8
+    target_atr_multiple: float = 1.2
+    max_holding_bars: int = 16
     max_concurrent_positions: int = 3
     liquidation_buffer_fraction: float = 0.9
     liquidation_loss_fraction: float = 0.98
@@ -90,10 +97,10 @@ class BacktestConfig:
 
 @dataclass
 class LabelingConfig:
-    horizon_bars: int = 48
-    target_atr_multiple: float = 2.5
-    stop_atr_multiple: float = 1.5
-    max_adverse_excursion_limit: float = 0.03
+    horizon_bars: int = 16
+    target_atr_multiple: float = 1.2
+    stop_atr_multiple: float = 0.8
+    max_adverse_excursion_limit: float = 0.02
 
 
 @dataclass
@@ -110,6 +117,11 @@ class ResearchConfig:
     family_seed_profit_factor_margin: float = 0.03
     family_seed_expectancy_margin: float = 0.0005
     family_seed_max_drawdown_buffer: float = 0.05
+    zero_survivor_seed_profit_factor_margin: float = 0.08
+    zero_survivor_seed_expectancy_floor: float = 0.0
+    zero_survivor_seed_max_drawdown_buffer: float = 0.12
+    zero_survivor_seed_min_positive_symbols: int = 1
+    zero_survivor_seed_max_families: int = 2
     max_survivors_per_family: int = 2
     max_signal_overlap: float = 0.6
     min_survivor_count: int = 3
@@ -141,8 +153,8 @@ class MLConfig:
 
 @dataclass
 class PortfolioConfig:
-    max_trades_per_day: int = 20
-    max_concurrent_positions: int = 4
+    max_trades_per_day: int = 60
+    max_concurrent_positions: int = 8
     max_symbol_weight: float = 0.35
     max_strategy_weight: float = 0.5
     min_portfolio_trades: int = 10
@@ -167,12 +179,21 @@ class DeploymentConfig:
     auto_rebuild_on_start: bool = True
     calibration_fraction: float = 0.2
     minimum_calibration_events: int = 80
+    min_strategy_count: int = 4
+    max_strategy_count: int = 6
+    max_strategies_per_family: int = 4
+    augmentation_min_expectancy: float = -0.005
+    augmentation_min_profit_factor: float = 0.65
+    excluded_families: list[str] = field(default_factory=list)
 
 
 @dataclass
 class PaperConfig:
     state_db: str = "artifacts/paper/paper_state.sqlite3"
     log_path: str = "artifacts/latest/paper_runtime.log"
+    starting_equity_usd: float = 1000.0
+    loss_analysis_report_path: str = "artifacts/latest/loss_analysis_report.md"
+    loss_analysis_summary_path: str = "artifacts/latest/loss_analysis_summary.json"
     initial_lookback_bars: int = 600
     max_runtime_bars: int = 1200
     position_check_interval_seconds: int = 2
@@ -184,6 +205,67 @@ class PaperConfig:
     initial_retune_delay_seconds: int = 90
     summary_window_days: int = 7
     auto_rebuild_deployment: bool = True
+    retune_on_loss_trigger: bool = True
+    loss_trigger_min_closed_positions: int = 2
+    loss_trigger_loss_streak: int = 2
+    loss_trigger_net_return_fraction: float = -0.015
+    loss_trigger_cooldown_minutes: int = 30
+    same_symbol_loss_cooldown_hours: int = 1
+    same_strategy_loss_cooldown_hours: int = 3
+    same_family_loss_cooldown_hours: int = 4
+    family_loss_block_min_closed_trades: int = 2
+    family_loss_block_max_win_rate: float = 0.25
+    family_loss_block_net_return_fraction: float = -0.02
+    strategy_performance_block_lookback_days: int = 7
+    strategy_performance_block_min_closed_trades: int = 3
+    strategy_performance_block_max_win_rate: float = 0.25
+    strategy_performance_block_net_return_fraction: float = -0.03
+    symbol_performance_block_lookback_days: int = 7
+    symbol_performance_block_min_closed_trades: int = 3
+    symbol_performance_block_max_win_rate: float = 0.25
+    symbol_performance_block_net_return_fraction: float = -0.03
+    adaptive_threshold_loss_step: float = 0.05
+    adaptive_threshold_max_offset: float = 0.15
+    min_daily_trade_target: int = 10
+    max_daily_trade_target: int = 20
+    trade_target_lookback_hours: int = 24
+    trade_target_threshold_step: float = 0.08
+    min_live_threshold_floor: float = 0.1
+    max_live_threshold_ceiling: float = 0.7
+    enable_confidence_position_sizing: bool = True
+    low_confidence_multiplier: float = 0.75
+    medium_confidence_multiplier: float = 1.0
+    high_confidence_multiplier: float = 1.5
+    medium_confidence_probability: float = 0.55
+    high_confidence_probability: float = 0.7
+    max_position_capital_fraction: float = 0.15
+    enable_confidence_target_scaling: bool = True
+    low_confidence_target_atr_multiple: float = 1.0
+    medium_confidence_target_atr_multiple: float = 1.2
+    high_confidence_target_atr_multiple: float = 1.6
+    enable_trailing_stop: bool = True
+    trailing_activation_price_fraction: float = 0.01
+    trailing_distance_price_fraction: float = 0.005
+    trailing_update_threshold_price_fraction: float = 0.002
+    mark_stale_retunes_on_start: bool = True
+    loss_retune_deployment_min_trade_count: int = 12
+    loss_retune_deployment_min_distinct_symbols: int = 4
+    loss_retune_deployment_min_distinct_families: int = 2
+    loss_retune_deployment_min_expectancy: float = 0.012
+    loss_retune_deployment_min_precision: float = 0.6
+    emergency_candidate_deployment_enabled: bool = True
+    emergency_candidate_min_trade_count: int = 8
+    emergency_candidate_min_distinct_symbols: int = 4
+    emergency_candidate_min_distinct_families: int = 2
+    emergency_candidate_min_expectancy: float = 0.015
+    emergency_candidate_min_precision: float = 0.7
+    throughput_candidate_deployment_enabled: bool = True
+    throughput_candidate_min_trade_count: int = 40
+    throughput_candidate_min_distinct_symbols: int = 6
+    throughput_candidate_min_expectancy: float = 0.01
+    throughput_candidate_min_precision: float = 0.6
+    kill_switch_enabled: bool = True
+    kill_switch_auto_daily_loss_fraction: float = 0.08
 
 
 @dataclass
@@ -194,6 +276,8 @@ class DashboardConfig:
     decision_log_limit: int = 100
     closed_trade_limit: int = 100
     log_tail_lines: int = 200
+    api_key: str = ""
+    api_key_header: str = "X-YJCOOP-KEY"
 
 
 @dataclass
@@ -201,12 +285,15 @@ class LocalLLMConfig:
     enabled: bool = True
     provider: str = "ollama"
     base_url: str = "http://127.0.0.1:11434"
-    model: str = "qwen3:14b"
-    timeout_seconds: int = 180
+    model: str = "qwen3:8b"
+    fallback_models: list[str] = field(default_factory=lambda: ["gemma3:4b", "qwen3:14b"])
+    timeout_seconds: int = 60
     temperature: float = 0.1
     max_output_tokens: int = 256
-    require_allow_action: bool = True
+    require_allow_action: bool = False
     allow_reject_below_probability_delta: float = 0.03
+    system_prompt: str = ""
+    prompt_template: str = ""
 
 
 @dataclass
@@ -227,12 +314,37 @@ class AutoLoopConfig:
 
 
 @dataclass
+class HydraCompareConfig:
+    enabled: bool = True
+    repo_path: str = "C:/yjcooperation_external/Hydra-Engine"
+    host: str = "127.0.0.1"
+    port: int = 8001
+    api_key: str = "yj-hydra-local"
+    market: str = "binance"
+    timeframe: str = "15m"
+    benchmark_lookback_days: int = 30
+    benchmark_initial_capital_usd: float = 1000.0
+    benchmark_trade_amount_usd: float = 100.0
+    benchmark_symbols_limit: int = 8
+    summary_path: str = "artifacts/latest/hydra_benchmark_summary.json"
+    paper_enabled: bool = True
+    paper_state_db: str = "artifacts/hydra_compare/paper_state.sqlite3"
+    paper_log_path: str = "artifacts/latest/hydra_paper_runtime.log"
+    paper_initial_lookback_bars: int = 600
+    paper_max_runtime_bars: int = 1200
+    paper_symbols_limit: int = 8
+
+
+@dataclass
 class StrategySearchConfig:
     trend_ema: dict[str, list[float | int]] = field(default_factory=dict)
     trend_pullback: dict[str, list[float | int]] = field(default_factory=dict)
     breakout: dict[str, list[float | int]] = field(default_factory=dict)
     vol_squeeze: dict[str, list[float | int]] = field(default_factory=dict)
     mean_reversion: dict[str, list[float | int]] = field(default_factory=dict)
+    scalp_momentum: dict[str, list[float | int]] = field(default_factory=dict)
+    freqtrade_adx: dict[str, list[float | int]] = field(default_factory=dict)
+    ultimate_crypto: dict[str, list[float | int]] = field(default_factory=dict)
 
 
 @dataclass
@@ -252,6 +364,7 @@ class Settings:
     dashboard: DashboardConfig = field(default_factory=DashboardConfig)
     local_llm: LocalLLMConfig = field(default_factory=LocalLLMConfig)
     autoloop: AutoLoopConfig = field(default_factory=AutoLoopConfig)
+    hydra_compare: HydraCompareConfig = field(default_factory=HydraCompareConfig)
     strategy_search: StrategySearchConfig = field(default_factory=StrategySearchConfig)
     project_root: Path = field(default_factory=lambda: Path.cwd())
 
@@ -294,6 +407,22 @@ class Settings:
     def paper_log_path(self) -> Path:
         return self.resolve_path(self.paper.log_path)
 
+    @property
+    def hydra_paper_state_db(self) -> Path:
+        return self.resolve_path(self.hydra_compare.paper_state_db)
+
+    @property
+    def hydra_paper_log_path(self) -> Path:
+        return self.resolve_path(self.hydra_compare.paper_log_path)
+
+    @property
+    def paper_loss_analysis_report_path(self) -> Path:
+        return self.resolve_path(self.paper.loss_analysis_report_path)
+
+    @property
+    def paper_loss_analysis_summary_path(self) -> Path:
+        return self.resolve_path(self.paper.loss_analysis_summary_path)
+
     def ensure_directories(self) -> None:
         for path in [
             self.data_root,
@@ -305,6 +434,10 @@ class Settings:
             self.deployment_manifest_path.parent,
             self.paper_state_db.parent,
             self.paper_log_path.parent,
+            self.paper_loss_analysis_report_path.parent,
+            self.paper_loss_analysis_summary_path.parent,
+            self.hydra_paper_state_db.parent,
+            self.hydra_paper_log_path.parent,
         ]:
             path.mkdir(parents=True, exist_ok=True)
 

@@ -1,0 +1,225 @@
+// © yoomahmen
+
+//@version=5
+strategy("Ultimate Crypto Bot", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=10, commission_type=strategy.commission.percent, commission_value=0.1)
+
+// ==================== INPUTS ====================
+// Timeframe and Basic Settings
+higher_tf = input.timeframe("1D", "Higher Timeframe for Trend")
+use_higher_tf = input.bool(true, "Use Higher Timeframe Analysis")
+
+// Technical Indicators
+ma_fast = input.int(9, "Fast MA Period", minval=1)
+ma_slow = input.int(21, "Slow MA Period", minval=1)
+rsi_length = input.int(14, "RSI Length", minval=1)
+rsi_overbought = input.int(70, "RSI Overbought", minval=50, maxval=100)
+rsi_oversold = input.int(30, "RSI Oversold", minval=0, maxval=50)
+
+// MACD Settings
+macd_fast = input.int(12, "MACD Fast Length")
+macd_slow = input.int(26, "MACD Slow Length")
+macd_signal = input.int(9, "MACD Signal Length")
+
+// Bollinger Bands
+bb_length = input.int(20, "Bollinger Bands Length")
+bb_mult = input.float(2.0, "Bollinger Bands Multiplier")
+
+// Volume Analysis
+volume_ma_length = input.int(20, "Volume MA Length")
+volume_threshold = input.float(1.5, "Volume Threshold Multiplier")
+
+// Risk Management
+stop_loss_pct = input.float(3.0, "Stop Loss %", minval=0.1, maxval=20.0)
+take_profit_pct = input.float(6.0, "Take Profit %", minval=0.1, maxval=50.0)
+risk_reward_ratio = input.float(2.0, "Risk/Reward Ratio", minval=1.0, maxval=10.0)
+
+// Trend Filter
+trend_filter = input.bool(true, "Use Trend Filter")
+atr_length = input.int(14, "ATR Length for Volatility")
+volatility_threshold = input.float(2.0, "Volatility Threshold")
+
+// ==================== TECHNICAL INDICATORS ====================
+// Moving Averages
+ma_fast_val = ta.sma(close, ma_fast)
+ma_slow_val = ta.sma(close, ma_slow)
+ma_200 = ta.sma(close, 200)
+
+// RSI
+rsi = ta.rsi(close, rsi_length)
+
+// MACD
+[macd_line, signal_line, histogram] = ta.macd(close, macd_fast, macd_slow, macd_signal)
+
+// Bollinger Bands
+[bb_upper, bb_middle, bb_lower] = ta.bb(close, bb_length, bb_mult)
+
+// Volume Analysis
+volume_ma = ta.sma(volume, volume_ma_length)
+volume_spike = volume > volume_ma * volume_threshold
+
+// ATR for Volatility
+atr = ta.atr(atr_length)
+volatility = atr / close * 100
+
+// Stochastic
+k = ta.stoch(close, high, low, 14)
+d = ta.sma(k, 3)
+
+// Higher Timeframe Trend
+htf_close = request.security(syminfo.tickerid, higher_tf, close)
+htf_ma = request.security(syminfo.tickerid, higher_tf, ta.sma(close, 50))
+htf_trend = htf_close > htf_ma
+
+// ==================== FUNDAMENTAL ANALYSIS PROXIES ====================
+// Market Structure Analysis
+higher_highs = high > ta.highest(high[1], 10)
+higher_lows = low > ta.lowest(low[1], 10)
+lower_highs = high < ta.highest(high[1], 10)
+lower_lows = low < ta.lowest(low[1], 10)
+
+uptrend_structure = higher_highs and higher_lows
+downtrend_structure = lower_highs and lower_lows
+
+// Support and Resistance Levels
+pivot_high = ta.pivothigh(high, 5, 5)
+pivot_low = ta.pivotlow(low, 5, 5)
+
+// Market Sentiment (Price Action)
+bullish_engulfing = close > open and close[1] < open[1] and close > open[1] and open < close[1]
+bearish_engulfing = close < open and close[1] > open[1] and close < open[1] and open > close[1]
+
+// ==================== SIGNAL GENERATION ====================
+// Trend Conditions
+bullish_trend = ma_fast_val > ma_slow_val and close > ma_200
+bearish_trend = ma_fast_val < ma_slow_val and close < ma_200
+
+// Technical Conditions
+rsi_bullish = rsi > 40 and rsi < 80
+rsi_bearish = rsi < 60 and rsi > 20
+
+macd_bullish = macd_line > signal_line and histogram > histogram[1]
+macd_bearish = macd_line < signal_line and histogram < histogram[1]
+
+bb_squeeze = (bb_upper - bb_lower) / bb_middle < 0.1
+bb_expansion = (bb_upper - bb_lower) / bb_middle > 0.15
+
+stoch_bullish = k > d and k > 20 and k < 80
+stoch_bearish = k < d and k < 80 and k > 20
+
+// Volume Confirmation
+volume_confirm = volume_spike or volume > volume_ma * 1.2
+
+// Volatility Filter
+low_volatility = volatility < volatility_threshold
+high_volatility = volatility > volatility_threshold * 1.5
+
+// ==================== ENTRY CONDITIONS ====================
+// Long Entry Conditions
+long_technical = bullish_trend and rsi_bullish and macd_bullish and stoch_bullish
+long_fundamental = uptrend_structure and not downtrend_structure
+long_volume = volume_confirm
+long_trend_filter = not trend_filter or (use_higher_tf and htf_trend) or not use_higher_tf
+long_volatility = not high_volatility
+
+long_signal = long_technical and long_fundamental and long_volume and long_trend_filter and long_volatility
+
+// Short Entry Conditions
+short_technical = bearish_trend and rsi_bearish and macd_bearish and stoch_bearish
+short_fundamental = downtrend_structure and not uptrend_structure
+short_volume = volume_confirm
+short_trend_filter = not trend_filter or (use_higher_tf and not htf_trend) or not use_higher_tf
+short_volatility = not high_volatility
+
+short_signal = short_technical and short_fundamental and short_volume and short_trend_filter and short_volatility
+
+// ==================== RISK MANAGEMENT ====================
+// Calculate position size based on risk
+risk_amount = strategy.equity * (stop_loss_pct / 100)
+position_size = risk_amount / (close * (stop_loss_pct / 100))
+
+// Dynamic Stop Loss and Take Profit
+long_stop_loss = close * (1 - stop_loss_pct / 100)
+long_take_profit = close * (1 + take_profit_pct / 100)
+
+short_stop_loss = close * (1 + stop_loss_pct / 100)
+short_take_profit = close * (1 - take_profit_pct / 100)
+
+// ==================== STRATEGY EXECUTION ====================
+// Entry Orders
+if long_signal and strategy.position_size == 0
+    strategy.entry("Long", strategy.long)
+    strategy.exit("Long Exit", "Long", stop=long_stop_loss, limit=long_take_profit)
+
+if short_signal and strategy.position_size == 0
+    strategy.entry("Short", strategy.short)
+    strategy.exit("Short Exit", "Short", stop=short_stop_loss, limit=short_take_profit)
+
+// Exit Conditions
+exit_long = bearish_trend and rsi > rsi_overbought
+exit_short = bullish_trend and rsi < rsi_oversold
+
+if exit_long and strategy.position_size > 0
+    strategy.close("Long", comment="Trend Reversal")
+
+if exit_short and strategy.position_size < 0
+    strategy.close("Short", comment="Trend Reversal")
+
+// ==================== VISUALIZATIONS ====================
+// Plot Moving Averages
+plot(ma_fast_val, "Fast MA", color=color.blue, linewidth=2)
+plot(ma_slow_val, "Slow MA", color=color.red, linewidth=2)
+plot(ma_200, "MA 200", color=color.gray, linewidth=1)
+
+// Plot Bollinger Bands
+plot(bb_upper, "BB Upper", color=color.purple, linewidth=1)
+plot(bb_lower, "BB Lower", color=color.purple, linewidth=1)
+fill(plot(bb_upper), plot(bb_lower), color=color.new(color.purple, 95))
+
+// Plot Entry Signals
+plotshape(long_signal, title="Long Signal", location=location.belowbar, style=shape.triangleup, size=size.normal, color=color.green)
+plotshape(short_signal, title="Short Signal", location=location.abovebar, style=shape.triangledown, size=size.normal, color=color.red)
+
+// Plot Support and Resistance
+plot(pivot_high, "Pivot High", color=color.red, linewidth=2, style=plot.style_circles)
+plot(pivot_low, "Pivot Low", color=color.green, linewidth=2, style=plot.style_circles)
+
+// Background Colors for Trend
+bgcolor(bullish_trend ? color.new(color.green, 95) : bearish_trend ? color.new(color.red, 95) : na)
+
+// ==================== ALERTS ====================
+// Alert Conditions
+alertcondition(long_signal, title="Long Entry Signal", message="Long entry signal generated")
+alertcondition(short_signal, title="Short Entry Signal", message="Short entry signal generated")
+alertcondition(exit_long, title="Long Exit Signal", message="Long exit signal generated")
+alertcondition(exit_short, title="Short Exit Signal", message="Short exit signal generated")
+
+// ==================== PERFORMANCE METRICS ====================
+// Calculate some basic metrics
+var float total_pnl = 0.0
+var int total_trades = 0
+var int winning_trades = 0
+
+if strategy.closedtrades > total_trades
+    total_trades := strategy.closedtrades
+    last_trade_pnl = strategy.closedtrades.profit(strategy.closedtrades - 1)
+    total_pnl += last_trade_pnl
+    if last_trade_pnl > 0
+        winning_trades += 1
+
+win_rate = total_trades > 0 ? winning_trades / total_trades * 100 : 0
+
+// Display Performance Table
+var table performance_table = table.new(position.top_right, 3, 6, bgcolor=color.white, border_width=1)
+if barstate.islast
+    table.cell(performance_table, 0, 0, "Metric", text_color=color.black, bgcolor=color.gray)
+    table.cell(performance_table, 1, 0, "Value", text_color=color.black, bgcolor=color.gray)
+    table.cell(performance_table, 0, 1, "Total Trades", text_color=color.black)
+    table.cell(performance_table, 1, 1, str.tostring(total_trades), text_color=color.black)
+    table.cell(performance_table, 0, 2, "Win Rate", text_color=color.black)
+    table.cell(performance_table, 1, 2, str.tostring(win_rate, "#.##") + "%", text_color=color.black)
+    table.cell(performance_table, 0, 3, "Total PnL", text_color=color.black)
+    table.cell(performance_table, 1, 3, str.tostring(total_pnl, "#.##"), text_color=color.black)
+    table.cell(performance_table, 0, 4, "Current RSI", text_color=color.black)
+    table.cell(performance_table, 1, 4, str.tostring(rsi, "#.##"), text_color=color.black)
+    table.cell(performance_table, 0, 5, "Volatility", text_color=color.black)
+    table.cell(performance_table, 1, 5, str.tostring(volatility, "#.##") + "%", text_color=color.black)

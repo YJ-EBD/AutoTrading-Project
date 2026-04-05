@@ -190,6 +190,7 @@ class ResearchLoop:
                 summary["ml_candidate_survived"] = relaxed_survived
                 summary["survived"] = strict_survived or relaxed_survived
                 summary["family_seed_survived"] = False
+                summary["rescue_reason"] = ""
                 summary["survival_tier"] = (
                     "strict" if strict_survived else "ml_candidate" if relaxed_survived else "rejected"
                 )
@@ -222,14 +223,16 @@ class ResearchLoop:
                     "strict_survived",
                     "ml_candidate_survived",
                     "family_seed_survived",
+                    "rescue_reason",
                     "survival_tier",
                     "survived",
                 ]
             )
         pre_screen = self._apply_family_seed_rescue(pre_screen)
+        family_summary = self._build_pre_screen_family_summary(pre_screen)
         selected_strategy_ids = self._select_diversified_survivors(pre_screen, candidate_trade_map)
         pre_screen["selected_for_ml"] = pre_screen["strategy_id"].isin(selected_strategy_ids)
-        persist_report_bundle(artifact_dir, {"pre_screen": pre_screen})
+        persist_report_bundle(artifact_dir, {"pre_screen": pre_screen, "pre_screen_family_summary": family_summary})
         if not selected_strategy_ids:
             metrics = {"candidate_count": float(len(pre_screen)), "survivor_count": 0.0}
             self.registry.complete(experiment_id, "rejected", metrics, "No strategies passed pre-screen.")
@@ -390,6 +393,8 @@ class ResearchLoop:
         frame = pre_screen.copy()
         if "family_seed_survived" not in frame:
             frame["family_seed_survived"] = False
+        if "rescue_reason" not in frame:
+            frame["rescue_reason"] = ""
         survived_families = set(frame.loc[frame["survived"], "family"].astype(str))
         target_families = self.settings.portfolio.min_distinct_families
         if len(survived_families) >= target_families:
@@ -413,28 +418,112 @@ class ResearchLoop:
             & (frame["positive_symbol_count"] >= max(1, self.settings.research.relaxed_min_positive_symbols - 1))
         )
         rescue_candidates = frame[rescue_mask].copy()
-        if rescue_candidates.empty:
-            return frame
+        if not rescue_candidates.empty:
+            for family in rescue_candidates["family"].drop_duplicates().tolist():
+                if len(survived_families) >= target_families:
+                    break
+                if family in survived_families:
+                    continue
+                family_rows = rescue_candidates[rescue_candidates["family"] == family].sort_values(
+                    ["positive_symbol_count", "profit_factor", "expectancy", "trade_count"],
+                    ascending=[False, False, False, False],
+                )
+                if family_rows.empty:
+                    continue
+                strategy_id = family_rows.iloc[0]["strategy_id"]
+                frame.loc[frame["strategy_id"] == strategy_id, "ml_candidate_survived"] = True
+                frame.loc[frame["strategy_id"] == strategy_id, "family_seed_survived"] = True
+                frame.loc[frame["strategy_id"] == strategy_id, "survived"] = True
+                frame.loc[frame["strategy_id"] == strategy_id, "survival_tier"] = "family_seed"
+                frame.loc[frame["strategy_id"] == strategy_id, "rescue_reason"] = "family_seed"
+                survived_families.add(str(family))
 
-        for family in rescue_candidates["family"].drop_duplicates().tolist():
-            if len(survived_families) >= target_families:
-                break
-            if family in survived_families:
-                continue
-            family_rows = rescue_candidates[rescue_candidates["family"] == family].sort_values(
-                ["positive_symbol_count", "profit_factor", "expectancy", "trade_count"],
-                ascending=[False, False, False, False],
+        if not frame["survived"].astype(bool).any():
+            zero_survivor_mask = (
+                (frame["trade_count"] >= self.settings.research.min_candidate_trades)
+                & (frame["expectancy"] >= self.settings.research.zero_survivor_seed_expectancy_floor)
+                & (
+                    frame["profit_factor"]
+                    >= self.settings.research.relaxed_min_profit_factor
+                    - self.settings.research.zero_survivor_seed_profit_factor_margin
+                )
+                & (
+                    frame["max_drawdown"]
+                    <= self.settings.research.relaxed_max_drawdown_fraction
+                    + self.settings.research.zero_survivor_seed_max_drawdown_buffer
+                )
+                & (
+                    frame["positive_symbol_count"]
+                    >= self.settings.research.zero_survivor_seed_min_positive_symbols
+                )
             )
-            if family_rows.empty:
-                continue
-            strategy_id = family_rows.iloc[0]["strategy_id"]
-            frame.loc[frame["strategy_id"] == strategy_id, "ml_candidate_survived"] = True
-            frame.loc[frame["strategy_id"] == strategy_id, "family_seed_survived"] = True
-            frame.loc[frame["strategy_id"] == strategy_id, "survived"] = True
-            frame.loc[frame["strategy_id"] == strategy_id, "survival_tier"] = "family_seed"
-            survived_families.add(str(family))
+            zero_survivor_candidates = frame[zero_survivor_mask].copy()
+            if not zero_survivor_candidates.empty:
+                zero_survivor_candidates = zero_survivor_candidates.sort_values(
+                    ["positive_symbol_count", "expectancy", "profit_factor", "trade_count"],
+                    ascending=[False, False, False, False],
+                )
+                rescued_families: set[str] = set()
+                max_families = max(
+                    self.settings.research.zero_survivor_seed_max_families,
+                    self.settings.portfolio.min_distinct_families,
+                )
+                for row in zero_survivor_candidates.itertuples(index=False):
+                    family = str(row.family)
+                    if family in rescued_families:
+                        continue
+                    strategy_id = str(row.strategy_id)
+                    frame.loc[frame["strategy_id"] == strategy_id, "ml_candidate_survived"] = True
+                    frame.loc[frame["strategy_id"] == strategy_id, "family_seed_survived"] = True
+                    frame.loc[frame["strategy_id"] == strategy_id, "survived"] = True
+                    frame.loc[frame["strategy_id"] == strategy_id, "survival_tier"] = "zero_survivor_seed"
+                    frame.loc[frame["strategy_id"] == strategy_id, "rescue_reason"] = "zero_survivor_seed"
+                    rescued_families.add(family)
+                    if len(rescued_families) >= max_families:
+                        break
 
         return frame.sort_values(["survived", "family_seed_survived", "expectancy"], ascending=[False, False, False]).reset_index(drop=True)
+
+    def _build_pre_screen_family_summary(self, pre_screen: pd.DataFrame) -> pd.DataFrame:
+        if pre_screen.empty:
+            return pd.DataFrame(
+                columns=[
+                    "family",
+                    "candidate_count",
+                    "survivor_count",
+                    "strict_survivor_count",
+                    "best_strategy_id",
+                    "best_expectancy",
+                    "best_profit_factor",
+                    "best_positive_symbol_count",
+                    "best_survival_tier",
+                ]
+            )
+
+        rows: list[dict[str, object]] = []
+        for family, family_frame in pre_screen.groupby("family", dropna=False):
+            ranked = family_frame.sort_values(
+                ["survived", "positive_symbol_count", "expectancy", "profit_factor", "trade_count"],
+                ascending=[False, False, False, False, False],
+            )
+            best = ranked.iloc[0]
+            rows.append(
+                {
+                    "family": family,
+                    "candidate_count": int(len(family_frame)),
+                    "survivor_count": int(family_frame["survived"].astype(bool).sum()),
+                    "strict_survivor_count": int(family_frame["strict_survived"].astype(bool).sum()),
+                    "best_strategy_id": str(best["strategy_id"]),
+                    "best_expectancy": float(best["expectancy"]),
+                    "best_profit_factor": float(best["profit_factor"]),
+                    "best_positive_symbol_count": int(best["positive_symbol_count"]),
+                    "best_survival_tier": str(best["survival_tier"]),
+                }
+            )
+        return pd.DataFrame(rows).sort_values(
+            ["survivor_count", "best_expectancy", "best_profit_factor"],
+            ascending=[False, False, False],
+        ).reset_index(drop=True)
 
     def _select_diversified_survivors(
         self,
