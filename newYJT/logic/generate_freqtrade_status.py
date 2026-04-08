@@ -7,6 +7,7 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import sys
 
@@ -33,6 +34,75 @@ PIPELINE_STAGE_SNAPSHOT_PATH = ROOT / "runtime" / "pipeline_stage_snapshot.json"
 TUNING_STATE_PATH = ROOT / "runtime" / "tuning_state.json"
 COMPONENT_SNAPSHOT_PATH = ROOT / "runtime" / "freqai_component_snapshot.json"
 LLM_SIGNAL_SNAPSHOT_PATH = ROOT / "runtime" / "llm_signal_snapshot.json"
+LOCAL_TIMEZONE = ZoneInfo("Asia/Seoul")
+LEVERAGE_ROI_PROFILES = (
+    (5.0, [
+        {"label": "0-20m", "max_duration_min": 20, "target_pct": 4.4},
+        {"label": "20-60m", "max_duration_min": 60, "target_pct": 3.2},
+        {"label": "60-180m", "max_duration_min": 180, "target_pct": 2.3},
+        {"label": "180-480m", "max_duration_min": 480, "target_pct": 1.6},
+        {"label": "480-720m", "max_duration_min": 720, "target_pct": 1.1},
+        {"label": "720m+", "max_duration_min": None, "target_pct": 0.7},
+    ]),
+    (4.0, [
+        {"label": "0-20m", "max_duration_min": 20, "target_pct": 3.8},
+        {"label": "20-60m", "max_duration_min": 60, "target_pct": 2.8},
+        {"label": "60-180m", "max_duration_min": 180, "target_pct": 2.0},
+        {"label": "180-480m", "max_duration_min": 480, "target_pct": 1.4},
+        {"label": "480-720m", "max_duration_min": 720, "target_pct": 0.95},
+        {"label": "720m+", "max_duration_min": None, "target_pct": 0.6},
+    ]),
+    (3.0, [
+        {"label": "0-20m", "max_duration_min": 20, "target_pct": 3.3},
+        {"label": "20-60m", "max_duration_min": 60, "target_pct": 2.4},
+        {"label": "60-180m", "max_duration_min": 180, "target_pct": 1.7},
+        {"label": "180-480m", "max_duration_min": 480, "target_pct": 1.2},
+        {"label": "480-720m", "max_duration_min": 720, "target_pct": 0.8},
+        {"label": "720m+", "max_duration_min": None, "target_pct": 0.5},
+    ]),
+    (1.0, [
+        {"label": "0-20m", "max_duration_min": 20, "target_pct": 2.8},
+        {"label": "20-60m", "max_duration_min": 60, "target_pct": 2.0},
+        {"label": "60-180m", "max_duration_min": 180, "target_pct": 1.4},
+        {"label": "180-480m", "max_duration_min": 480, "target_pct": 1.0},
+        {"label": "480-720m", "max_duration_min": 720, "target_pct": 0.7},
+        {"label": "720m+", "max_duration_min": None, "target_pct": 0.4},
+    ]),
+)
+LEVERAGE_PROFIT_LOCK_PROFILES = (
+    (5.0, [
+        {"min_profit_pct": 1.3, "stoploss_pct": 1.5},
+        {"min_profit_pct": 2.2, "stoploss_pct": 1.1},
+        {"min_profit_pct": 3.2, "stoploss_pct": 0.8},
+        {"min_profit_pct": 4.6, "stoploss_pct": 0.6},
+        {"min_profit_pct": 6.2, "stoploss_pct": 0.4},
+        {"min_profit_pct": 8.0, "stoploss_pct": 0.25},
+    ]),
+    (4.0, [
+        {"min_profit_pct": 1.2, "stoploss_pct": 1.7},
+        {"min_profit_pct": 2.0, "stoploss_pct": 1.25},
+        {"min_profit_pct": 2.9, "stoploss_pct": 0.95},
+        {"min_profit_pct": 4.1, "stoploss_pct": 0.7},
+        {"min_profit_pct": 5.6, "stoploss_pct": 0.45},
+        {"min_profit_pct": 7.2, "stoploss_pct": 0.3},
+    ]),
+    (3.0, [
+        {"min_profit_pct": 1.1, "stoploss_pct": 1.9},
+        {"min_profit_pct": 1.9, "stoploss_pct": 1.45},
+        {"min_profit_pct": 2.8, "stoploss_pct": 1.1},
+        {"min_profit_pct": 4.0, "stoploss_pct": 0.8},
+        {"min_profit_pct": 5.3, "stoploss_pct": 0.55},
+        {"min_profit_pct": 6.8, "stoploss_pct": 0.35},
+    ]),
+    (1.0, [
+        {"min_profit_pct": 1.0, "stoploss_pct": 2.0},
+        {"min_profit_pct": 1.8, "stoploss_pct": 1.6},
+        {"min_profit_pct": 2.8, "stoploss_pct": 1.3},
+        {"min_profit_pct": 4.0, "stoploss_pct": 1.0},
+        {"min_profit_pct": 5.5, "stoploss_pct": 0.7},
+        {"min_profit_pct": 7.0, "stoploss_pct": 0.4},
+    ]),
+)
 
 
 def _build_engine_summary(config: dict, settings_state: dict | None = None) -> dict:
@@ -161,6 +231,69 @@ def _load_trade_custom_data_map(cur: sqlite3.Cursor, trade_ids: list[int]) -> di
     return payload
 
 
+def _parse_trade_datetime(raw: str | None) -> datetime | None:
+    if raw is None:
+        return None
+    text = str(raw).strip()
+    if not text:
+        return None
+    if text.endswith("Z"):
+        text = f"{text[:-1]}+00:00"
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError:
+        for fmt in ("%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S"):
+            try:
+                parsed = datetime.strptime(text, fmt)
+                break
+            except ValueError:
+                parsed = None
+        if parsed is None:
+            return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def _current_roi_target_pct(
+    open_date: str | None,
+    roi_schedule: list[dict],
+    *,
+    now_utc: datetime | None = None,
+) -> float | None:
+    opened_at = _parse_trade_datetime(open_date)
+    if opened_at is None:
+        return None
+    now_utc = now_utc or datetime.now(timezone.utc)
+    trade_age_minutes = max((now_utc - opened_at).total_seconds() / 60.0, 0.0)
+    for band in roi_schedule:
+        if not isinstance(band, dict):
+            continue
+        max_duration = band.get("max_duration_min")
+        target_pct = band.get("target_pct")
+        if target_pct is None:
+            continue
+        if max_duration is None or trade_age_minutes < float(max_duration):
+            return _round(target_pct, 4)
+    return None
+
+
+def _roi_schedule_for_leverage(leverage: float | None) -> list[dict]:
+    leverage_value = max(float(leverage or 1.0), 1.0)
+    for min_leverage, schedule in LEVERAGE_ROI_PROFILES:
+        if leverage_value >= min_leverage:
+            return schedule
+    return LEVERAGE_ROI_PROFILES[-1][1]
+
+
+def _profit_lock_schedule_for_leverage(leverage: float | None) -> list[dict]:
+    leverage_value = max(float(leverage or 1.0), 1.0)
+    for min_leverage, schedule in LEVERAGE_PROFIT_LOCK_PROFILES:
+        if leverage_value >= min_leverage:
+            return schedule
+    return LEVERAGE_PROFIT_LOCK_PROFILES[-1][1]
+
+
 def _load_json(path: Path) -> dict:
     if not path.exists():
         return {}
@@ -168,6 +301,24 @@ def _load_json(path: Path) -> dict:
         return json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         return {}
+
+
+def _pair_to_symbol(pair: str | None) -> str | None:
+    if not pair:
+        return None
+    return str(pair).replace("/USDT:USDT", "USDT").replace("/", "")
+
+
+def _symbol_to_pair(symbol: str | None) -> str | None:
+    if not symbol:
+        return None
+    symbol_text = str(symbol).strip().upper()
+    if not symbol_text.endswith("USDT"):
+        return None
+    base = symbol_text[:-4]
+    if not base:
+        return None
+    return f"{base}/USDT:USDT"
 
 
 def _write_json(path: Path, payload: dict) -> None:
@@ -376,6 +527,329 @@ def _build_tuning_summary(cur: sqlite3.Cursor) -> dict:
     }
 
 
+def _to_local_datetime(raw: str | None) -> datetime | None:
+    parsed = _parse_trade_datetime(raw)
+    if parsed is None:
+        return None
+    return parsed.astimezone(LOCAL_TIMEZONE)
+
+
+def _pair_asset_label(pair: str | None) -> str:
+    if not pair:
+        return "-"
+    return str(pair).split("/")[0]
+
+
+def _profit_factor_from_records(records: list[dict]) -> float:
+    gross_win = sum(max(float(record.get("net_profit_abs") or 0.0), 0.0) for record in records)
+    gross_loss = sum(min(float(record.get("net_profit_abs") or 0.0), 0.0) for record in records)
+    if gross_loss < 0:
+        return gross_win / abs(gross_loss)
+    return gross_win if gross_win > 0 else 0.0
+
+
+def _summarize_trade_records(records: list[dict], starting_balance: float) -> dict:
+    closed_trades = len(records)
+    wins = sum(1 for record in records if float(record.get("net_profit_abs") or 0.0) > 0)
+    losses = sum(1 for record in records if float(record.get("net_profit_abs") or 0.0) < 0)
+    net_profit_abs = sum(float(record.get("net_profit_abs") or 0.0) for record in records)
+    fees_abs = sum(float(record.get("fee_total_abs") or 0.0) for record in records)
+    gross_profit_abs = net_profit_abs + fees_abs
+    avg_roi_pct = (
+        sum(float(record.get("profit_pct") or 0.0) for record in records) / closed_trades
+        if closed_trades
+        else 0.0
+    )
+    avg_fee_abs = fees_abs / closed_trades if closed_trades else 0.0
+    avg_net_profit_abs = net_profit_abs / closed_trades if closed_trades else 0.0
+    roi_pct = (net_profit_abs / starting_balance * 100.0) if starting_balance else 0.0
+    fee_ratio_pct = (fees_abs / starting_balance * 100.0) if starting_balance else 0.0
+    profit_factor = _profit_factor_from_records(records)
+    best_trade = max(records, key=lambda record: float(record.get("net_profit_abs") or 0.0), default=None)
+    worst_trade = min(records, key=lambda record: float(record.get("net_profit_abs") or 0.0), default=None)
+
+    return {
+        "closed_trades": closed_trades,
+        "wins": wins,
+        "losses": losses,
+        "win_rate_pct": _round((wins / closed_trades * 100.0) if closed_trades else 0.0, 2),
+        "net_profit_abs_usd": _round(net_profit_abs, 4),
+        "gross_profit_abs_usd": _round(gross_profit_abs, 4),
+        "fees_abs_usd": _round(fees_abs, 4),
+        "avg_roi_pct": _round(avg_roi_pct, 4),
+        "avg_fee_abs_usd": _round(avg_fee_abs, 4),
+        "avg_net_profit_abs_usd": _round(avg_net_profit_abs, 4),
+        "roi_pct": _round(roi_pct, 4),
+        "fee_ratio_pct": _round(fee_ratio_pct, 4),
+        "profit_factor": _round(profit_factor, 4),
+        "best_trade": {
+            "trade_id": best_trade.get("id"),
+            "pair": best_trade.get("pair"),
+            "net_profit_abs": _round(best_trade.get("net_profit_abs"), 4),
+            "profit_pct": _round(best_trade.get("profit_pct"), 4),
+        } if best_trade else None,
+        "worst_trade": {
+            "trade_id": worst_trade.get("id"),
+            "pair": worst_trade.get("pair"),
+            "net_profit_abs": _round(worst_trade.get("net_profit_abs"), 4),
+            "profit_pct": _round(worst_trade.get("profit_pct"), 4),
+        } if worst_trade else None,
+    }
+
+
+def _build_curve_series(records: list[dict], starting_balance: float) -> list[dict]:
+    ordered_records = sorted(
+        records,
+        key=lambda record: (
+            _parse_trade_datetime(record.get("close_date")) or datetime.min.replace(tzinfo=timezone.utc),
+            int(record.get("id") or 0),
+        ),
+    )
+    cumulative_profit = 0.0
+    cumulative_fee = 0.0
+    cumulative_wins = 0
+    series: list[dict] = []
+
+    for index, record in enumerate(ordered_records, start=1):
+        net_profit_abs = float(record.get("net_profit_abs") or 0.0)
+        fee_total_abs = float(record.get("fee_total_abs") or 0.0)
+        cumulative_profit += net_profit_abs
+        cumulative_fee += fee_total_abs
+        if net_profit_abs > 0:
+            cumulative_wins += 1
+        close_local = _to_local_datetime(record.get("close_date")) or _to_local_datetime(record.get("open_date"))
+        label = close_local.strftime("%m-%d %H:%M") if close_local else f"T{record.get('id')}"
+        series.append({
+            "x": label,
+            "x_iso": close_local.isoformat() if close_local else None,
+            "trade_id": record.get("id"),
+            "pair": record.get("pair"),
+            "asset": _pair_asset_label(record.get("pair")),
+            "side": record.get("side"),
+            "net_profit_abs_usd": _round(net_profit_abs, 4),
+            "fee_abs_usd": _round(fee_total_abs, 4),
+            "profit_pct": _round(record.get("profit_pct"), 4),
+            "cumulative_profit_abs_usd": _round(cumulative_profit, 4),
+            "cumulative_fee_abs_usd": _round(cumulative_fee, 4),
+            "cumulative_balance_usd": _round((starting_balance + cumulative_profit), 4) if starting_balance else None,
+            "cumulative_roi_pct": _round((cumulative_profit / starting_balance * 100.0), 4) if starting_balance else None,
+            "cumulative_win_rate_pct": _round((cumulative_wins / index * 100.0), 2),
+        })
+    return series
+
+
+def _build_daily_profit_series(records: list[dict], starting_balance: float) -> list[dict]:
+    buckets: dict[str, dict] = {}
+    for record in records:
+        close_local = _to_local_datetime(record.get("close_date")) or _to_local_datetime(record.get("open_date"))
+        if close_local is None:
+            continue
+        key = close_local.strftime("%m-%d")
+        bucket = buckets.setdefault(
+            key,
+            {
+                "x": key,
+                "date_iso": close_local.date().isoformat(),
+                "net_profit_abs_usd": 0.0,
+                "fees_abs_usd": 0.0,
+                "wins": 0,
+                "losses": 0,
+                "closed_trades": 0,
+                "long_trades": 0,
+                "short_trades": 0,
+            },
+        )
+        net_profit_abs = float(record.get("net_profit_abs") or 0.0)
+        fee_abs = float(record.get("fee_total_abs") or 0.0)
+        bucket["net_profit_abs_usd"] += net_profit_abs
+        bucket["fees_abs_usd"] += fee_abs
+        bucket["wins"] += 1 if net_profit_abs > 0 else 0
+        bucket["losses"] += 1 if net_profit_abs < 0 else 0
+        bucket["closed_trades"] += 1
+        bucket["long_trades"] += 1 if record.get("side") == "long" else 0
+        bucket["short_trades"] += 1 if record.get("side") == "short" else 0
+
+    ordered_keys = sorted(
+        buckets.keys(),
+        key=lambda key: datetime.strptime(key, "%m-%d"),
+    )
+    daily_rows = []
+    for key in ordered_keys:
+        bucket = buckets[key]
+        bucket["roi_pct"] = _round((bucket["net_profit_abs_usd"] / starting_balance * 100.0), 4) if starting_balance else 0.0
+        bucket["win_rate_pct"] = _round((bucket["wins"] / bucket["closed_trades"] * 100.0), 2) if bucket["closed_trades"] else 0.0
+        bucket["net_profit_abs_usd"] = _round(bucket["net_profit_abs_usd"], 4)
+        bucket["fees_abs_usd"] = _round(bucket["fees_abs_usd"], 4)
+        daily_rows.append(bucket)
+    return daily_rows
+
+
+def _build_pair_details(records: list[dict], starting_balance: float) -> list[dict]:
+    pair_groups: dict[str, list[dict]] = {}
+    for record in sorted(
+        records,
+        key=lambda item: (
+            _parse_trade_datetime(item.get("close_date")) or datetime.min.replace(tzinfo=timezone.utc),
+            int(item.get("id") or 0),
+        ),
+    ):
+        pair_groups.setdefault(str(record.get("pair")), []).append(record)
+
+    pair_details: list[dict] = []
+    for pair, pair_records in pair_groups.items():
+        stats = _summarize_trade_records(pair_records, starting_balance)
+        long_records = [record for record in pair_records if record.get("side") == "long"]
+        short_records = [record for record in pair_records if record.get("side") == "short"]
+        pair_details.append({
+            "pair": pair,
+            "asset": _pair_asset_label(pair),
+            "stats": {
+                **stats,
+                "long_trades": len(long_records),
+                "short_trades": len(short_records),
+                "long_win_rate_pct": _summarize_trade_records(long_records, starting_balance)["win_rate_pct"],
+                "short_win_rate_pct": _summarize_trade_records(short_records, starting_balance)["win_rate_pct"],
+            },
+            "series": _build_curve_series(pair_records, starting_balance),
+        })
+
+    pair_details.sort(
+        key=lambda item: (
+            -int(item["stats"].get("closed_trades") or 0),
+            -float(item["stats"].get("net_profit_abs_usd") or 0.0),
+            item["pair"],
+        )
+    )
+    return pair_details
+
+
+def _build_market_cards(active_pair_scores: dict) -> list[dict]:
+    ranked_pairs = active_pair_scores.get("ranked_pairs", [])
+    selected_pairs = set(active_pair_scores.get("selected_pairs", []))
+    if not isinstance(ranked_pairs, list):
+        return []
+
+    cards = []
+    for item in ranked_pairs[:10]:
+        if not isinstance(item, dict):
+            continue
+        pair = item.get("pair")
+        cards.append({
+            "pair": pair,
+            "asset": _pair_asset_label(pair),
+            "symbol": item.get("symbol"),
+            "last_price": _round(item.get("last_price"), 4),
+            "abs_change_pct": _round(item.get("abs_change_pct"), 2),
+            "intraday_range_pct": _round(item.get("intraday_range_pct"), 2),
+            "quality_score_pct": _round(float(item.get("quality_score") or 0.0) * 100.0, 1),
+            "selected": pair in selected_pairs,
+        })
+    return cards
+
+
+def _build_pipeline_filter_details(active_pairs: list[str]) -> dict:
+    snapshot = _load_json(PIPELINE_STAGE_SNAPSHOT_PATH)
+    pair_map = snapshot.get("pairs", {})
+    if not isinstance(pair_map, dict):
+        return {"generated_at": None, "records": []}
+
+    ordered_pairs = active_pairs or sorted(pair_map.keys())
+    records: list[dict] = []
+    for pair in ordered_pairs:
+        payload = pair_map.get(pair)
+        if not isinstance(payload, dict):
+            continue
+        selected = payload.get("selected", {})
+        if not isinstance(selected, dict):
+            selected = {}
+        records.append({
+            "pair": pair,
+            "asset": _pair_asset_label(pair),
+            "close": _round(payload.get("close"), 6),
+            "side": selected.get("side") or payload.get("selected_side") or "none",
+            "pipeline_pass": bool(selected.get("pipeline_pass")),
+            "blocked_stage": selected.get("blocked_stage"),
+            "blocked_reason": selected.get("blocked_reason"),
+            "strategy_pass": bool(selected.get("strategy_pass")),
+            "ml_pass": bool(selected.get("ml_pass")),
+            "dl_pass": bool(selected.get("dl_pass")),
+            "llm_pass": bool(selected.get("llm_pass")),
+            "llm_signal": selected.get("llm_signal"),
+            "ensemble_prob_pct": _round(float(selected.get("ensemble_prob") or 0.0) * 100.0, 2) if selected.get("ensemble_prob") is not None else None,
+            "ml_prob_pct": _round(float(selected.get("ml_prob") or 0.0) * 100.0, 2) if selected.get("ml_prob") is not None else None,
+            "dl_prob_pct": _round(float(selected.get("dl_prob") or 0.0) * 100.0, 2) if selected.get("dl_prob") is not None else None,
+            "enter_tag": selected.get("enter_tag"),
+        })
+    return {
+        "generated_at": snapshot.get("generated_at"),
+        "records": records,
+    }
+
+
+def _build_dashboard_payload(
+    records: list[dict],
+    *,
+    starting_balance: float,
+    balance_summary: dict,
+    open_positions: list[dict],
+    active_pair_scores: dict,
+    active_pairs: list[str],
+    tuning_summary: dict,
+) -> dict:
+    overall = _summarize_trade_records(records, starting_balance)
+    long_records = [record for record in records if record.get("side") == "long"]
+    short_records = [record for record in records if record.get("side") == "short"]
+    long_stats = _summarize_trade_records(long_records, starting_balance)
+    short_stats = _summarize_trade_records(short_records, starting_balance)
+    today_local = datetime.now(LOCAL_TIMEZONE).date()
+    today_records = [
+        record
+        for record in records
+        if (_to_local_datetime(record.get("close_date")) or _to_local_datetime(record.get("open_date")))
+        and (_to_local_datetime(record.get("close_date")) or _to_local_datetime(record.get("open_date"))).date() == today_local
+    ]
+    today_stats = _summarize_trade_records(today_records, starting_balance)
+    today_stats["date_label"] = today_local.isoformat()
+    today_intraday = _build_curve_series(today_records, starting_balance)
+    pair_details = _build_pair_details(records, starting_balance)
+
+    return {
+        "overview": {
+            "total_win_rate_pct": overall["win_rate_pct"],
+            "remaining_balance_usd": _round(balance_summary.get("current_total"), 4),
+            "available_balance_usd": _round(balance_summary.get("available"), 4),
+            "today_profit_abs_usd": today_stats["net_profit_abs_usd"],
+            "today_roi_pct": today_stats["roi_pct"],
+            "today_fees_abs_usd": today_stats["fees_abs_usd"],
+            "today_closed_trades": today_stats["closed_trades"],
+            "total_profit_abs_usd": overall["net_profit_abs_usd"],
+            "total_roi_pct": overall["roi_pct"],
+            "open_positions": len(open_positions),
+            "active_pairs": len(active_pairs),
+            "baseline_label": tuning_summary.get("label") if tuning_summary.get("active") else "전체 전적",
+        },
+        "performance": {
+            "overall": overall,
+            "long": long_stats,
+            "short": short_stats,
+        },
+        "today": today_stats,
+        "charts": {
+            "integrated_curve": _build_curve_series(records, starting_balance),
+            "long_curve": _build_curve_series(long_records, starting_balance),
+            "short_curve": _build_curve_series(short_records, starting_balance),
+            "daily_profit": _build_daily_profit_series(records, starting_balance),
+            "today_intraday": today_intraday,
+        },
+        "pairs": {
+            "detail": pair_details,
+            "top_options": [item["pair"] for item in pair_details[:12]],
+        },
+        "market_cards": _build_market_cards(active_pair_scores),
+        "pipeline_filter": _build_pipeline_filter_details(active_pairs),
+    }
+
+
 def _build_tp_sl_policy(config: dict, settings_state: dict) -> dict:
     settings = load_settings_env(SETTINGS_ENV_PATH)
     order_types = config.get("order_types", {})
@@ -391,15 +865,23 @@ def _build_tp_sl_policy(config: dict, settings_state: dict) -> dict:
     recovery_arm_peak_pct = float(settings.get("AGGRESSIVE_RECOVERY_ARM_PEAK_PCT") or 1.2)
     recovery_failsafe_pct = float(settings.get("AGGRESSIVE_RECOVERY_FAILSAFE_PCT") or 2.4)
     recovery_reclaim_ratio = float(settings.get("AGGRESSIVE_RECOVERY_RECLAIM_RATIO") or 0.85) * 100.0
+    recovery_reclaim_buffer_pct = float(settings.get("AGGRESSIVE_RECOVERY_RECLAIM_BUFFER_PCT") or 0.40)
+    recovery_min_target_pct = float(settings.get("AGGRESSIVE_RECOVERY_MIN_TARGET_PCT") or 0.45)
+    recovery_fee_per_side_pct = float(settings.get("AGGRESSIVE_RECOVERY_FEE_PER_SIDE_PCT") or 0.075)
+    recovery_fee_buffer_pct = float(settings.get("AGGRESSIVE_RECOVERY_FEE_BUFFER_PCT") or 0.03)
+    recovery_min_minutes_before_dca = int(
+        float(settings.get("AGGRESSIVE_RECOVERY_MIN_MINUTES_BEFORE_DCA") or 4)
+    )
     recovery_dca_spacing_minutes = int(float(settings.get("AGGRESSIVE_RECOVERY_DCA_SPACING_MINUTES") or 8))
     recovery_hold_minutes = int(float(settings.get("AGGRESSIVE_RECOVERY_MAX_HOLD_MINUTES") or 240))
     dca_level1_loss_pct = float(settings.get("AGGRESSIVE_DCA_LEVEL1_LOSS_PCT") or 1.1)
     dca_level2_loss_pct = float(settings.get("AGGRESSIVE_DCA_LEVEL2_LOSS_PCT") or 2.0)
     dca_level1_multiplier = float(settings.get("AGGRESSIVE_DCA_LEVEL1_MULTIPLIER") or 1.0)
     dca_level2_multiplier = float(settings.get("AGGRESSIVE_DCA_LEVEL2_MULTIPLIER") or 2.0)
+    default_roi_schedule = _roi_schedule_for_leverage(2.0)
     return {
-        "reward_risk_profile": "near_2_to_1_with_recovery",
-        "initial_take_profit_pct": 5.0,
+        "reward_risk_profile": "capital_preservation_with_recovery",
+        "initial_take_profit_pct": default_roi_schedule[0]["target_pct"],
         "base_stoploss_pct": _round(base_stoploss_pct, 2),
         "exchange_stoploss_enabled": bool(order_types.get("stoploss_on_exchange", False)),
         "exchange_stoploss_interval_sec": int(order_types.get("stoploss_on_exchange_interval") or 0),
@@ -413,6 +895,12 @@ def _build_tp_sl_policy(config: dict, settings_state: dict) -> dict:
         "recovery_arm_peak_pct": _round(recovery_arm_peak_pct, 2),
         "recovery_failsafe_pct": _round(recovery_failsafe_pct, 2),
         "recovery_reclaim_ratio_pct": _round(recovery_reclaim_ratio, 1),
+        "recovery_reclaim_buffer_pct": _round(recovery_reclaim_buffer_pct, 2),
+        "recovery_min_target_pct": _round(recovery_min_target_pct, 2),
+        "recovery_fee_per_side_pct": _round(recovery_fee_per_side_pct, 3),
+        "recovery_fee_buffer_pct": _round(recovery_fee_buffer_pct, 2),
+        "recovery_target_floor_rule": "max(static_min_target, round_trip_fee_by_leverage + fee_buffer)",
+        "recovery_min_minutes_before_dca": recovery_min_minutes_before_dca,
         "recovery_dca_spacing_minutes": recovery_dca_spacing_minutes,
         "recovery_max_hold_minutes": recovery_hold_minutes,
         "leverage_base_caps": [
@@ -420,21 +908,15 @@ def _build_tp_sl_policy(config: dict, settings_state: dict) -> dict:
             {"min_leverage": 4.0, "base_stoploss_pct": 2.5},
             {"min_leverage": 5.0, "base_stoploss_pct": 2.3},
         ],
-        "roi_schedule": [
-            {"label": "0-20m", "max_duration_min": 20, "target_pct": 5.0},
-            {"label": "20-60m", "max_duration_min": 60, "target_pct": 4.0},
-            {"label": "60-180m", "max_duration_min": 180, "target_pct": 3.0},
-            {"label": "180-480m", "max_duration_min": 480, "target_pct": 2.0},
-            {"label": "480-720m", "max_duration_min": 720, "target_pct": 1.2},
-            {"label": "720m+", "max_duration_min": None, "target_pct": 0.6},
+        "roi_schedule": default_roi_schedule,
+        "roi_schedule_by_leverage": [
+            {"min_leverage": min_leverage, "schedule": schedule}
+            for min_leverage, schedule in LEVERAGE_ROI_PROFILES
         ],
-        "profit_lock_schedule": [
-            {"min_profit_pct": 1.0, "stoploss_pct": 2.0},
-            {"min_profit_pct": 1.8, "stoploss_pct": 1.6},
-            {"min_profit_pct": 2.8, "stoploss_pct": 1.3},
-            {"min_profit_pct": 4.0, "stoploss_pct": 1.0},
-            {"min_profit_pct": 5.5, "stoploss_pct": 0.7},
-            {"min_profit_pct": 7.0, "stoploss_pct": 0.4},
+        "profit_lock_schedule": _profit_lock_schedule_for_leverage(2.0),
+        "profit_lock_schedule_by_leverage": [
+            {"min_leverage": min_leverage, "schedule": schedule}
+            for min_leverage, schedule in LEVERAGE_PROFIT_LOCK_PROFILES
         ],
         "recovery_dca_levels": [
             {"level": 1, "loss_pct": _round(dca_level1_loss_pct, 2), "stake_multiplier": _round(dca_level1_multiplier, 2)},
@@ -593,6 +1075,7 @@ def _build_mode_summary(config: dict, settings_state: dict) -> dict:
 
 def _base_status(config: dict, settings_state: dict, live_preflight: dict, trade_shadow: dict, resolved_pairs: list[str], active_pairs: list[str]) -> dict:
     wallet = float(config.get("dry_run_wallet", 0) or 0)
+    tp_sl_policy = _build_tp_sl_policy(config, settings_state)
     volume_pairlist = next((p for p in config.get("pairlists", []) if p.get("method") == "VolumePairList"), None)
     downloaded_pairs = sorted({p.name.split("-")[0].replace("_USDT_USDT", "/USDT:USDT") for p in DATA_DIR.glob("*-3m-futures.feather")})
     active_pair_scores = _load_active_pair_scores()
@@ -638,7 +1121,7 @@ def _base_status(config: dict, settings_state: dict, live_preflight: dict, trade
             "selection_source": active_pair_scores.get("selection_source"),
             "thresholds": active_pair_scores.get("thresholds", {}),
         },
-        "tp_sl_policy": _build_tp_sl_policy(config, settings_state),
+        "tp_sl_policy": tp_sl_policy,
         "automation": _build_automation_summary(config),
         "pipeline": _build_pipeline_summary(active_pairs),
         "tuning": _empty_tuning_summary(),
@@ -661,7 +1144,18 @@ def _base_status(config: dict, settings_state: dict, live_preflight: dict, trade
             "available_balance_usd": balance_summary["available"],
             "used_balance_usd": balance_summary["used"],
         },
+        "dashboard": _build_dashboard_payload(
+            [],
+            starting_balance=float(balance_summary["starting_balance"] or wallet),
+            balance_summary=balance_summary,
+            open_positions=[],
+            active_pair_scores=active_pair_scores,
+            active_pairs=active_pairs,
+            tuning_summary=_empty_tuning_summary(),
+        ),
         "open_positions": [],
+        "live_positions": [],
+        "stale_db_open_positions": [],
         "recent_closed": [],
         "pair_stats": [],
     }
@@ -670,6 +1164,7 @@ def _base_status(config: dict, settings_state: dict, live_preflight: dict, trade
 def build_status() -> dict:
     config = _load_config()
     settings_state = _load_json(SETTINGS_STATE_PATH)
+    tp_sl_policy = _build_tp_sl_policy(config, settings_state)
     live_preflight = _load_json(LIVE_PREFLIGHT_PATH)
     trade_shadow = _load_json(TRADE_SHADOW_PATH)
     resolved_pairs = _load_resolved_pairs()
@@ -736,11 +1231,40 @@ def build_status() -> dict:
         "dynamic_stake": _round(usdt_check.get("dynamic_stake"), 8),
         "stake_ratio_pct": _round(usdt_check.get("stake_ratio_pct"), 4),
     }
+    actual_positions_raw = trade_shadow.get("actual_positions", []) if isinstance(trade_shadow, dict) else []
+    if not isinstance(actual_positions_raw, list):
+        actual_positions_raw = []
+    actual_positions_map: dict[str, dict] = {}
+    for item in actual_positions_raw:
+        if not isinstance(item, dict):
+            continue
+        pair = _symbol_to_pair(item.get("symbol"))
+        if not pair:
+            continue
+        try:
+            position_amt = float(item.get("positionAmt", 0) or 0.0)
+        except (TypeError, ValueError):
+            position_amt = 0.0
+        if abs(position_amt) <= 0:
+            continue
+        actual_positions_map[pair] = {
+            "pair": pair,
+            "symbol": item.get("symbol"),
+            "position_amt": position_amt,
+            "side": "long" if position_amt > 0 else "short",
+            "entry_price": _round(item.get("entryPrice"), 6),
+            "mark_price": _round(item.get("markPrice"), 6),
+            "unrealized_profit_abs": _round(item.get("unRealizedProfit"), 4),
+            "leverage": _round(item.get("leverage"), 2),
+            "position_side": item.get("positionSide"),
+        }
 
     tuning_summary = _build_tuning_summary(cur)
     visible_baseline_trade_id = int(tuning_summary.get("baseline_trade_id") or 0) if tuning_summary.get("active") else 0
     open_trade_ids = [int(row["id"]) for row in cur.execute("select id from trades where is_open = 1").fetchall()]
     trade_custom_data_map = _load_trade_custom_data_map(cur, open_trade_ids)
+    roi_schedule = tp_sl_policy.get("roi_schedule", [])
+    now_utc = datetime.now(timezone.utc)
 
     open_positions = []
     for row in cur.execute("""
@@ -762,11 +1286,23 @@ def build_status() -> dict:
         elif current_roi_pct is not None:
             current_roi_pct = float(current_roi_pct)
         current_gross_profit = (float(current_net_profit) + fee_paid) if current_net_profit is not None else None
+        leverage_value = float(row["leverage"] or 1.0)
+        base_tp_target_pct = _current_roi_target_pct(
+            row["open_date"],
+            _roi_schedule_for_leverage(leverage_value),
+            now_utc=now_utc,
+        )
         recovery_peak_profit = trade_custom.get("recovery_peak_profit")
         recovery_target_profit = trade_custom.get("recovery_target_profit")
         recovery_peak_profit_pct = _round(float(recovery_peak_profit) * 100.0, 4) if recovery_peak_profit is not None else None
         recovery_target_profit_pct = _round(float(recovery_target_profit) * 100.0, 4) if recovery_target_profit is not None else None
         recovery_armed = bool(trade_custom.get("recovery_mode_armed", False))
+        recovery_tp_target_pct = (
+            recovery_target_profit_pct
+            if recovery_armed and recovery_target_profit_pct is not None and recovery_target_profit_pct > 0
+            else None
+        )
+        effective_tp_target_pct = recovery_tp_target_pct if recovery_tp_target_pct is not None else base_tp_target_pct
         recovery_dca_count = int(trade_custom.get("recovery_dca_count") or max(int(api_item.get("nr_of_successful_entries") or 1) - 1, 0))
         recovery_last_adjustment_tag = trade_custom.get("recovery_last_adjustment_tag")
         recovery_parts: list[str] = []
@@ -782,38 +1318,116 @@ def build_status() -> dict:
             recovery_parts.append(f"dca {recovery_dca_count}")
         if recovery_last_adjustment_tag:
             recovery_parts.append(str(recovery_last_adjustment_tag))
+        pair = str(row["pair"])
+        exchange_position = actual_positions_map.get(pair)
+        exchange_verified = exchange_position is not None
         open_positions.append({
             "id": row["id"],
-            "pair": row["pair"],
+            "pair": pair,
             "open_date": row["open_date"],
             "open_rate": _round(row["open_rate"], 6),
             "current_rate": _round(api_item.get("current_rate"), 6),
             "stake_amount": _round(row["stake_amount"], 4),
-            "leverage": _round(row["leverage"], 2),
+            "leverage": _round(leverage_value, 2),
             "side": "short" if row["is_short"] else "long",
             "enter_tag": row["enter_tag"],
             "gross_profit_abs": _round(current_gross_profit, 4),
             "fee_paid_abs": _round(fee_paid, 4),
             "net_profit_abs": _round(current_net_profit, 4),
             "roi_pct": _round(current_roi_pct, 4),
+            "base_tp_target_pct": base_tp_target_pct,
+            "recovery_tp_target_pct": recovery_tp_target_pct,
+            "effective_tp_target_pct": effective_tp_target_pct,
+            "tp_mode": "recovery" if recovery_tp_target_pct is not None else "base",
             "recovery_armed": recovery_armed,
             "recovery_peak_profit_pct": recovery_peak_profit_pct,
             "recovery_target_profit_pct": recovery_target_profit_pct,
             "recovery_dca_count": recovery_dca_count,
             "recovery_last_adjustment_tag": recovery_last_adjustment_tag,
             "recovery_summary": " / ".join(part for part in recovery_parts if part) if recovery_parts else "-",
+            "exchange_verified": exchange_verified,
+            "exchange_symbol": exchange_position.get("symbol") if exchange_position else _pair_to_symbol(pair),
         })
 
-    recent_closed = []
-    for row in cur.execute("""
+    live_positions = []
+    stale_db_open_positions = []
+    db_open_position_map = {str(item.get("pair")): item for item in open_positions if item.get("pair")}
+    for position in open_positions:
+        pair = str(position.get("pair") or "")
+        exchange_position = actual_positions_map.get(pair)
+        if exchange_position is None:
+            stale_db_open_positions.append({
+                "id": position.get("id"),
+                "pair": pair,
+                "enter_tag": position.get("enter_tag"),
+            })
+            continue
+        live_position = dict(position)
+        live_position["current_rate"] = exchange_position.get("mark_price") or live_position.get("current_rate")
+        live_position["side"] = exchange_position.get("side") or live_position.get("side")
+        live_position["exchange_verified"] = True
+        live_position["exchange_symbol"] = exchange_position.get("symbol")
+        unrealized_profit_abs = exchange_position.get("unrealized_profit_abs")
+        if unrealized_profit_abs is not None:
+            live_position["net_profit_abs"] = unrealized_profit_abs
+            stake_amount = float(live_position.get("stake_amount") or 0.0)
+            live_position["roi_pct"] = _round((unrealized_profit_abs / stake_amount * 100.0), 4) if stake_amount > 0 else live_position.get("roi_pct")
+        live_positions.append(live_position)
+
+    for pair, exchange_position in actual_positions_map.items():
+        if pair in db_open_position_map:
+            continue
+        entry_price = exchange_position.get("entry_price")
+        leverage_value = float(exchange_position.get("leverage") or 1.0)
+        position_amt = abs(float(exchange_position.get("position_amt") or 0.0))
+        stake_amount = None
+        if entry_price is not None and leverage_value > 0:
+            stake_amount = (position_amt * float(entry_price)) / leverage_value
+        base_tp_target_pct = _current_roi_target_pct(
+            None,
+            _roi_schedule_for_leverage(leverage_value),
+            now_utc=now_utc,
+        )
+        unrealized_profit_abs = exchange_position.get("unrealized_profit_abs")
+        live_positions.append({
+            "id": None,
+            "pair": pair,
+            "open_date": None,
+            "open_rate": entry_price,
+            "current_rate": exchange_position.get("mark_price"),
+            "stake_amount": _round(stake_amount, 4),
+            "leverage": _round(leverage_value, 2),
+            "side": exchange_position.get("side"),
+            "enter_tag": "actual_exchange_only",
+            "gross_profit_abs": unrealized_profit_abs,
+            "fee_paid_abs": None,
+            "net_profit_abs": unrealized_profit_abs,
+            "roi_pct": _round((float(unrealized_profit_abs) / stake_amount * 100.0), 4) if unrealized_profit_abs is not None and stake_amount else None,
+            "base_tp_target_pct": base_tp_target_pct,
+            "recovery_tp_target_pct": None,
+            "effective_tp_target_pct": base_tp_target_pct,
+            "tp_mode": "base",
+            "recovery_armed": False,
+            "recovery_peak_profit_pct": None,
+            "recovery_target_profit_pct": None,
+            "recovery_dca_count": 0,
+            "recovery_last_adjustment_tag": None,
+            "recovery_summary": "-",
+            "exchange_verified": True,
+            "exchange_symbol": exchange_position.get("symbol"),
+        })
+
+    closed_records = []
+    closed_rows = cur.execute("""
         select id, pair, open_date, close_date, open_rate, close_rate, close_profit_abs, close_profit,
                exit_reason, leverage, is_short, enter_tag, stake_amount, max_rate, min_rate,
                fee_open_cost, fee_close_cost, funding_fees
         from trades
         where is_open = 0 and id > ?
         order by close_date desc
-        limit 25
-        """, (visible_baseline_trade_id,)):
+        """, (visible_baseline_trade_id,)).fetchall()
+
+    for row in closed_rows:
         total_fees = float(row["fee_open_cost"] or 0.0) + float(row["fee_close_cost"] or 0.0) + float(row["funding_fees"] or 0.0)
         net_profit_abs = float(row["close_profit_abs"] or 0.0)
         gross_profit_row = net_profit_abs + total_fees
@@ -824,7 +1438,7 @@ def build_status() -> dict:
             is_short=bool(row["is_short"]),
             leverage=row["leverage"],
         )
-        recent_closed.append({
+        closed_records.append({
             "id": row["id"],
             "pair": row["pair"],
             "open_date": row["open_date"],
@@ -844,14 +1458,11 @@ def build_status() -> dict:
             "enter_tag": row["enter_tag"],
         })
 
+    recent_closed = closed_records[:25]
+
     pair_buckets: dict[str, dict] = {}
-    for row in cur.execute("""
-        select pair, close_profit_abs, close_profit, fee_open_cost, fee_close_cost, funding_fees,
-               open_rate, max_rate, min_rate, is_short, leverage
-        from trades
-        where is_open = 0 and id > ?
-        """, (visible_baseline_trade_id,)):
-        pair = row["pair"]
+    for record in closed_records:
+        pair = record["pair"]
         bucket = pair_buckets.setdefault(
             pair,
             {
@@ -869,16 +1480,11 @@ def build_status() -> dict:
                 "worst_max_sl_pct": None,
             },
         )
-        close_profit_abs = float(row["close_profit_abs"] or 0.0)
-        fees_abs = float(row["fee_open_cost"] or 0.0) + float(row["fee_close_cost"] or 0.0) + float(row["funding_fees"] or 0.0)
-        avg_profit_pct = float(row["close_profit"] or 0.0) * 100.0
-        max_tp_pct, max_sl_pct = _compute_excursion_pcts(
-            row["open_rate"],
-            row["max_rate"],
-            row["min_rate"],
-            is_short=bool(row["is_short"]),
-            leverage=row["leverage"],
-        )
+        close_profit_abs = float(record["net_profit_abs"] or 0.0)
+        fees_abs = float(record["fee_total_abs"] or 0.0)
+        avg_profit_pct = float(record["profit_pct"] or 0.0)
+        max_tp_pct = record["max_tp_pct"]
+        max_sl_pct = record["max_sl_pct"]
 
         bucket["trades"] += 1
         bucket["wins"] += 1 if close_profit_abs > 0 else 0
@@ -920,6 +1526,15 @@ def build_status() -> dict:
     pairlists = config.get("pairlists", [])
     volume_pairlist = next((p for p in pairlists if p.get("method") == "VolumePairList"), None)
     active_pair_scores = _load_active_pair_scores()
+    dashboard = _build_dashboard_payload(
+        closed_records,
+        starting_balance=starting_balance,
+        balance_summary=balance_summary,
+        open_positions=live_positions,
+        active_pair_scores=active_pair_scores,
+        active_pairs=active_pairs,
+        tuning_summary=tuning_summary,
+    )
     conn.close()
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -948,7 +1563,7 @@ def build_status() -> dict:
             "selection_source": active_pair_scores.get("selection_source"),
             "thresholds": active_pair_scores.get("thresholds", {}),
         },
-        "tp_sl_policy": _build_tp_sl_policy(config, settings_state),
+        "tp_sl_policy": tp_sl_policy,
         "automation": _build_automation_summary(config),
         "pipeline": _build_pipeline_summary(active_pairs),
         "tuning": tuning_summary,
@@ -987,7 +1602,10 @@ def build_status() -> dict:
             "used_balance_usd": balance_summary["used"],
             "carryover_open_trades": tuning_summary.get("carryover_open_trades_count", 0) if tuning_summary.get("active") else 0,
         },
+        "dashboard": dashboard,
         "open_positions": open_positions,
+        "live_positions": live_positions,
+        "stale_db_open_positions": stale_db_open_positions,
         "recent_closed": recent_closed,
         "pair_stats": pair_stats,
     }

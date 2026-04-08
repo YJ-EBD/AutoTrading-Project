@@ -15,8 +15,13 @@ RUNTIME_CONFIG = ROOT / "runtime" / "llm" / "config.json"
 TARGET_CONFIG = WORKDIR / "config.json"
 
 
+def _subprocess_kwargs() -> dict[str, int]:
+    creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+    return {"creationflags": creationflags} if creationflags else {}
+
+
 def run_command(args: list[str], cwd: Path | None = None) -> None:
-    completed = subprocess.run(args, cwd=cwd or ROOT, check=False)
+    completed = subprocess.run(args, cwd=cwd or ROOT, check=False, **_subprocess_kwargs())
     if completed.returncode != 0:
         raise RuntimeError(f"command failed with exit code {completed.returncode}: {' '.join(args)}")
 

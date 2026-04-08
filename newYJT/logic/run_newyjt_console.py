@@ -34,7 +34,7 @@ SETUP_COMMANDS = [
 RUNTIME_COMMANDS = [
     (
         "http",
-        [sys.executable, "-m", "http.server", "8000", "--directory", str(ROOT)],
+        [sys.executable, str(ROOT / "scripts" / "run_static_http_server.py"), "--host", "127.0.0.1", "--port", "8000"],
         LOG_DIR / "http_console.log",
     ),
     (

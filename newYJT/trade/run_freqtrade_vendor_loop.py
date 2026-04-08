@@ -46,6 +46,11 @@ EXCLUDED_BASES = {
 }
 
 
+def _subprocess_kwargs() -> dict[str, int]:
+    creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+    return {"creationflags": creationflags} if creationflags else {}
+
+
 def validate_runtime_imports() -> None:
     script = f"""
 import sys
@@ -70,6 +75,7 @@ print("runtime imports ok")
         capture_output=True,
         encoding="utf-8",
         errors="replace",
+        **_subprocess_kwargs(),
     )
     if completed.returncode != 0:
         raise RuntimeError(
@@ -134,7 +140,7 @@ def _resolve_db_runtime() -> tuple[Path, str]:
 
 
 def run_command(args: list[str]) -> None:
-    completed = subprocess.run(args, cwd=ROOT, check=False)
+    completed = subprocess.run(args, cwd=ROOT, check=False, **_subprocess_kwargs())
     if completed.returncode != 0:
         raise RuntimeError(f"command failed with exit code {completed.returncode}: {' '.join(args)}")
 
@@ -159,7 +165,7 @@ def run_trade_command(
     defer_refresh_if_open_trades: bool,
     max_defer_minutes: int,
 ) -> None:
-    process = subprocess.Popen(args, cwd=ROOT)
+    process = subprocess.Popen(args, cwd=ROOT, **_subprocess_kwargs())
     waited_minutes = 0
     refresh_chunk_minutes = max(15, refresh_minutes)
     try:
@@ -231,6 +237,7 @@ def resolve_pairs() -> list[str]:
                 encoding="utf-8",
                 errors="replace",
                 timeout=45,
+                **_subprocess_kwargs(),
             )
         except subprocess.TimeoutExpired:
             cached_pairs = _load_cached_pairs()
@@ -295,7 +302,12 @@ def main() -> None:
         try:
             db_path, db_url = _resolve_db_runtime()
             print(f"[freqtrade-loop] using db {db_path.name}", flush=True)
-            render_configs_result = subprocess.run([sys.executable, str(ROOT / "logic" / "render_runtime_configs.py")], cwd=ROOT, check=False)
+            render_configs_result = subprocess.run(
+                [sys.executable, str(ROOT / "logic" / "render_runtime_configs.py")],
+                cwd=ROOT,
+                check=False,
+                **_subprocess_kwargs(),
+            )
             if render_configs_result.returncode != 0:
                 raise RuntimeError(f"render_runtime_configs failed with exit code {render_configs_result.returncode}")
             pairs = resolve_pairs()

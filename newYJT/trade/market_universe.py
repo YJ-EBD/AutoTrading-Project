@@ -27,6 +27,10 @@ def _load_universe_thresholds() -> dict[str, float | bool]:
         "min_quote_volume_usdt": max(0.0, parse_float(settings.get("UNIVERSE_MIN_QUOTE_VOLUME_USDT"), 25_000_000.0)),
         "min_trade_count_24h": max(0.0, parse_float(settings.get("UNIVERSE_MIN_24H_TRADES"), 300_000.0)),
         "min_quality_score": max(0.0, min(parse_float(settings.get("UNIVERSE_MIN_QUALITY_SCORE"), 0.60), 1.0)),
+        "min_price": max(0.0, parse_float(settings.get("UNIVERSE_MIN_PRICE"), 0.10)),
+        "min_intraday_range_pct": max(0.0, parse_float(settings.get("UNIVERSE_MIN_INTRADAY_RANGE_PCT"), 2.0)),
+        "max_intraday_range_pct": max(0.0, parse_float(settings.get("UNIVERSE_MAX_INTRADAY_RANGE_PCT"), 14.0)),
+        "max_abs_change_pct": max(0.0, parse_float(settings.get("UNIVERSE_MAX_ABS_CHANGE_PCT"), 18.0)),
         "prefer_anchor_pairs": parse_bool(settings.get("UNIVERSE_PREFER_ANCHOR_PAIRS"), True),
     }
 
@@ -64,6 +68,20 @@ def _minmax_scale(values: list[float]) -> list[float]:
     return [(value - low) / (high - low) for value in values]
 
 
+def _bounded_score(value: float, lower: float, upper: float) -> float:
+    if upper <= lower:
+        return 1.0
+    if value < lower:
+        return max(0.0, value / max(lower, 1e-9))
+    if value > upper:
+        if value <= 0:
+            return 0.0
+        return max(0.0, upper / value)
+    midpoint = (lower + upper) / 2.0
+    half_span = max((upper - lower) / 2.0, 1e-9)
+    return max(0.0, 1.0 - abs(value - midpoint) / half_span)
+
+
 def select_dynamic_active_pairs(
     resolved_pairs: list[str],
     *,
@@ -78,6 +96,10 @@ def select_dynamic_active_pairs(
     min_quote_volume_usdt = float(thresholds["min_quote_volume_usdt"])
     min_trade_count_24h = float(thresholds["min_trade_count_24h"])
     min_quality_score = float(thresholds["min_quality_score"])
+    min_price = float(thresholds["min_price"])
+    min_intraday_range_pct = float(thresholds["min_intraday_range_pct"])
+    max_intraday_range_pct = float(thresholds["max_intraday_range_pct"])
+    max_abs_change_pct = float(thresholds["max_abs_change_pct"])
     prefer_anchor_pairs = bool(thresholds["prefer_anchor_pairs"])
 
     candidates = []
@@ -108,10 +130,18 @@ def select_dynamic_active_pairs(
         low_price = _safe_float(ticker.get("lowPrice"), last_price)
         intraday_range_pct = max((high_price - low_price) / last_price * 100.0, 0.0)
 
+        if last_price < min_price:
+            continue
+        if change_pct > max_abs_change_pct:
+            continue
+        if intraday_range_pct < min_intraday_range_pct or intraday_range_pct > max_intraday_range_pct:
+            continue
+
         scored_rows.append(
             {
                 "pair": pair,
                 "symbol": symbol,
+                "last_price": last_price,
                 "quote_volume_usdt": quote_volume,
                 "trade_count": trade_count,
                 "abs_change_pct": change_pct,
@@ -136,17 +166,25 @@ def select_dynamic_active_pairs(
     activity_scores = _minmax_scale([math.log1p(row["trade_count"]) for row in scored_rows])
 
     for index, row in enumerate(scored_rows):
-        volatility_score = min(row["abs_change_pct"] / 12.0, 1.0)
-        range_score = min(row["intraday_range_pct"] / 12.0, 1.0)
+        volatility_score = _bounded_score(
+            row["abs_change_pct"],
+            max(1.5, min_intraday_range_pct),
+            max(6.0, min(max_abs_change_pct, 12.0)),
+        )
+        range_score = _bounded_score(
+            row["intraday_range_pct"],
+            min_intraday_range_pct,
+            max_intraday_range_pct,
+        )
         row["liquidity_score"] = round(liquidity_scores[index], 4)
         row["activity_score"] = round(activity_scores[index], 4)
         row["volatility_score"] = round(volatility_score, 4)
         row["range_score"] = round(range_score, 4)
         row["quality_score"] = round(
-            (row["liquidity_score"] * 0.5)
-            + (row["activity_score"] * 0.2)
-            + (row["volatility_score"] * 0.15)
-            + (row["range_score"] * 0.15),
+            (row["liquidity_score"] * 0.55)
+            + (row["activity_score"] * 0.25)
+            + (row["volatility_score"] * 0.10)
+            + (row["range_score"] * 0.10),
             4,
         )
 

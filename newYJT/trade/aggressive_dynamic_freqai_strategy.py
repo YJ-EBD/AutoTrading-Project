@@ -12,16 +12,27 @@ from technical import qtpylib
 
 from freqtrade.persistence import Trade
 
+from logic.settings_env import load_settings_env
 from trade.dynamic_stake_freqai_strategy import DynamicStakeFreqaiStrategy
 from trade.llm_signal_bridge import llm_signal_for_pair
 
 ROOT = Path(__file__).resolve().parents[1]
 PIPELINE_STAGE_SNAPSHOT_PATH = ROOT / "runtime" / "pipeline_stage_snapshot.json"
 COMPONENT_SNAPSHOT_PATH = ROOT / "runtime" / "freqai_component_snapshot.json"
+SETTINGS_ENV_PATH = ROOT / "settings.env"
+_SETTINGS_ENV_CACHE: dict[str, str] | None = None
 
 
 def _env_float(name: str, default: float) -> float:
+    global _SETTINGS_ENV_CACHE
     raw = os.getenv(name, "").strip()
+    if not raw:
+        if _SETTINGS_ENV_CACHE is None:
+            try:
+                _SETTINGS_ENV_CACHE = load_settings_env(SETTINGS_ENV_PATH)
+            except Exception:
+                _SETTINGS_ENV_CACHE = {}
+        raw = (_SETTINGS_ENV_CACHE.get(name, "") if _SETTINGS_ENV_CACHE else "").strip()
     if not raw:
         return default
     try:
@@ -73,24 +84,170 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
     process_only_new_candles = True
     startup_candle_count = 240
     can_short = True
+    leverage_roi_profiles = (
+        (5.0, ((20, 0.044), (60, 0.032), (180, 0.0230), (480, 0.0160), (720, 0.0110), (None, 0.0070))),
+        (4.0, ((20, 0.038), (60, 0.028), (180, 0.0200), (480, 0.0140), (720, 0.0095), (None, 0.0060))),
+        (3.0, ((20, 0.033), (60, 0.024), (180, 0.0170), (480, 0.0120), (720, 0.0080), (None, 0.0050))),
+        (1.0, ((20, 0.028), (60, 0.020), (180, 0.0140), (480, 0.0100), (720, 0.0070), (None, 0.0040))),
+    )
+    leverage_profit_lock_profiles = (
+        (5.0, ((0.013, -0.0150), (0.022, -0.0110), (0.032, -0.0080), (0.046, -0.0060), (0.062, -0.0040), (0.080, -0.0025))),
+        (4.0, ((0.012, -0.0170), (0.020, -0.0125), (0.029, -0.0095), (0.041, -0.0070), (0.056, -0.0045), (0.072, -0.0030))),
+        (3.0, ((0.011, -0.0190), (0.019, -0.0145), (0.028, -0.0110), (0.040, -0.0080), (0.053, -0.0055), (0.068, -0.0035))),
+        (1.0, ((0.010, -0.0200), (0.018, -0.0160), (0.028, -0.0130), (0.040, -0.0100), (0.055, -0.0070), (0.070, -0.0040))),
+    )
     stake_ratio = 0.10
     stage_probability_threshold = _env_float("AGGRESSIVE_STAGE_PROBABILITY_THRESHOLD", 0.54)
+    long_stage_probability_threshold = _env_float(
+        "AGGRESSIVE_LONG_STAGE_PROBABILITY_THRESHOLD",
+        max(0.50, stage_probability_threshold - 0.03),
+    )
+    short_stage_probability_threshold = _env_float(
+        "AGGRESSIVE_SHORT_STAGE_PROBABILITY_THRESHOLD",
+        min(0.75, stage_probability_threshold + 0.03),
+    )
     entry_adx_min = _env_float("AGGRESSIVE_ENTRY_ADX_MIN", 13.0)
+    entry_long_adx_min = _env_float(
+        "AGGRESSIVE_ENTRY_LONG_ADX_MIN",
+        max(12.0, entry_adx_min - 2.0),
+    )
+    entry_short_adx_min = _env_float(
+        "AGGRESSIVE_ENTRY_SHORT_ADX_MIN",
+        entry_adx_min,
+    )
     entry_rel_volume_min = _env_float("AGGRESSIVE_ENTRY_REL_VOLUME_MIN", 0.50)
     entry_high_conf_rel_volume_min = _env_float("AGGRESSIVE_HIGH_CONF_REL_VOLUME_MIN", 0.35)
+    entry_long_rel_volume_min = _env_float(
+        "AGGRESSIVE_ENTRY_LONG_REL_VOLUME_MIN",
+        max(0.20, entry_rel_volume_min - 0.20),
+    )
+    entry_short_rel_volume_min = _env_float(
+        "AGGRESSIVE_ENTRY_SHORT_REL_VOLUME_MIN",
+        min(1.50, entry_rel_volume_min + 0.05),
+    )
+    entry_long_high_conf_rel_volume_min = _env_float(
+        "AGGRESSIVE_ENTRY_LONG_HIGH_CONF_REL_VOLUME_MIN",
+        max(0.15, entry_high_conf_rel_volume_min - 0.10),
+    )
+    entry_short_high_conf_rel_volume_min = _env_float(
+        "AGGRESSIVE_ENTRY_SHORT_HIGH_CONF_REL_VOLUME_MIN",
+        min(1.50, entry_high_conf_rel_volume_min + 0.05),
+    )
     entry_breakout_tolerance_pct = _env_float("AGGRESSIVE_ENTRY_BREAKOUT_TOLERANCE_PCT", 0.005)
+    entry_long_breakout_tolerance_pct = _env_float(
+        "AGGRESSIVE_ENTRY_LONG_BREAKOUT_TOLERANCE_PCT",
+        entry_breakout_tolerance_pct * 2.0,
+    )
+    entry_short_breakout_tolerance_pct = _env_float(
+        "AGGRESSIVE_ENTRY_SHORT_BREAKOUT_TOLERANCE_PCT",
+        max(0.001, entry_breakout_tolerance_pct * 0.8),
+    )
+    entry_long_breakout_max_extension_pct = max(
+        0.001,
+        _env_float("AGGRESSIVE_ENTRY_LONG_BREAKOUT_MAX_EXTENSION_PCT", 0.010),
+    )
+    entry_short_breakout_max_extension_pct = max(
+        0.001,
+        _env_float("AGGRESSIVE_ENTRY_SHORT_BREAKOUT_MAX_EXTENSION_PCT", 0.006),
+    )
+    entry_retest_band_pct = max(
+        0.001,
+        _env_float("AGGRESSIVE_ENTRY_RETEST_BAND_PCT", 0.0035),
+    )
+    entry_breakout_recent_candles = max(
+        2,
+        int(_env_float("AGGRESSIVE_ENTRY_BREAKOUT_RECENT_CANDLES", 4)),
+    )
     entry_fast_ema_tolerance_pct = _env_float("AGGRESSIVE_ENTRY_FAST_EMA_TOLERANCE_PCT", 0.001)
     entry_ema_stack_tolerance_pct = _env_float("AGGRESSIVE_ENTRY_EMA_STACK_TOLERANCE_PCT", 0.0005)
     entry_ema200_tolerance_pct = _env_float("AGGRESSIVE_ENTRY_EMA200_TOLERANCE_PCT", 0.002)
     entry_max_ema_distance_pct = _env_float("AGGRESSIVE_ENTRY_MAX_EMA_DISTANCE_PCT", 0.04)
+    entry_trend_strength_min = max(0.0, _env_float("AGGRESSIVE_ENTRY_TREND_STRENGTH_MIN", 0.0015))
+    entry_macro_bias_min = max(0.0, _env_float("AGGRESSIVE_ENTRY_MACRO_BIAS_MIN", 0.0025))
+    entry_long_trend_strength_min = max(
+        0.0,
+        _env_float("AGGRESSIVE_ENTRY_LONG_TREND_STRENGTH_MIN", max(0.0005, entry_trend_strength_min * 0.5)),
+    )
+    entry_short_trend_strength_min = max(
+        0.0,
+        _env_float("AGGRESSIVE_ENTRY_SHORT_TREND_STRENGTH_MIN", entry_trend_strength_min * 1.2),
+    )
+    entry_long_macro_bias_min = max(
+        0.0,
+        _env_float("AGGRESSIVE_ENTRY_LONG_MACRO_BIAS_MIN", max(0.0008, entry_macro_bias_min * 0.5)),
+    )
+    entry_short_macro_bias_min = max(
+        0.0,
+        _env_float("AGGRESSIVE_ENTRY_SHORT_MACRO_BIAS_MIN", entry_macro_bias_min * 1.2),
+    )
+    entry_long_rsi_min = max(35.0, min(_env_float("AGGRESSIVE_ENTRY_LONG_RSI_MIN", 51.0), 80.0))
+    entry_short_rsi_max = max(20.0, min(_env_float("AGGRESSIVE_ENTRY_SHORT_RSI_MAX", 49.0), 65.0))
     high_confidence_threshold = _env_float("AGGRESSIVE_HIGH_CONFIDENCE_THRESHOLD", 0.72)
     base_stoploss_pct = _env_float("AGGRESSIVE_BASE_STOPLOSS_PCT", 0.025)
     max_live_leverage = _env_float("AGGRESSIVE_MAX_LEVERAGE", 3.0)
+    stoploss_guard_lookback_candles = max(
+        6,
+        int(_env_float("AGGRESSIVE_STOPLOSS_GUARD_LOOKBACK_CANDLES", 36)),
+    )
+    stoploss_guard_trade_limit = max(
+        2,
+        int(_env_float("AGGRESSIVE_STOPLOSS_GUARD_TRADE_LIMIT", 4)),
+    )
+    stoploss_guard_stop_candles = max(
+        2,
+        int(_env_float("AGGRESSIVE_STOPLOSS_GUARD_STOP_CANDLES", 20)),
+    )
+    max_drawdown_lookback_candles = max(
+        12,
+        int(_env_float("AGGRESSIVE_MAX_DRAWDOWN_LOOKBACK_CANDLES", 72)),
+    )
+    max_drawdown_trade_limit = max(
+        4,
+        int(_env_float("AGGRESSIVE_MAX_DRAWDOWN_TRADE_LIMIT", 12)),
+    )
+    max_drawdown_stop_candles = max(
+        4,
+        int(_env_float("AGGRESSIVE_MAX_DRAWDOWN_STOP_CANDLES", 20)),
+    )
+    max_allowed_drawdown = max(
+        0.005,
+        min(_env_float("AGGRESSIVE_MAX_ALLOWED_DRAWDOWN", 0.02), 0.20),
+    )
+    low_profit_short_lookback_candles = max(
+        6,
+        int(_env_float("AGGRESSIVE_LOW_PROFIT_LOOKBACK_CANDLES", 18)),
+    )
+    low_profit_short_trade_limit = max(
+        2,
+        int(_env_float("AGGRESSIVE_LOW_PROFIT_TRADE_LIMIT", 2)),
+    )
+    low_profit_short_stop_candles = max(
+        4,
+        int(_env_float("AGGRESSIVE_LOW_PROFIT_STOP_CANDLES", 30)),
+    )
+    low_profit_short_required_profit = _env_float("AGGRESSIVE_LOW_PROFIT_REQUIRED_PROFIT", 0.0)
+    low_profit_long_lookback_candles = max(
+        12,
+        int(_env_float("AGGRESSIVE_LOW_PROFIT_LONG_LOOKBACK_CANDLES", 72)),
+    )
+    low_profit_long_trade_limit = max(
+        2,
+        int(_env_float("AGGRESSIVE_LOW_PROFIT_LONG_TRADE_LIMIT", 3)),
+    )
+    low_profit_long_stop_candles = max(
+        4,
+        int(_env_float("AGGRESSIVE_LOW_PROFIT_LONG_STOP_CANDLES", 60)),
+    )
+    low_profit_long_required_profit = _env_float("AGGRESSIVE_LOW_PROFIT_LONG_REQUIRED_PROFIT", 0.004)
     recovery_mode_enabled = _env_float("AGGRESSIVE_RECOVERY_MODE_ENABLED", 1.0) >= 0.5
     recovery_arm_peak_profit_pct = abs(_env_float("AGGRESSIVE_RECOVERY_ARM_PEAK_PCT", 1.2)) / 100.0
     recovery_activation_negative_pct = abs(
         _env_float("AGGRESSIVE_RECOVERY_NEGATIVE_ACTIVATION_PCT", 0.15)
     ) / 100.0
+    recovery_preemptive_arm_minutes = max(
+        1,
+        int(_env_float("AGGRESSIVE_RECOVERY_PREEMPTIVE_ARM_MINUTES", 6)),
+    )
     recovery_reclaim_ratio = max(
         0.55,
         min(_env_float("AGGRESSIVE_RECOVERY_RECLAIM_RATIO", 0.85), 0.99),
@@ -99,6 +256,12 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
         _env_float("AGGRESSIVE_RECOVERY_RECLAIM_BUFFER_PCT", 0.40)
     ) / 100.0
     recovery_min_target_pct = abs(_env_float("AGGRESSIVE_RECOVERY_MIN_TARGET_PCT", 0.45)) / 100.0
+    recovery_fee_per_side_pct = abs(
+        _env_float("AGGRESSIVE_RECOVERY_FEE_PER_SIDE_PCT", 0.075)
+    ) / 100.0
+    recovery_fee_buffer_pct = abs(
+        _env_float("AGGRESSIVE_RECOVERY_FEE_BUFFER_PCT", 0.03)
+    ) / 100.0
     recovery_failsafe_pct = abs(_env_float("AGGRESSIVE_RECOVERY_FAILSAFE_PCT", 2.4)) / 100.0
     recovery_max_hold_minutes = max(
         60,
@@ -112,6 +275,12 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
         1,
         int(_env_float("AGGRESSIVE_RECOVERY_DCA_SPACING_MINUTES", 8)),
     )
+    recovery_min_peak_before_dca_pct = abs(
+        _env_float("AGGRESSIVE_RECOVERY_MIN_PEAK_BEFORE_DCA_PCT", 0.25)
+    ) / 100.0
+    recovery_level2_min_peak_before_dca_pct = abs(
+        _env_float("AGGRESSIVE_RECOVERY_LEVEL2_MIN_PEAK_BEFORE_DCA_PCT", 0.60)
+    ) / 100.0
     dca_level1_loss_pct = abs(_env_float("AGGRESSIVE_DCA_LEVEL1_LOSS_PCT", 1.1)) / 100.0
     dca_level2_loss_pct = abs(_env_float("AGGRESSIVE_DCA_LEVEL2_LOSS_PCT", 2.0)) / 100.0
     dca_level1_multiplier = max(0.5, min(_env_float("AGGRESSIVE_DCA_LEVEL1_MULTIPLIER", 1.0), 1.5))
@@ -140,7 +309,7 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
     order_time_in_force = {"entry": "GTC", "exit": "GTC"}
 
     def version(self) -> str:
-        return "aggressive-v1.7"
+        return "aggressive-v1.12"
 
     @property
     def protections(self) -> list[dict]:
@@ -151,10 +320,35 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
             },
             {
                 "method": "StoplossGuard",
-                "lookback_period": self.stoploss_reentry_cooldown_minutes,
-                "stop_duration": self.stoploss_reentry_cooldown_minutes,
-                "trade_limit": 1,
-                "only_per_pair": True,
+                "lookback_period_candles": self.stoploss_guard_lookback_candles,
+                "trade_limit": self.stoploss_guard_trade_limit,
+                "stop_duration_candles": self.stoploss_guard_stop_candles,
+                "required_profit": 0.0,
+                "only_per_pair": False,
+                "only_per_side": True,
+            },
+            {
+                "method": "MaxDrawdown",
+                "calculation_mode": "equity",
+                "lookback_period_candles": self.max_drawdown_lookback_candles,
+                "trade_limit": self.max_drawdown_trade_limit,
+                "stop_duration_candles": self.max_drawdown_stop_candles,
+                "max_allowed_drawdown": self.max_allowed_drawdown,
+            },
+            {
+                "method": "LowProfitPairs",
+                "lookback_period_candles": self.low_profit_short_lookback_candles,
+                "trade_limit": self.low_profit_short_trade_limit,
+                "stop_duration_candles": self.low_profit_short_stop_candles,
+                "required_profit": self.low_profit_short_required_profit,
+                "only_per_side": True,
+            },
+            {
+                "method": "LowProfitPairs",
+                "lookback_period_candles": self.low_profit_long_lookback_candles,
+                "trade_limit": self.low_profit_long_trade_limit,
+                "stop_duration_candles": self.low_profit_long_stop_candles,
+                "required_profit": self.low_profit_long_required_profit,
                 "only_per_side": True,
             },
         ]
@@ -273,6 +467,9 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
         dataframe["trend_strength"] = (dataframe["ema_21"] - dataframe["ema_55"]) / dataframe["close"].replace(
             0, np.nan
         )
+        dataframe["macro_bias"] = (dataframe["close"] - dataframe["ema_200"]) / dataframe["ema_200"].replace(
+            0, np.nan
+        )
         dataframe["up_prob"] = self._probability_series(dataframe, "up").astype(float)
         dataframe["down_prob"] = self._probability_series(dataframe, "down").astype(float)
         dataframe["ml_up_prob"] = dataframe["up_prob"].astype(float)
@@ -310,6 +507,9 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
         macdhist = _safe_float(row.get("macdhist"), 0.0)
         adx = _safe_float(row.get("adx"), 0.0)
         rel_volume = _safe_float(row.get("rel_volume"), 0.0)
+        trend_strength = _safe_float(row.get("trend_strength"), 0.0)
+        macro_bias = _safe_float(row.get("macro_bias"), 0.0)
+        rsi = _safe_float(row.get("rsi"), 50.0)
         breakout_high = _safe_float(row.get("breakout_high"), close)
         breakout_low = _safe_float(row.get("breakout_low"), close)
         ml_primary = _safe_float(row.get("ml_up_prob" if is_long else "ml_down_prob"), 0.5)
@@ -322,45 +522,74 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
             and dl_primary >= self.high_confidence_threshold
             and dl_primary >= dl_opposite
         )
-        rel_volume_min = (
-            self.entry_high_conf_rel_volume_min if high_confidence else self.entry_rel_volume_min
-        )
+        if is_long:
+            rel_volume_min = (
+                self.entry_long_high_conf_rel_volume_min if high_confidence else self.entry_long_rel_volume_min
+            )
+            breakout_tolerance = self.entry_long_breakout_tolerance_pct * (2.5 if high_confidence else 1.0)
+        else:
+            rel_volume_min = (
+                self.entry_short_high_conf_rel_volume_min if high_confidence else self.entry_short_rel_volume_min
+            )
+            breakout_tolerance = self.entry_short_breakout_tolerance_pct * (1.5 if high_confidence else 1.0)
         fast_ema_tolerance = self.entry_fast_ema_tolerance_pct * (2.5 if high_confidence else 1.0)
         ema_stack_tolerance = self.entry_ema_stack_tolerance_pct * (3.0 if high_confidence else 1.0)
         ema200_tolerance = self.entry_ema200_tolerance_pct * (2.0 if high_confidence else 1.0)
-        breakout_tolerance = self.entry_breakout_tolerance_pct * (2.0 if high_confidence else 1.0)
         macdhist_prev = _safe_float(row.get("macdhist_prev"), 0.0)
 
         blockers: list[str] = []
         if is_long:
+            trend_threshold = self.entry_long_trend_strength_min * (0.45 if high_confidence else 1.0)
+            macro_threshold = self.entry_long_macro_bias_min * (0.45 if high_confidence else 1.0)
+            rsi_threshold = self.entry_long_rsi_min - (4.0 if high_confidence else 0.0)
             if close < ema_21 * (1 - fast_ema_tolerance):
                 blockers.append("close below ema_21")
             if ema_21 < ema_55 * (1 - ema_stack_tolerance):
                 blockers.append("ema_21 below ema_55")
             if close < ema_200 * (1 - ema200_tolerance):
                 blockers.append("close below ema_200")
+            if trend_strength < trend_threshold:
+                blockers.append(f"trend_strength {trend_strength:.4f} < {trend_threshold:.4f}")
+            if macro_bias < macro_threshold:
+                blockers.append(f"macro_bias {macro_bias:.4f} < {macro_threshold:.4f}")
+            if rsi < rsi_threshold:
+                blockers.append(f"rsi {rsi:.1f} < {rsi_threshold:.1f}")
             if macdhist <= 0 and macdhist <= macdhist_prev:
                 blockers.append("macdhist <= 0")
             if close < breakout_high * (1 - breakout_tolerance):
                 blockers.append("breakout miss")
+            if close > breakout_high * (1 + self.entry_long_breakout_max_extension_pct):
+                blockers.append("too far above breakout")
             if close / max(ema_21, 1e-9) > 1 + self.entry_max_ema_distance_pct:
                 blockers.append("too far above ema_21")
         else:
+            trend_threshold = -self.entry_short_trend_strength_min * (0.65 if high_confidence else 1.0)
+            macro_threshold = -self.entry_short_macro_bias_min * (0.65 if high_confidence else 1.0)
+            rsi_threshold = self.entry_short_rsi_max + (3.0 if high_confidence else 0.0)
             if close > ema_21 * (1 + fast_ema_tolerance):
                 blockers.append("close above ema_21")
             if ema_21 > ema_55 * (1 + ema_stack_tolerance):
                 blockers.append("ema_21 above ema_55")
             if close > ema_200 * (1 + ema200_tolerance):
                 blockers.append("close above ema_200")
+            if trend_strength > trend_threshold:
+                blockers.append(f"trend_strength {trend_strength:.4f} > {trend_threshold:.4f}")
+            if macro_bias > macro_threshold:
+                blockers.append(f"macro_bias {macro_bias:.4f} > {macro_threshold:.4f}")
+            if rsi > rsi_threshold:
+                blockers.append(f"rsi {rsi:.1f} > {rsi_threshold:.1f}")
             if macdhist >= 0 and macdhist >= macdhist_prev:
                 blockers.append("macdhist >= 0")
             if close > breakout_low * (1 + breakout_tolerance):
                 blockers.append("breakout miss")
+            if close < breakout_low * (1 - self.entry_short_breakout_max_extension_pct):
+                blockers.append("too far below breakout")
             if ema_21 / max(close, 1e-9) > 1 + self.entry_max_ema_distance_pct:
                 blockers.append("too far below ema_21")
 
-        if adx < self.entry_adx_min:
-            blockers.append(f"adx {adx:.1f} < {self.entry_adx_min:.1f}")
+        adx_threshold = self.entry_long_adx_min if is_long else self.entry_short_adx_min
+        if adx < adx_threshold:
+            blockers.append(f"adx {adx:.1f} < {adx_threshold:.1f}")
         if rel_volume < rel_volume_min:
             blockers.append(f"rel_volume {rel_volume:.2f} < {rel_volume_min:.2f}")
         if _safe_float(row.get("volume"), 0.0) <= 0:
@@ -381,6 +610,9 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
         is_long = side == "long"
         primary_label = "up" if is_long else "down"
         opposite_label = "down" if is_long else "up"
+        side_probability_threshold = (
+            self.long_stage_probability_threshold if is_long else self.short_stage_probability_threshold
+        )
         ml_primary_prob = _safe_float(row.get(f"ml_{primary_label}_prob"), 0.5)
         ml_opposite_prob = _safe_float(row.get(f"ml_{opposite_label}_prob"), 0.5)
         dl_primary_prob = _safe_float(row.get(f"dl_{primary_label}_prob"), 0.5)
@@ -402,13 +634,13 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
                 blocked_reason = f"FreqAI do_predict={do_predict}"
             else:
                 blocked_reason = (
-                    f"ML {primary_label} {ml_primary_prob * 100:.1f}% < {self.stage_probability_threshold * 100:.1f}% "
+                    f"ML {primary_label} {ml_primary_prob * 100:.1f}% < {side_probability_threshold * 100:.1f}% "
                     f"or opposite {ml_opposite_prob * 100:.1f}% stronger"
                 )
         elif not dl_pass:
             blocked_stage = "dl"
             blocked_reason = (
-                f"DL {primary_label} {dl_primary_prob * 100:.1f}% < {self.stage_probability_threshold * 100:.1f}% "
+                f"DL {primary_label} {dl_primary_prob * 100:.1f}% < {side_probability_threshold * 100:.1f}% "
                 f"or opposite {dl_opposite_prob * 100:.1f}% stronger"
             )
         elif not llm_pass:
@@ -477,23 +709,77 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
         high_conf_long = self._high_confidence_gate(df, "long")
         high_conf_short = self._high_confidence_gate(df, "short")
         soft_adx_min = max(self.entry_adx_min - 2.0, 12.0)
+        long_adx_min = min(self.entry_adx_min, self.entry_long_adx_min)
+        short_adx_min = max(self.entry_short_adx_min, self.entry_adx_min)
+        long_probability_threshold = self.long_stage_probability_threshold
+        short_probability_threshold = self.short_stage_probability_threshold
+        bullish_breakout_candle = df["close"] >= df["open"]
+        bearish_breakdown_candle = df["close"] <= df["open"]
         macd_turn_long = (df["macdhist"] > 0) | (high_conf_long & (df["macdhist"] > df["macdhist"].shift(1)))
         macd_turn_short = (df["macdhist"] < 0) | (high_conf_short & (df["macdhist"] < df["macdhist"].shift(1)))
+        long_breakout_fresh = (
+            qtpylib.crossed_above(df["close"], df["breakout_high"])
+            | (
+                (df["close"] >= df["breakout_high"] * (1 - self.entry_long_breakout_tolerance_pct))
+                & (df["close"].shift(1) < df["breakout_high"].shift(1) * (1 - self.entry_long_breakout_tolerance_pct * 0.5))
+            )
+        )
+        short_breakout_fresh = (
+            qtpylib.crossed_below(df["close"], df["breakout_low"])
+            | (
+                (df["close"] <= df["breakout_low"] * (1 + self.entry_short_breakout_tolerance_pct))
+                & (df["close"].shift(1) > df["breakout_low"].shift(1) * (1 + self.entry_short_breakout_tolerance_pct * 0.5))
+            )
+        )
         long_breakout_ready = (
-            (df["close"] >= df["breakout_high"] * (1 - self.entry_breakout_tolerance_pct))
-            | qtpylib.crossed_above(df["close"], df["ema_21"])
-            | (high_conf_long & (df["close"] >= df["ema_21"] * (1 - self.entry_breakout_tolerance_pct * 2.0)))
+            long_breakout_fresh
+            & (df["close"] <= df["breakout_high"] * (1 + self.entry_long_breakout_max_extension_pct))
+            & bullish_breakout_candle
         )
         short_breakout_ready = (
-            (df["close"] <= df["breakout_low"] * (1 + self.entry_breakout_tolerance_pct))
-            | qtpylib.crossed_below(df["close"], df["ema_21"])
-            | (high_conf_short & (df["close"] <= df["ema_21"] * (1 + self.entry_breakout_tolerance_pct * 2.0)))
+            short_breakout_fresh
+            & (df["close"] >= df["breakout_low"] * (1 - self.entry_short_breakout_max_extension_pct))
+            & bearish_breakdown_candle
         )
-        rel_volume_long = (df["rel_volume"] >= self.entry_rel_volume_min) | (
-            high_conf_long & (df["rel_volume"] >= self.entry_high_conf_rel_volume_min)
+        recent_long_breakout = (
+            df["close"].shift(1).rolling(self.entry_breakout_recent_candles).max()
+            >= df["breakout_high"] * (1 - self.entry_long_breakout_tolerance_pct)
         )
-        rel_volume_short = (df["rel_volume"] >= self.entry_rel_volume_min) | (
-            high_conf_short & (df["rel_volume"] >= self.entry_high_conf_rel_volume_min)
+        recent_short_breakdown = (
+            df["close"].shift(1).rolling(self.entry_breakout_recent_candles).min()
+            <= df["breakout_low"] * (1 + self.entry_short_breakout_tolerance_pct)
+        )
+        long_retest_band = (
+            (df["close"] >= df["breakout_high"] * (1 - self.entry_retest_band_pct))
+            & (df["close"] <= df["breakout_high"] * (1 + self.entry_retest_band_pct * 2.0))
+        )
+        short_retest_band = (
+            (df["close"] <= df["breakout_low"] * (1 + self.entry_retest_band_pct))
+            & (df["close"] >= df["breakout_low"] * (1 - self.entry_retest_band_pct * 2.0))
+        )
+        rel_volume_long = (df["rel_volume"] >= self.entry_long_rel_volume_min) | (
+            high_conf_long & (df["rel_volume"] >= self.entry_long_high_conf_rel_volume_min)
+        )
+        rel_volume_short = (df["rel_volume"] >= self.entry_short_rel_volume_min) | (
+            high_conf_short & (df["rel_volume"] >= self.entry_short_high_conf_rel_volume_min)
+        )
+        trend_bias_long = (df["trend_strength"] >= self.entry_long_trend_strength_min) | (
+            high_conf_long & (df["trend_strength"] >= self.entry_long_trend_strength_min * 0.45)
+        )
+        trend_bias_short = (df["trend_strength"] <= -self.entry_short_trend_strength_min) | (
+            high_conf_short & (df["trend_strength"] <= -(self.entry_short_trend_strength_min * 0.65))
+        )
+        macro_bias_long = (df["macro_bias"] >= self.entry_long_macro_bias_min) | (
+            high_conf_long & (df["macro_bias"] >= self.entry_long_macro_bias_min * 0.45)
+        )
+        macro_bias_short = (df["macro_bias"] <= -self.entry_short_macro_bias_min) | (
+            high_conf_short & (df["macro_bias"] <= -(self.entry_short_macro_bias_min * 0.65))
+        )
+        rsi_gate_long = (df["rsi"] >= self.entry_long_rsi_min) | (
+            high_conf_long & (df["rsi"] >= self.entry_long_rsi_min - 4.0)
+        )
+        rsi_gate_short = (df["rsi"] <= self.entry_short_rsi_max) | (
+            high_conf_short & (df["rsi"] <= self.entry_short_rsi_max + 4.0)
         )
         strategy_long = (
             (df["close"] >= df["ema_21"] * (1 - self.entry_fast_ema_tolerance_pct))
@@ -505,8 +791,11 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
                 (df["close"] >= df["ema_200"] * (1 - self.entry_ema200_tolerance_pct))
                 | (high_conf_long & (df["close"] >= df["ema_200"] * (1 - self.entry_ema200_tolerance_pct * 2.0)))
             )
+            & trend_bias_long
+            & macro_bias_long
+            & rsi_gate_long
             & macd_turn_long
-            & (df["adx"] >= self.entry_adx_min)
+            & (df["adx"] >= long_adx_min)
             & rel_volume_long
             & long_breakout_ready
             & ((df["close"] / df["ema_21"]) <= 1 + self.entry_max_ema_distance_pct)
@@ -514,28 +803,48 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
         )
         retest_long = (
             high_conf_long
+            & recent_long_breakout
+            & long_retest_band
             & (df["close"] >= df["ema_21"] * (1 - self.entry_fast_ema_tolerance_pct * 4.0))
             & (df["ema_21"] >= df["ema_55"] * (1 - self.entry_ema_stack_tolerance_pct * 5.0))
             & (df["close"] >= df["ema_200"] * (1 - self.entry_ema200_tolerance_pct * 3.0))
+            & trend_bias_long
+            & macro_bias_long
+            & (df["rsi"] >= self.entry_long_rsi_min - 5.0)
             & (df["macdhist"] > df["macdhist"].shift(1))
             & (df["adx"] >= soft_adx_min)
-            & (df["rel_volume"] >= self.entry_high_conf_rel_volume_min)
+            & (df["rel_volume"] >= self.entry_long_high_conf_rel_volume_min)
+            & (df["volume"] > 0)
+        )
+        reversal_long = (
+            high_conf_long
+            & (df["close"] >= df["ema_21"] * (1 - self.entry_long_breakout_tolerance_pct * 2.5))
+            & (df["close"] >= df["ema_55"] * (1 - self.entry_long_breakout_tolerance_pct * 2.0))
+            & (df["close"] >= df["ema_200"] * (1 - self.entry_ema200_tolerance_pct * 3.0))
+            & (df["trend_strength"] >= -(self.entry_long_trend_strength_min * 0.5))
+            & (df["macro_bias"] >= -(self.entry_long_macro_bias_min * 0.5))
+            & (df["rsi"] >= max(self.entry_long_rsi_min - 6.0, 40.0))
+            & (df["macdhist"] > df["macdhist"].shift(1))
+            & (df["adx"] >= max(12.0, long_adx_min - 1.0))
+            & (df["rel_volume"] >= self.entry_long_high_conf_rel_volume_min)
             & (df["volume"] > 0)
         )
         ml_long = (
             ((df["do_predict"] == 1) | high_conf_long)
-            & (df["ml_up_prob"] >= self.stage_probability_threshold)
+            & (df["ml_up_prob"] >= long_probability_threshold)
             & (df["ml_up_prob"] >= df["ml_down_prob"])
         )
         dl_long = (
-            (df["dl_up_prob"] >= self.stage_probability_threshold)
+            (df["dl_up_prob"] >= long_probability_threshold)
             & (df["dl_up_prob"] >= df["dl_down_prob"])
         )
-        strategy_long_effective = strategy_long | retest_long
+        strategy_long_effective = strategy_long | retest_long | reversal_long
         long_conditions = strategy_long & ml_long & dl_long
         df.loc[long_conditions, ["enter_long", "enter_tag"]] = (1, "aggressive_breakout_long")
         retest_long_conditions = (~long_conditions) & retest_long & ml_long & dl_long
         df.loc[retest_long_conditions, ["enter_long", "enter_tag"]] = (1, "aggressive_retest_long")
+        reversal_long_conditions = (~long_conditions) & (~retest_long_conditions) & reversal_long & ml_long & dl_long
+        df.loc[reversal_long_conditions, ["enter_long", "enter_tag"]] = (1, "aggressive_reversal_long")
 
         strategy_short = (
             (df["close"] <= df["ema_21"] * (1 + self.entry_fast_ema_tolerance_pct))
@@ -547,8 +856,11 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
                 (df["close"] <= df["ema_200"] * (1 + self.entry_ema200_tolerance_pct))
                 | (high_conf_short & (df["close"] <= df["ema_200"] * (1 + self.entry_ema200_tolerance_pct * 2.0)))
             )
+            & trend_bias_short
+            & macro_bias_short
+            & rsi_gate_short
             & macd_turn_short
-            & (df["adx"] >= self.entry_adx_min)
+            & (df["adx"] >= short_adx_min)
             & rel_volume_short
             & short_breakout_ready
             & ((df["ema_21"] / df["close"]) <= 1 + self.entry_max_ema_distance_pct)
@@ -556,21 +868,26 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
         )
         retest_short = (
             high_conf_short
+            & recent_short_breakdown
+            & short_retest_band
             & (df["close"] <= df["ema_21"] * (1 + self.entry_fast_ema_tolerance_pct * 4.0))
             & (df["ema_21"] <= df["ema_55"] * (1 + self.entry_ema_stack_tolerance_pct * 5.0))
             & (df["close"] <= df["ema_200"] * (1 + self.entry_ema200_tolerance_pct * 3.0))
+            & trend_bias_short
+            & macro_bias_short
+            & (df["rsi"] <= self.entry_short_rsi_max + 5.0)
             & (df["macdhist"] < df["macdhist"].shift(1))
             & (df["adx"] >= soft_adx_min)
-            & (df["rel_volume"] >= self.entry_high_conf_rel_volume_min)
+            & (df["rel_volume"] >= self.entry_short_high_conf_rel_volume_min)
             & (df["volume"] > 0)
         )
         ml_short = (
             ((df["do_predict"] == 1) | high_conf_short)
-            & (df["ml_down_prob"] >= self.stage_probability_threshold)
+            & (df["ml_down_prob"] >= short_probability_threshold)
             & (df["ml_down_prob"] >= df["ml_up_prob"])
         )
         dl_short = (
-            (df["dl_down_prob"] >= self.stage_probability_threshold)
+            (df["dl_down_prob"] >= short_probability_threshold)
             & (df["dl_down_prob"] >= df["dl_up_prob"])
         )
         strategy_short_effective = strategy_short | retest_short
@@ -632,10 +949,39 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
             return value.strip().lower() in {"1", "true", "yes", "on"}
         return bool(value)
 
-    def _recovery_target_from_peak(self, peak_profit: float) -> float:
-        buffered_target = max(peak_profit - self.recovery_reclaim_buffer_pct, self.recovery_min_target_pct)
+    def _recovery_min_target_for_trade(self, trade: Trade) -> float:
+        leverage_value = max(_safe_float(getattr(trade, "leverage", 1.0), 1.0), 1.0)
+        fee_open_rate = max(
+            self.recovery_fee_per_side_pct,
+            _safe_float(getattr(trade, "fee_open", 0.0), 0.0),
+        )
+        fee_close_rate = max(
+            self.recovery_fee_per_side_pct,
+            _safe_float(getattr(trade, "fee_close", fee_open_rate), fee_open_rate),
+        )
+        round_trip_fee_pct = (fee_open_rate + fee_close_rate) * leverage_value
+        return max(self.recovery_min_target_pct, round_trip_fee_pct + self.recovery_fee_buffer_pct)
+
+    def _recovery_target_from_peak(self, peak_profit: float, min_target_profit: float) -> float:
+        buffered_target = max(peak_profit - self.recovery_reclaim_buffer_pct, min_target_profit)
         ratio_target = peak_profit * self.recovery_reclaim_ratio
-        return max(self.recovery_min_target_pct, min(peak_profit, max(buffered_target, ratio_target)))
+        return max(min_target_profit, min(peak_profit, max(buffered_target, ratio_target)))
+
+    @classmethod
+    def _roi_schedule_for_leverage(cls, leverage: float) -> tuple[tuple[int | None, float], ...]:
+        leverage = max(_safe_float(leverage, 1.0), 1.0)
+        for min_leverage, schedule in cls.leverage_roi_profiles:
+            if leverage >= min_leverage:
+                return schedule
+        return cls.leverage_roi_profiles[-1][1]
+
+    @classmethod
+    def _profit_lock_schedule_for_leverage(cls, leverage: float) -> tuple[tuple[float, float], ...]:
+        leverage = max(_safe_float(leverage, 1.0), 1.0)
+        for min_leverage, schedule in cls.leverage_profit_lock_profiles:
+            if leverage >= min_leverage:
+                return schedule
+        return cls.leverage_profit_lock_profiles[-1][1]
 
     def _signal_alignment(self, pair: str, is_short: bool) -> dict[str, float | bool | str]:
         last_candle = self._last_candle(pair)
@@ -695,6 +1041,9 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
         current_time: datetime,
         current_profit: float,
     ) -> dict[str, float | bool | int | str | None]:
+        trade_age_minutes = 0
+        if trade.open_date_utc:
+            trade_age_minutes = max(0, int((current_time - trade.open_date_utc).total_seconds() // 60))
         peak_profit = self._trade_custom_float(trade, "recovery_peak_profit", current_profit)
         if current_profit > peak_profit + 1e-6:
             peak_profit = current_profit
@@ -718,15 +1067,31 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
 
         recovery_armed = self._trade_custom_bool(trade, "recovery_mode_armed", False)
         recovery_target_profit = self._trade_custom_float(trade, "recovery_target_profit", 0.0)
-        if (
-            self.recovery_mode_enabled
-            and peak_profit >= self.recovery_arm_peak_profit_pct
+        min_target_profit = self._recovery_min_target_for_trade(trade)
+        alignment = self._signal_alignment(pair, trade.is_short)
+        standard_recovery_trigger = (
+            peak_profit >= self.recovery_arm_peak_profit_pct
             and current_profit <= -self.recovery_activation_negative_pct
-        ):
-            recovery_target_profit = self._recovery_target_from_peak(peak_profit)
+        )
+        preemptive_recovery_trigger = (
+            trade_age_minutes >= self.recovery_preemptive_arm_minutes
+            and current_profit <= -self.recovery_activation_negative_pct
+            and alignment["aligned"]
+        )
+        if recovery_armed:
+            target_anchor = max(peak_profit, min_target_profit)
+            recovery_target_profit = self._recovery_target_from_peak(target_anchor, min_target_profit)
+            trade.set_custom_data("recovery_target_profit", round(recovery_target_profit, 8))
+        elif self.recovery_mode_enabled and (standard_recovery_trigger or preemptive_recovery_trigger):
+            target_anchor = max(peak_profit, min_target_profit)
+            recovery_target_profit = self._recovery_target_from_peak(target_anchor, min_target_profit)
             if not recovery_armed:
                 trade.set_custom_data("recovery_mode_armed", True)
                 trade.set_custom_data("recovery_started_at", current_time.isoformat())
+                trade.set_custom_data(
+                    "recovery_activation_reason",
+                    "peak_reclaim" if standard_recovery_trigger else "preemptive_negative_recovery",
+                )
             trade.set_custom_data("recovery_target_profit", round(recovery_target_profit, 8))
             recovery_armed = True
 
@@ -735,6 +1100,7 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
             "peak_profit": peak_profit,
             "low_profit": low_profit,
             "target_profit": recovery_target_profit,
+            "min_target_profit": min_target_profit,
             "anchor_stake": anchor_stake,
             "dca_level": self._trade_custom_int(trade, "recovery_last_dca_level", 0),
             "dca_count": max(current_entries - 1, 0),
@@ -806,18 +1172,9 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
         if trade_age_minutes < 10:
             return base_stoploss
 
-        if current_profit >= 0.070:
-            return -0.004
-        if current_profit >= 0.055:
-            return -0.007
-        if current_profit >= 0.040:
-            return -0.010
-        if current_profit >= 0.028:
-            return -0.013
-        if current_profit >= 0.018:
-            return -0.016
-        if current_profit >= 0.010:
-            return -0.020
+        for min_profit, lock_stoploss in self._profit_lock_schedule_for_leverage(leverage):
+            if current_profit >= min_profit:
+                return lock_stoploss
         return base_stoploss
 
     def custom_roi(
@@ -830,21 +1187,16 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
         side: str,
         **kwargs,
     ) -> float | None:
+        leverage = max(_safe_float(getattr(trade, "leverage", 1.0), 1.0), 1.0)
         if self._trade_custom_bool(trade, "recovery_mode_armed", False):
             recovery_target = self._trade_custom_float(trade, "recovery_target_profit", 0.0)
+            recovery_min_target = self._recovery_min_target_for_trade(trade)
             if recovery_target > 0:
-                return recovery_target
-        if trade_duration < 20:
-            return 0.050
-        if trade_duration < 60:
-            return 0.040
-        if trade_duration < 180:
-            return 0.030
-        if trade_duration < 480:
-            return 0.020
-        if trade_duration < 720:
-            return 0.012
-        return 0.006
+                return max(recovery_target, recovery_min_target)
+        for max_duration, target_pct in self._roi_schedule_for_leverage(leverage):
+            if max_duration is None or trade_duration < max_duration:
+                return target_pct
+        return self._roi_schedule_for_leverage(leverage)[-1][1]
 
     def custom_exit(
         self,
@@ -862,10 +1214,15 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
         last_candle = self._last_candle(pair)
         llm_signal = llm_signal_for_pair(pair)
         recovery_state = self._sync_recovery_state(pair, trade, current_time, current_profit)
+        peak_profit = _safe_float(recovery_state.get("peak_profit"), current_profit)
 
         if recovery_state["armed"]:
             recovery_target = _safe_float(recovery_state["target_profit"], 0.0)
-            if recovery_target > 0 and current_profit >= max(recovery_target - 0.0015, self.recovery_min_target_pct):
+            recovery_min_target = _safe_float(
+                recovery_state.get("min_target_profit"),
+                self.recovery_min_target_pct,
+            )
+            if recovery_target > 0 and current_profit >= max(recovery_target - 0.0015, recovery_min_target):
                 return "recovery_reclaim_exit"
             if current_profit <= -self.recovery_failsafe_pct:
                 return "recovery_fail_safe"
@@ -896,24 +1253,28 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
             trend_strength = float(last_candle.get("trend_strength") or 0.0)
             adx = float(last_candle.get("adx") or 0.0)
             if not trade.is_short:
-                if current_profit >= 0.018 and close < ema_21 and macdhist < 0:
+                if current_profit >= 0.010 and close < ema_21 and macdhist < 0:
                     return "profit_protect_long"
-                if current_profit >= 0.025 and rsi >= 74 and macdhist < 0:
+                if current_profit >= 0.018 and rsi >= 72 and macdhist < 0:
                     return "momentum_fade_long"
-                if trade_duration >= 30 and current_profit < -0.012 and close < ema_21 and macdhist < 0 and rsi < 48:
+                if trade_duration >= 24 and peak_profit < 0.003 and current_profit < -0.010 and close < ema_21:
+                    return "dead_trade_long"
+                if trade_duration >= 32 and current_profit < -0.012 and close < ema_21 and macdhist < 0 and rsi < 49:
                     return "trend_fail_long"
-                if trade_duration >= 90 and current_profit < -0.006 and trend_strength <= 0 and adx < 16:
+                if trade_duration >= 60 and current_profit < -0.004 and trend_strength <= 0 and adx < 18:
                     return "weak_edge_long"
                 if trade_duration >= 180 and trend_strength < 0 and current_profit > 0.005:
                     return "trend_lost_long"
             else:
-                if current_profit >= 0.018 and close > ema_21 and macdhist > 0:
+                if current_profit >= 0.010 and close > ema_21 and macdhist > 0:
                     return "profit_protect_short"
-                if current_profit >= 0.025 and rsi <= 26 and macdhist > 0:
+                if current_profit >= 0.018 and rsi <= 28 and macdhist > 0:
                     return "momentum_fade_short"
-                if trade_duration >= 30 and current_profit < -0.012 and close > ema_21 and macdhist > 0 and rsi > 52:
+                if trade_duration >= 24 and peak_profit < 0.003 and current_profit < -0.010 and close > ema_21:
+                    return "dead_trade_short"
+                if trade_duration >= 32 and current_profit < -0.012 and close > ema_21 and macdhist > 0 and rsi > 51:
                     return "trend_fail_short"
-                if trade_duration >= 90 and current_profit < -0.006 and trend_strength >= 0 and adx < 16:
+                if trade_duration >= 60 and current_profit < -0.004 and trend_strength >= 0 and adx < 18:
                     return "weak_edge_short"
                 if trade_duration >= 180 and trend_strength > 0 and current_profit > 0.005:
                     return "trend_lost_short"
@@ -964,6 +1325,7 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
         anchor_stake = _safe_float(recovery_state["anchor_stake"], 0.0)
         if anchor_stake <= 0:
             return None
+        peak_profit = _safe_float(recovery_state["peak_profit"], current_profit)
 
         dca_levels = [
             {
@@ -971,12 +1333,14 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
                 "loss_pct": self.dca_level1_loss_pct,
                 "multiplier": self.dca_level1_multiplier,
                 "require_high_conf": False,
+                "min_peak_profit": self.recovery_min_peak_before_dca_pct,
             },
             {
                 "level": 2,
                 "loss_pct": self.dca_level2_loss_pct,
                 "multiplier": self.dca_level2_multiplier,
                 "require_high_conf": True,
+                "min_peak_profit": self.recovery_level2_min_peak_before_dca_pct,
             },
         ]
 
@@ -986,6 +1350,10 @@ class AggressiveDynamicFreqaiStrategy(DynamicStakeFreqaiStrategy):
             if current_profit > -float(level["loss_pct"]):
                 continue
             if level["require_high_conf"] and not alignment["high_conf"]:
+                continue
+            if peak_profit < float(level["min_peak_profit"]) and not alignment["high_conf"]:
+                continue
+            if level["level"] >= 2 and peak_profit < float(level["min_peak_profit"]):
                 continue
 
             requested_stake = anchor_stake * float(level["multiplier"])

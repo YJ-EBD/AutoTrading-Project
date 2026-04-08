@@ -79,6 +79,7 @@ def main() -> None:
     freqtrade_config["exchange"]["secret"] = binance_secret_key if order_submission_enabled else ""
     freqtrade_config["dry_run"] = not order_submission_enabled
     freqtrade_config["dry_run_wallet"] = dry_run_wallet
+    freqtrade_config["stake_amount"] = "unlimited"
     freqtrade_config["stoploss"] = -(aggressive_base_stop_loss_pct / 100.0)
     freqtrade_config.setdefault("order_types", {})
     freqtrade_config["order_types"]["stoploss_on_exchange"] = True
